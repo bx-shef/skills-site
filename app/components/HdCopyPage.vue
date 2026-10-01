@@ -110,5 +110,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
 .hd-ext { margin-left: auto; color: var(--hd-text-tertiary); font-size: 12px; }
 </style>
 <style scoped>
-@media (max-width: 767px) { .hd-copy-page-main span { display: none; } }
+/* мало места (узкий экран или открыт чат) — только иконка; ширина — колонки статьи */
+@container hd-article (max-width: 620px) { .hd-copy-page-main span { display: none; } }
 </style>

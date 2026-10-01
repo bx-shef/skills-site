@@ -43,6 +43,7 @@ prerenderRoutes(`/raw${route.path.replace(/\/$/, '')}.md`)
   <NuxtLayout
     name="helpdesk"
     :article="true"
+    :page-title="page?.title"
     :toc-links="tocLinks"
     :breadcrumbs="breadcrumbs"
   >

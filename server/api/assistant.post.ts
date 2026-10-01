@@ -27,11 +27,10 @@ async function pages(event: Parameters<typeof defineEventHandler>[0] extends (e:
   return list
 }
 
-function pick(all: Page[], question: string, dialog = question): Page[] {
-  // «Обсудить с ИИ»: в вопросе адрес страницы сайта — в контекст идёт только она
-  const pathOf = (u: string) => u.replace(/^https?:\/\/[^/]+/, '').replace(/\/$/, '')
-  const asked = new Set((dialog.match(/https?:\/\/\S+/g) || []).map(pathOf))
-  const linked = asked.size ? all.filter(p => p.url && asked.has(pathOf(p.url))) : []
+function pick(all: Page[], question: string, page?: string): Page[] {
+  // «Обсудить с ИИ»: клиент прислал путь статьи — в контексте только она
+  const pathOf = (u: string) => u.replace(/^https?:\/\/[^/]+/, '').replace(/\/$/, '') || '/'
+  const linked = page ? all.filter(p => p.url && pathOf(p.url) === pathOf(page)) : []
   const q = tokens(question)
   const scored = all.map(p => ({ p, s: [...q].reduce((n, w) => n + (p.words.has(w) ? 1 : 0), 0) + (q.size && [...q].some(w => p.title.toLowerCase().includes(w)) ? 3 : 0) }))
     .sort((a, b) => b.s - a.s)
@@ -49,7 +48,7 @@ function pick(all: Page[], question: string, dialog = question): Page[] {
 }
 
 export default defineEventHandler(async (event) => {
-  const { messages } = await readBody(event)
+  const { messages, page } = await readBody(event)
   // runtimeConfig фиксируется при сборке; в Docker переменные приходят при запуске — читаем их первыми
   const rc = useRuntimeConfig().ai
   const ai = {
@@ -64,9 +63,7 @@ export default defineEventHandler(async (event) => {
 
   const last = [...messages].reverse().find((m: any) => m.role === 'user')
   const question = (last?.parts || []).filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ') || ''
-  // Адрес страницы ищем во всём диалоге: уточняющие вопросы после «Обсудить с ИИ» — по той же странице
-  const dialog = messages.filter((m: any) => m.role === 'user').flatMap((m: any) => (m.parts || []).filter((p: any) => p.type === 'text').map((p: any) => p.text)).join('\n')
-  const chosen = pick(await pages(event), question, dialog)
+  const chosen = pick(await pages(event), question, typeof page === 'string' ? page : undefined)
 
   const instructions = [
     'Ты — помощник по сайту skills-site.bx-shef.by: методология и проверка навыков ИИ-агентов для Битрикса, навыки к модулям shef.*.',

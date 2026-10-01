@@ -120,7 +120,7 @@ import { isPartStreaming } from '@bitrix24/b24ui-nuxt/utils/ai'
 const props = defineProps({ open: { type: Boolean, default: false } })
 defineEmits(['close'])
 
-const { ask } = useHdChat()
+const { ask, page } = useHdChat()
 
 const examples = ['Как написать навык для своего модуля?', 'Почему ИИ-агент не берёт мой навык?']
 const stored = useLocalStorage<UIMessage[]>('assistant-messages', [])
@@ -128,7 +128,8 @@ const votes = useLocalStorage<Record<string, number>>('assistant-votes', {})
 
 const chat = new Chat({
   messages: stored.value,
-  transport: new DefaultChatTransport({ api: '/api/assistant' }),
+  // page — обсуждаемая статья: сервер берёт в контекст только её
+  transport: new DefaultChatTransport({ api: '/api/assistant', body: () => ({ page: page.value?.path }) }),
   onFinish: () => { stored.value = [...chat.messages] },
 })
 const chatMessages = computed(() => chat.messages)
@@ -164,7 +165,7 @@ function send(text: string) {
 }
 function submit() { send(draft.value) }
 function stopChat() { chat.stop() }
-function clear() { chat.messages = []; stored.value = [] }
+function clear() { chat.messages = []; stored.value = []; page.value = null }
 function vote(id: string, v: number) { votes.value = { ...votes.value, [id]: votes.value[id] === v ? 0 : v } }
 async function copy(m: UIMessage) {
   try {

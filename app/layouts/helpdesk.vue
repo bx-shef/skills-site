@@ -28,7 +28,7 @@
         </div>
         <aside class="hd-aside">
           <HdToc v-if="tocLinks.length" :links="tocLinks" />
-          <HdDiscussAi />
+          <HdDiscussAi :title="pageTitle" />
         </aside>
       </div>
 
@@ -60,6 +60,7 @@
 <script setup lang="ts">
 withDefaults(defineProps<{
   article?: boolean
+  pageTitle?: string
   tocLinks?: Array<{ id: string, text: string, depth: number }>
   breadcrumbs?: Array<{ title: string, path?: string }>
 }>(), { article: false, tocLinks: () => [], breadcrumbs: () => [] })
