@@ -1,9 +1,10 @@
 <!--
-  Плавающее поле «Задать вопрос» внизу страницы, как в Docus: Ctrl+I — фокус,
+  Плавающее поле «Задать вопрос» внизу страницы, как в Docus (на главной — после
+  первого экрана): Ctrl+I — фокус,
   Enter — вопрос ИИ-агенту (открывается чат). Пока открыт чат — скрыто.
 -->
 <template>
-  <form v-show="!chatOpen" class="hd-ask-float" @submit.prevent="submit">
+  <form v-show="!chatOpen && !heroVisible" class="hd-ask-float" @submit.prevent="submit">
     <input
       ref="input"
       v-model="q"
@@ -21,6 +22,13 @@
 <script setup lang="ts">
 const { open: chatOpen, openChat } = useHdChat()
 const q = ref('')
+
+// На главной поле появляется, когда большой поиск первого экрана ушёл за шапку
+const heroVisible = ref(false)
+const onScroll = () => {
+  const hero = document.querySelector('.hd-search-wrap--hero')
+  heroVisible.value = !!hero && hero.getBoundingClientRect().bottom > 59
+}
 const input = ref<HTMLInputElement>()
 
 function submit() {
@@ -32,8 +40,17 @@ function submit() {
 const onKey = (e: KeyboardEvent) => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') { e.preventDefault(); input.value?.focus() }
 }
-onMounted(() => window.addEventListener('keydown', onKey))
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  window.addEventListener('scroll', onScroll, { passive: true })
+  onScroll()
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  window.removeEventListener('scroll', onScroll)
+})
+// переход между страницами: на главной снова проверить, виден ли большой поиск
+watch(() => useRoute().path, () => nextTick(onScroll))
 </script>
 
 <style scoped>
@@ -47,11 +64,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   gap: 6px;
   width: min(380px, calc(100vw - 32px));
   padding: 6px 6px 6px 14px;
-  border: 1px solid var(--hd-line);
+  border: 1px solid var(--hd-input-border);
   border-radius: 12px;
-  background: var(--hd-bg);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
+  background: var(--hd-float-bg);
+  box-shadow: var(--hd-float-shadow);
   transform: translateX(-50%);
 }
 .hd-ask-float:focus-within { border-color: var(--hd-primary); }

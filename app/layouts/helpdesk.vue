@@ -49,7 +49,7 @@
     </footer>
 
     <HdScrollTop />
-    <HdAskFloating v-if="article" />
+    <HdAskFloating />
 
     <ClientOnly>
       <HdChatOverlay :open="chatOpen" @close="closeChat()" />
