@@ -146,3 +146,7 @@ body {
   .hd-article-layout { padding: 0 16px 48px; }
   .hd-content { padding: 0 16px; }
 }
+
+/* Градиент — только на главной и списках; статья (как в оригинале) на почти белом фоне */
+.hd-shell--plain { min-height: 100vh; background: #fdfdfe; }
+.hd-shell--plain .hd-article-layout { background: transparent; }

@@ -5,7 +5,7 @@
   Чат с ИИ-агентом — оверлей поверх страницы, открывается из поиска.
 -->
 <template>
-  <div class="hd-shell">
+  <div class="hd-shell" :class="{ 'hd-shell--plain': article }">
     <HdHeader />
 
     <aside class="hd-sidebar sidebar-menu">
