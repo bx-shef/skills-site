@@ -5,6 +5,7 @@
 <template>
   <header class="hd-header">
     <NuxtLink to="/" class="hd-logo" aria-label="На главную">
+      <img src="/favicon.svg" alt="" class="hd-logo-mark" width="28" height="28">
       <span class="hd-logo-brand">{{ brand }}</span>
       <span class="hd-logo-word">{{ word }}</span>
     </NuxtLink>

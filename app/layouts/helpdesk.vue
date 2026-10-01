@@ -39,7 +39,7 @@
 
     <footer class="hd-footer">
       <div class="hd-footer-inner">
-        <NuxtLink to="/" class="hd-footer-logo">bxshef</NuxtLink>
+        <NuxtLink to="/" class="hd-footer-logo"><img src="/favicon.svg" alt="" width="22" height="22">bxshef</NuxtLink>
         <div class="hd-footer-socials">
           <a href="https://github.com/bx-shef" target="_blank" rel="noopener" title="GitHub"><HdIcon name="github" /></a>
           <a href="/llms.txt" target="_blank" title="llms.txt для ИИ-агентов"><HdIcon name="bot" /></a>
