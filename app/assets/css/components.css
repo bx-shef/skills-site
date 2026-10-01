@@ -1,0 +1,201 @@
+/* ============================================================================
+   Блоки главной страницы: карточки, список вопросов, пункты меню, поиск.
+   Значения — из виджета поддержки.
+   ========================================================================= */
+
+/* --- Пункт меню слева ----------------------------------------------------
+   Высота 50px и скругление 8px. Подпись не переносится: в узком меню она
+   всё равно обрезана, а при раскрытии должна встать в одну строку.
+   -------------------------------------------------------------------------*/
+
+.hd-menu { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+
+.hd-menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--hd-space-xs);
+  min-height: 50px;
+  padding: 10px 8px;
+  border-radius: var(--hd-radius-item);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--hd-text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: var(--hd-transition);
+}
+.hd-menu-item:hover { background: var(--hd-hover-bg); color: var(--hd-text-heading); font-weight: 500; }
+
+.hd-menu-item.router-link-active { background: var(--hd-hover-bg); color: var(--hd-text-heading); font-weight: 500; }
+
+.hd-menu-icon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+/* Подпись видна только в раскрытом меню. Скрываем прозрачностью, а не
+   display: none — иначе при раскрытии текст появляется рывком. */
+.hd-menu-label { opacity: 0; transition: opacity .2s ease; }
+.hd-sidebar:hover .hd-menu-label,
+.hd-sidebar.is-open .hd-menu-label { opacity: 1; }
+
+/* --- Поиск ---------------------------------------------------------------- */
+
+.hd-search {
+  display: flex;
+  align-items: center;
+  gap: var(--hd-space-sm);
+  width: 100%;
+  min-width: 0;
+  padding: var(--hd-space-sm) var(--hd-space-md);
+  border: 1px solid var(--hd-border-button);
+  border-radius: var(--hd-radius-md);
+  background: var(--hd-bg);
+  transition: var(--hd-transition);
+}
+.hd-search:focus-within { border-color: var(--hd-primary); }
+
+/* Поле без своей рамки и фона: рамку рисует контейнер, иначе видно две. */
+.hd-search-input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--hd-space-xs) 0;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 21px;
+  color: var(--hd-text-primary);
+  outline: none;
+}
+.hd-search-input::placeholder { color: var(--hd-text-tertiary); }
+
+.hd-search-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--hd-radius-sm);
+  background: transparent;
+  color: var(--hd-text-tertiary);
+  cursor: pointer;
+  transition: opacity .2s ease;
+}
+.hd-search-btn:hover { color: var(--hd-primary); }
+.hd-search-btn:disabled { opacity: .4; cursor: default; }
+
+/* История запросов под полем */
+.hd-search-history {
+  position: absolute;
+  top: calc(100% + var(--hd-space-xs));
+  left: 0;
+  right: 0;
+  z-index: 110;
+  padding: var(--hd-space-sm);
+  border: 1px solid var(--hd-border-button);
+  border-radius: var(--hd-radius-md);
+  background: var(--hd-bg);
+  box-shadow: var(--hd-shadow-card);
+}
+
+.hd-search-history-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--hd-space-sm);
+  width: 100%;
+  padding: var(--hd-space-sm) var(--hd-space-md);
+  border: 0;
+  border-radius: var(--hd-radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: var(--hd-size-sm);
+  color: var(--hd-text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+.hd-search-history-btn:hover { background: var(--hd-hover-bg); color: var(--hd-text-primary); }
+
+/* --- Карточка-промо ------------------------------------------------------
+   Крупное скругление 20px и очень мягкая тень: карточка не «висит» над
+   страницей, а чуть отделяется от фона.
+   -------------------------------------------------------------------------*/
+
+.hd-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--hd-space-2xl); }
+
+.hd-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 160px;
+  padding: var(--hd-space-3xl) var(--hd-space-3xl) var(--hd-space-2xl);
+  border-radius: var(--hd-radius-card);
+  box-shadow: var(--hd-shadow-card);
+  background: var(--hd-bg);
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  transition: var(--hd-transition);
+}
+.hd-card:hover { box-shadow: 0 6px 24px rgba(0, 0, 0, .08); }
+
+.hd-card--blue { background: var(--hd-hover-bg); }
+
+.hd-card-title { margin: 0 0 var(--hd-space-sm); font-size: var(--hd-size-lg); font-weight: 500; line-height: 1.3; }
+.hd-card-text { margin: 0; font-size: var(--hd-size-sm); line-height: var(--hd-line-sm); color: var(--hd-text-secondary); }
+
+/* --- Список частых вопросов --------------------------------------------- */
+
+.hd-faq { display: flex; flex-direction: column; gap: var(--hd-space-xl); width: 100%; max-width: 800px; }
+
+.hd-faq-item {
+  border: 1px solid var(--hd-border);
+  border-radius: var(--hd-radius-md);
+  background: var(--hd-bg);
+}
+.hd-faq-item > summary {
+  padding: var(--hd-space-xl);
+  font-size: var(--hd-size-md);
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+.hd-faq-item > summary::-webkit-details-marker { display: none; }
+.hd-faq-answer { padding: 0 var(--hd-space-xl) var(--hd-space-xl); color: var(--hd-text-secondary); }
+
+/* --- Кнопки -------------------------------------------------------------- */
+
+.hd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hd-space-sm);
+  min-height: 40px;
+  padding: 0 var(--hd-space-xl);
+  border: 1px solid transparent;
+  border-radius: var(--hd-radius-md);
+  font: inherit;
+  font-size: var(--hd-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--hd-transition);
+}
+.hd-btn--primary { background: var(--hd-primary); color: #fff; }
+.hd-btn--primary:hover { background: #0060d6; }
+.hd-btn--outline { background: transparent; border-color: var(--hd-border-button); color: var(--hd-text-primary); }
+.hd-btn--outline:hover { border-color: var(--hd-primary); color: var(--hd-primary); }
+.hd-btn--plain { background: transparent; color: var(--hd-text-secondary); }
+.hd-btn--plain:hover { background: var(--hd-hover-bg); color: var(--hd-text-primary); }

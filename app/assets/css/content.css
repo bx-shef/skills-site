@@ -1,0 +1,116 @@
+/* ============================================================================
+   Типографика статьи. Значения — из .article-content виджета поддержки.
+
+   Особенность оригинала, которую стоит знать: у заголовка второго уровня
+   высота строки (20px) меньше размера шрифта (21px). На одну строку это
+   незаметно, но длинный заголовок в две строки слипается. Здесь поставлено
+   1.25 — если нужна точная копия, верните 20px.
+   ========================================================================= */
+
+.hd-article { font-size: var(--hd-size-md); line-height: var(--hd-line-md); color: var(--hd-text-primary); }
+
+.hd-article h1 {
+  margin: 0 0 var(--hd-space-2xl);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--hd-text-heading);
+}
+
+.hd-article h2 {
+  margin: var(--hd-space-3xl) 0 20px;
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--hd-text-heading);
+  word-wrap: break-word;
+}
+
+.hd-article h3 {
+  margin: var(--hd-space-2xl) 0 var(--hd-space-md);
+  font-size: var(--hd-size-lg);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--hd-text-heading);
+}
+
+.hd-article p { margin: 0 0 var(--hd-space-xl); }
+
+.hd-article a {
+  color: var(--hd-primary);
+  text-decoration: none;
+  transition: var(--hd-transition);
+}
+.hd-article a:hover { text-decoration: underline; }
+/* Docus оборачивает заголовки в якорь-ссылку — цвет заголовка, не ссылки */
+.hd-article h1 a, .hd-article h2 a, .hd-article h3 a, .hd-article h4 a { color: inherit; }
+.hd-article h2 a:hover, .hd-article h3 a:hover { text-decoration: none; }
+
+.hd-article ul,
+.hd-article ol { margin: 0 0 var(--hd-space-xl); padding-left: var(--hd-space-2xl); }
+.hd-article li { margin-bottom: var(--hd-space-sm); }
+
+.hd-article code {
+  font: var(--hd-size-sm)/1.4 var(--hd-font-mono);
+  background: var(--hd-border);
+  border-radius: var(--hd-radius-sm);
+  padding: 2px 6px;
+}
+
+.hd-article pre {
+  margin: 0 0 var(--hd-space-2xl);
+  padding: var(--hd-space-xl);
+  background: var(--hd-border);
+  border-radius: var(--hd-radius-md);
+  overflow-x: auto;
+}
+.hd-article pre code { background: none; padding: 0; }
+
+.hd-table-wrap { overflow-x: auto; margin: 0 0 var(--hd-space-2xl); }
+.hd-article table { border-collapse: collapse; width: 100%; font-size: var(--hd-size-sm); }
+.hd-article th,
+.hd-article td {
+  border: 1px solid var(--hd-border);
+  padding: var(--hd-space-md) var(--hd-space-lg);
+  text-align: left;
+  vertical-align: top;
+}
+.hd-article th { background: var(--hd-border); font-weight: 500; }
+
+.hd-article img { max-width: 100%; height: auto; border-radius: var(--hd-radius-md); }
+.hd-article hr { border: 0; border-top: 1px solid var(--hd-border); margin: var(--hd-space-3xl) 0; }
+
+/* --- Выноска. В оригинале — .article-callout --- */
+.hd-callout {
+  margin: 0 0 var(--hd-space-2xl);
+  padding: var(--hd-space-xl);
+  border-radius: var(--hd-radius-md);
+  background: var(--hd-hover-bg);
+  color: var(--hd-text-primary);
+}
+
+/* --- Спойлер. В оригинале — .article-spoiler --- */
+.hd-spoiler { margin: 0 0 var(--hd-space-2xl); border: 1px solid var(--hd-border); border-radius: var(--hd-radius-md); }
+.hd-spoiler > summary {
+  padding: var(--hd-space-lg) var(--hd-space-xl);
+  cursor: pointer;
+  font-weight: 500;
+  list-style: none;
+}
+.hd-spoiler > summary::-webkit-details-marker { display: none; }
+.hd-spoiler[open] > summary { border-bottom: 1px solid var(--hd-border); }
+.hd-spoiler-inner { padding: var(--hd-space-xl); }
+
+/* --- Хлебные крошки --- */
+.hd-breadcrumbs {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: var(--hd-space-2xl);
+  padding-bottom: var(--hd-space-xl);
+  font-size: var(--hd-size-sm);
+  color: var(--hd-text-tertiary);
+}
+.hd-breadcrumbs a { color: var(--hd-text-secondary); text-decoration: none; }
+.hd-breadcrumbs a:hover { color: var(--hd-primary); }
+.hd-breadcrumbs-sep { padding: 0 var(--hd-space-sm); }

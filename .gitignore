@@ -1,0 +1,9 @@
+node_modules/
+.nuxt/
+.output/
+.data/
+.sources/
+.env
+content/*
+!content/index.md
+public/llms-full.txt

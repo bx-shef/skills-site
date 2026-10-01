@@ -1,0 +1,15 @@
+# Локальная сборка из исходников: http://127.0.0.1:3000. Прод — docker-compose.prod.yml (образ из ghcr.io).
+services:
+  site:
+    build:
+      context: .
+      args:
+        SITE_URL: ${SITE_URL:-http://localhost:3000}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      BXSHEF_EVAL_KEY: ${BXSHEF_EVAL_KEY:-}
+      BXSHEF_EVAL_URL: ${BXSHEF_EVAL_URL:-https://vibecode.bitrix24.tech/v1}
+      BXSHEF_CHAT_MODEL: ${BXSHEF_CHAT_MODEL:-bitrix/bitrixgpt-5.6-agent}
+      ASSISTANT_MODE: ${ASSISTANT_MODE:-context}

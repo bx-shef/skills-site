@@ -1,0 +1,80 @@
+<!--
+  Страница документации в макете helpdesk: статья рядом с оглавлением,
+  крошки из навигации, внизу — ссылка на исходник (её ставит sync-content) и соседи.
+  Переопределяет одноимённую страницу слоя Docus.
+-->
+<script setup lang="ts">
+import { kebabCase } from 'scule'
+import type { ContentNavigationItem, DocsCollectionItem } from '@nuxt/content'
+
+definePageMeta({ layout: false })
+
+const route = useRoute()
+const navigation = inject<Ref<ContentNavigationItem[]>>('navigation')
+
+const [{ data: page }, { data: surround }] = await Promise.all([
+  useAsyncData(kebabCase(route.path), () => queryCollection('docs').path(route.path).first() as Promise<DocsCollectionItem>),
+  useAsyncData(`${kebabCase(route.path)}-surround`, () => queryCollectionItemSurroundings('docs', route.path, { fields: ['description'] })),
+])
+
+if (!page.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Page not found', fatal: true })
+}
+
+const title = page.value.seo?.title || page.value.title
+const description = page.value.seo?.description || page.value.description
+
+const breadcrumbs = computed(() => {
+  const found = findPageBreadcrumbs(navigation?.value, page.value?.path || '') || []
+  // текущая страница — последняя крошка без ссылки; раздел-индекс не дублируем
+  return found.filter((b, i, a) => !(i === a.length - 2 && b.path === a[a.length - 1]?.path))
+})
+
+const tocLinks = computed(() => page.value?.body?.toc?.links || [])
+
+useSeo({ title, description, type: 'article', breadcrumbs: breadcrumbs.value })
+defineOgImage('Docs', { title: title?.slice(0, 60), description: formatOgDescription(title, description) })
+addPrerenderPath(`/raw${route.path}.md`)
+</script>
+
+<template>
+  <NuxtLayout
+    name="helpdesk"
+    :article="true"
+    :toc-links="tocLinks"
+    :breadcrumbs="breadcrumbs"
+  >
+    <h1>{{ page?.title }}</h1>
+    <p v-if="page?.description" class="hd-lead">{{ page.description }}</p>
+
+    <ContentRenderer v-if="page" :value="page" />
+
+    <nav v-if="surround?.some(Boolean)" class="hd-surround" aria-label="Соседние страницы">
+      <NuxtLink v-if="surround?.[0]" :to="surround[0].path" class="hd-surround-link">
+        <span class="hd-surround-dir">← Назад</span>
+        <span>{{ surround[0].title }}</span>
+      </NuxtLink>
+      <span v-else />
+      <NuxtLink v-if="surround?.[1]" :to="surround[1].path" class="hd-surround-link hd-surround-link--next">
+        <span class="hd-surround-dir">Дальше →</span>
+        <span>{{ surround[1].title }}</span>
+      </NuxtLink>
+    </nav>
+  </NuxtLayout>
+</template>
+
+<style scoped>
+.hd-lead { margin: calc(-1 * var(--hd-space-md)) 0 var(--hd-space-2xl); color: var(--hd-text-secondary); }
+.hd-surround {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--hd-space-xl);
+  margin-top: var(--hd-space-3xl);
+  padding-top: var(--hd-space-2xl);
+  border-top: 1px solid var(--hd-border);
+}
+.hd-surround-link { display: flex; flex-direction: column; gap: 2px; color: var(--hd-text-primary); text-decoration: none; font-size: var(--hd-size-sm); }
+.hd-surround-link:hover { color: var(--hd-primary); text-decoration: none; }
+.hd-surround-link--next { text-align: right; align-items: flex-end; }
+.hd-surround-dir { font-size: 12px; color: var(--hd-text-tertiary); }
+</style>
