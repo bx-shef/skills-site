@@ -50,6 +50,7 @@ ps:
 
 ## Проверка изнутри сети proxy-net: сайт и чат отвечают
 health:
+	@for i in $$(seq 1 30); do docker exec $(CONTAINER) node -e "fetch('http://127.0.0.1:3000/llms.txt').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))" 2>/dev/null && break; sleep 1; done  # сразу после prod-up сайт ещё стартует
 	docker exec $(CONTAINER) node -e "fetch('http://127.0.0.1:3000/llms.txt').then(r => { console.log('site', r.status); process.exit(r.ok ? 0 : 1) })"
 	docker exec $(CONTAINER) node -e "fetch('http://127.0.0.1:3000/api/assistant', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', parts: [{ type: 'text', text: 'ping' }] }] }) }).then(r => { console.log('chat', r.status, r.status === 503 ? '(BXSHEF_EVAL_KEY не задан)' : ''); process.exit(r.status < 500 || r.status === 503 ? 0 : 1) })"
 
