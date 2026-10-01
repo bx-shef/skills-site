@@ -1,4 +1,4 @@
-# skills.bx-shef.by
+# skills-site.bx-shef.by
 
 Сайт методологии bxshef: [Docus](https://docus.dev) (Nuxt) в Docker, контент из репозиториев
 bx-shef при сборке образа, чат по содержимому сайта через BitrixGPT, `llms.txt` / `llms-full.txt`
@@ -45,7 +45,7 @@ make health                      # сайт 200, чат 200 (или 503 без �
 смонтирован в `nginx-proxy`:
 
 ```bash
-echo 'proxy_buffering off;' > /path/to/vhost.d/skills.bx-shef.by_location
+echo 'proxy_buffering off;' > /path/to/vhost.d/skills-site.bx-shef.by_location
 docker exec nginx-proxy nginx -s reload
 ```
 

@@ -1,4 +1,4 @@
-# Сайт skills.bx-shef.by. Один Makefile на два места: корень репозитория и /home/bitrix/skills-site/
+# Сайт skills-site.bx-shef.by. Один Makefile на два места: корень репозитория и /home/bitrix/skills-site/
 # на сервере, где лежат только docker-compose.prod.yml, этот Makefile и .env (README.md, «Сервер»).
 # Схема — как у приёмника отзывов (skills-standard/feedback): общий nginx-proxy + acme-companion
 # и Watchtower на хосте, образ из ghcr.io.

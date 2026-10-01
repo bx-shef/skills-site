@@ -27,7 +27,7 @@ services:
     environment:
       # nginx-proxy + acme-companion: по этим переменным прокси найдёт контейнер и выпустит TLS.
       # ⚠ DNS A-запись DOMAIN должна указывать на сервер ДО подъёма, иначе сертификат не выпустится.
-      VIRTUAL_HOST: ${DOMAIN:?set DOMAIN (skills.bx-shef.by)}
+      VIRTUAL_HOST: ${DOMAIN:?set DOMAIN (skills-site.bx-shef.by)}
       VIRTUAL_PORT: 3000
       LETSENCRYPT_HOST: ${DOMAIN}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}

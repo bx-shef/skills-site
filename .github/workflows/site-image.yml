@@ -42,7 +42,7 @@ jobs:
           context: .
           load: true
           tags: skills-site:ci
-          build-args: SITE_URL=https://skills.bx-shef.by
+          build-args: SITE_URL=https://skills-site.bx-shef.by
           cache-from: type=gha,scope=site
           cache-to: type=gha,mode=max,scope=site
 
@@ -93,5 +93,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: SITE_URL=https://skills.bx-shef.by
+          build-args: SITE_URL=https://skills-site.bx-shef.by
           cache-from: type=gha,scope=site

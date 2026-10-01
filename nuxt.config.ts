@@ -4,7 +4,7 @@ export default defineNuxtConfig({
 
   site: {
     name: 'bxshef — навыки ИИ-агентов для Битрикса',
-    url: process.env.SITE_URL || 'https://skills.bx-shef.by',
+    url: process.env.SITE_URL || 'https://skills-site.bx-shef.by',
   },
 
   // Вёрстка по образцу виджета поддержки Битрикс24 (helpdesk-docus-kit).
@@ -37,7 +37,7 @@ export default defineNuxtConfig({
 
   // llms.txt / llms-full.txt — то, что читают ИИ-агенты (и наш чат в режиме context)
   llms: {
-    domain: process.env.SITE_URL || 'https://skills.bx-shef.by',
+    domain: process.env.SITE_URL || 'https://skills-site.bx-shef.by',
     title: 'bxshef',
     description: 'Методология и проверка навыков ИИ-агентов для разработки на Битриксе; навыки к модулям shef.*',
     // llms-full.txt собирает scripts/sync-content.mjs в public/ из исходного markdown (штатная генерация падала на вложенном **strong**)

@@ -92,7 +92,7 @@ modules.forEach(([r, id, d], mi) => {
 // 4. llms-full.txt — весь сайт одним файлом для ИИ-агентов и для чата (режим context)
 const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : e.name.endsWith('.md') ? [path.join(d, e.name)] : [])
 const urlOf = (file) => '/' + path.relative(OUT, file).replace(/\\/g, '/').replace(/(^|\/)\d+\./g, '$1').replace(/\/index\.md$|\.md$/, '').replace(/^index$/, '')
-const site = process.env.SITE_URL || 'https://skills.bx-shef.by'
+const site = process.env.SITE_URL || 'https://skills-site.bx-shef.by'
 const full = ['# bxshef — навыки ИИ-агентов для Битрикса', '', `> Методология и проверка навыков ИИ-агентов для коробочного Битрикс24 и БУС; навыки к модулям shef.*. Сайт: ${site}`, '']
 for (const f of walk(OUT).sort()) {
   const md = fs.readFileSync(f, 'utf8')

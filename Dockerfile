@@ -1,4 +1,4 @@
-# skills.bx-shef.by — Docus (Nuxt) + чат по контенту через BitrixGPT.
+# skills-site.bx-shef.by — Docus (Nuxt) + чат по контенту через BitrixGPT.
 # Контент подтягивается из репозиториев bx-shef при сборке образа: второй копии текстов нет.
 FROM node:22-bookworm-slim AS build
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates python3 make g++ && rm -rf /var/lib/apt/lists/*
@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --no-audit --no-fund
 COPY . .
-ARG SITE_URL=https://skills.bx-shef.by
+ARG SITE_URL=https://skills-site.bx-shef.by
 ENV SITE_URL=$SITE_URL
 RUN node scripts/sync-content.mjs && npm run build
 
