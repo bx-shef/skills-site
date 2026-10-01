@@ -20,24 +20,60 @@
           </ul>
         </div>
 
-        <template v-for="msg in chatMessages" :key="msg.id">
-          <div v-if="msg.role === 'user'" class="hd-chat-own"><span>{{ textOf(msg) }}</span></div>
-          <div v-else class="hd-chat-answer">
-            <MDC v-if="textOf(msg)" :value="textOf(msg)" tag="div" class="hd-chat-md" />
-            <span v-else class="hd-chat-search"><HdStar class="hd-chat-search-star" />Ищу ответ среди {{ articlesCount }} статей</span>
-            <div v-if="textOf(msg) && !(busy && msg === chatMessages[chatMessages.length - 1])" class="hd-chat-tools">
-              <button type="button" :title="copiedId === msg.id ? 'Скопировано' : 'Копировать'" @click="copy(msg)">
-                <HdIcon :name="copiedId === msg.id ? 'check' : 'copy'" />
+        <!-- Сообщения — B24ChatMessages (Bitrix24 UI) по образцу nuxt-ui-templates/chat:
+             части ответа — рассуждение (ChatReasoning), подобранные страницы (ChatTool), текст (MDC) -->
+        <B24ChatMessages
+          v-if="chatMessages.length"
+          :messages="chatMessages"
+          :status="chat.status"
+          should-auto-scroll
+          :auto-scroll="false"
+          :user="{ side: 'right', variant: 'message' }"
+          :assistant="{ side: 'left', variant: 'message' }"
+          class="hd-chat-list"
+        >
+          <template #indicator>
+            <span class="hd-chat-search"><HdStar class="hd-chat-search-star" /><B24ChatShimmer :text="`Ищу ответ среди ${articlesCount} статей`" /></span>
+          </template>
+
+          <template #content="{ message }">
+            <template v-for="(part, index) in message.parts" :key="`${message.id}-${index}`">
+              <B24ChatTool
+                v-if="part.type === 'data-sources' && sourcesOf(part).length"
+                :text="`Нашёл страницы: ${sourcesOf(part).length}`"
+                chevron="leading"
+                class="hd-chat-tool"
+              >
+                <ul class="hd-chat-sources">
+                  <li v-for="src in sourcesOf(part)" :key="src.url">
+                    <NuxtLink :to="localPath(src.url)" @click="$emit('close')">{{ src.title }}</NuxtLink>
+                  </li>
+                </ul>
+              </B24ChatTool>
+              <B24ChatReasoning
+                v-else-if="part.type === 'reasoning'"
+                :text="(part as { text: string }).text"
+                :streaming="isPartStreaming(part)"
+                chevron="leading"
+                class="hd-chat-reasoning"
+              />
+              <template v-else-if="part.type === 'text'">
+                <MDC v-if="message.role === 'assistant'" :value="(part as { text: string }).text" tag="div" class="hd-chat-md" />
+                <span v-else class="hd-chat-own-text">{{ (part as { text: string }).text }}</span>
+              </template>
+            </template>
+          </template>
+
+          <template #actions="{ message }">
+            <div v-if="message.role === 'assistant' && textOf(message) && !(busy && message.id === chatMessages[chatMessages.length - 1]?.id)" class="hd-chat-tools">
+              <button type="button" :title="copiedId === message.id ? 'Скопировано' : 'Копировать'" @click="copy(message)">
+                <HdIcon :name="copiedId === message.id ? 'check' : 'copy'" />
               </button>
-              <button type="button" title="Полезно" :class="{ 'is-on': votes[msg.id] === 1 }" @click="vote(msg.id, 1)"><HdIcon name="like" /></button>
-              <button type="button" title="Не помогло" :class="{ 'is-on': votes[msg.id] === -1 }" @click="vote(msg.id, -1)"><HdIcon name="dislike" /></button>
+              <button type="button" title="Полезно" :class="{ 'is-on': votes[message.id] === 1 }" @click="vote(message.id, 1)"><HdIcon name="like" /></button>
+              <button type="button" title="Не помогло" :class="{ 'is-on': votes[message.id] === -1 }" @click="vote(message.id, -1)"><HdIcon name="dislike" /></button>
             </div>
-          </div>
-        </template>
-        <!-- запрос ушёл, ответа ещё нет -->
-        <div v-if="busy && chatMessages[chatMessages.length - 1]?.role === 'user'" class="hd-chat-answer">
-          <span class="hd-chat-search"><HdStar class="hd-chat-search-star" />Ищу ответ среди {{ articlesCount }} статей</span>
-        </div>
+          </template>
+        </B24ChatMessages>
 
         <div v-if="error" class="hd-chat-answer">
           <p class="hd-chat-error">Не удалось выполнить запрос.</p>
@@ -74,6 +110,7 @@ import type { UIMessage } from 'ai'
 import { DefaultChatTransport } from 'ai'
 import { Chat } from '@ai-sdk/vue'
 import { useLocalStorage } from '@vueuse/core'
+import { isPartStreaming } from '@bitrix24/b24ui-nuxt/utils/ai'
 
 const props = defineProps({ open: { type: Boolean, default: false } })
 defineEmits(['close'])
@@ -103,6 +140,11 @@ const draft = ref('')
 const input = ref<HTMLTextAreaElement | null>(null)
 const scroller = ref<HTMLElement | null>(null)
 const copiedId = ref('')
+
+type Source = { title: string, url: string }
+const sourcesOf = (part: unknown) => ((part as { data?: Source[] }).data || [])
+// Ссылки из llms-full.txt абсолютные (https://skills-site…/путь) — внутри сайта переходим без перезагрузки
+const localPath = (url: string) => { try { return new URL(url).pathname } catch { return url } }
 
 const textOf = (m: UIMessage) => m.parts.filter(p => p.type === 'text').map(p => (p as { text: string }).text).join('')
 
@@ -182,16 +224,34 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-welcome li button { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; }
 .hd-chat-welcome li button:hover { color: var(--hd-link); }
 
-.hd-chat-own { display: flex; justify-content: flex-end; }
-.hd-chat-own span {
-  max-width: 80%;
+/* B24ChatMessages: вопрос — серым пузырём справа, ответ — без пузыря, как у помощника оригинала */
+.hd-chat-list { gap: 28px; }
+.hd-chat-list :deep([data-role="user"] [data-slot="content"]) {
   padding: 12px 16px;
   border-radius: 20px;
   background: #f1f3f5;
-  white-space: pre-wrap;
-  word-break: break-word;
+  color: #333;
+  font-size: 17px;
+  line-height: 24px;
 }
-
+.hd-chat-list :deep([data-role="assistant"] [data-slot="content"]) {
+  padding: 0;
+  background: transparent;
+  color: #333;
+  font-size: 17px;
+  line-height: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* действия под ответом видны всегда, не только по наведению */
+.hd-chat-list :deep([data-role="assistant"] [data-slot="actions"]) { opacity: 1; visibility: visible; }
+.hd-chat-own-text { white-space: pre-wrap; word-break: break-word; }
+.hd-chat-tool, .hd-chat-reasoning { font-size: 14px; color: var(--hd-text-tertiary); }
+.hd-chat-sources { margin: 6px 0 0; padding-left: 20px; list-style: disc; font-size: 15px; line-height: 22px; }
+.hd-chat-sources li::marker { color: var(--hd-primary); }
+.hd-chat-sources a { color: var(--hd-link); text-decoration: none; }
+.hd-chat-sources a:hover { text-decoration: underline; }
 .hd-chat-answer { display: flex; flex-direction: column; gap: 14px; }
 .hd-chat-error { margin: 0; }
 .hd-chat-fallback { color: var(--hd-link); text-decoration: none; }

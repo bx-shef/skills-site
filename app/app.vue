@@ -4,6 +4,7 @@
 -->
 <script setup lang="ts">
 import type { ContentNavigationItem } from '@nuxt/content'
+import { ru } from '@bitrix24/b24ui-nuxt/locale'
 
 const appConfig = useAppConfig()
 
@@ -17,7 +18,7 @@ provide('navigation', navigation as Ref<ContentNavigationItem[]>)
 </script>
 
 <template>
-  <B24App>
+  <B24App :locale="ru">
     <NuxtLoadingIndicator color="#0075ff" />
     <NuxtLayout>
       <NuxtPage />

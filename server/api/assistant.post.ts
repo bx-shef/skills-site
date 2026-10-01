@@ -1,4 +1,4 @@
-import { streamText, convertToModelMessages } from 'ai'
+import { streamText, convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse } from 'ai'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 
 /**
@@ -69,5 +69,12 @@ export default defineEventHandler(async (event) => {
     ...chosen.map(p => p.text),
   ].join('\n')
 
-  return streamText({ system: instructions, model: provider(ai.model), messages: modelMessages }).toUIMessageStreamResponse()
+  // Сначала — какие страницы подобраны (в чате это шаг «Нашёл страницы»), потом ответ модели вместе с рассуждением
+  const stream = createUIMessageStream({
+    execute: ({ writer }) => {
+      writer.write({ type: 'data-sources', data: chosen.map(p => ({ title: p.title, url: p.url })) })
+      writer.merge(streamText({ system: instructions, model: provider(ai.model), messages: modelMessages }).toUIMessageStream({ sendReasoning: true }))
+    },
+  })
+  return createUIMessageStreamResponse({ stream })
 })
