@@ -13,7 +13,9 @@ RUN node scripts/sync-content.mjs && npm run build
 FROM node:22-bookworm-slim
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000 NITRO_PORT=3000 NITRO_HOST=0.0.0.0
-COPY --from=build /app/.output ./.output
+# Nuxt Content при старте пишет SQLite в .output/server/contents.sqlite — каталог должен
+# принадлежать пользователю node, иначе база пуста и все страницы контента отдают 404.
+COPY --from=build --chown=node:node /app/.output ./.output
 EXPOSE 3000
 LABEL org.opencontainers.image.source=https://github.com/bx-shef/skills-site
 USER node
