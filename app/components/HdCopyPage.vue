@@ -64,7 +64,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
   gap: 6px;
   height: 30px;
   border: 1px solid var(--hd-border-button);
-  background: #fff;
+  background: var(--hd-bg);
   font: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -74,7 +74,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
 }
 .hd-copy-page-main { padding: 0 10px; border-radius: 8px 0 0 8px; }
 .hd-copy-page-toggle { padding: 0 6px; border-left: 0; border-radius: 0 8px 8px 0; }
-.hd-copy-page-main:hover, .hd-copy-page-toggle:hover { background: var(--hd-hover-bg); color: #000; }
+.hd-copy-page-main:hover, .hd-copy-page-toggle:hover { background: var(--hd-hover-bg); color: var(--hd-text-heading); }
 .hd-copy-page :deep(.hd-icon) { font-size: 16px; }
 .hd-copy-page-menu {
   position: absolute;
@@ -87,7 +87,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
   white-space: nowrap;
   padding: 6px;
   border-radius: 12px;
-  background: #fff;
+  background: var(--hd-bg);
   box-shadow: 0 4px 20px rgba(0, 0, 0, .12);
 }
 .hd-copy-page-menu > * {
@@ -100,12 +100,12 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
   background: transparent;
   font: inherit;
   font-size: 14px;
-  color: #333;
+  color: var(--hd-text-primary);
   text-align: left;
   text-decoration: none;
   cursor: pointer;
 }
-.hd-copy-page-menu > *:hover { background: var(--hd-hover-bg); color: #000; }
+.hd-copy-page-menu > *:hover { background: var(--hd-hover-bg); color: var(--hd-text-heading); }
 .hd-copy-page-logo { width: 16px; height: 16px; flex: 0 0 auto; }
 .hd-ext { margin-left: auto; color: var(--hd-text-tertiary); font-size: 12px; }
 </style>

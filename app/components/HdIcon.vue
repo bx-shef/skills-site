@@ -37,6 +37,11 @@ import KnowledgeBaseIcon from '@bitrix24/b24icons-vue/outline/KnowledgeBaseIcon'
 import CodeIcon from '@bitrix24/b24icons-vue/common-service/CodeIcon'
 import AiStarsQuestionIcon from '@bitrix24/b24icons-vue/outline/AiStarsQuestionIcon'
 import BookOpenIcon from '@bitrix24/b24icons-vue/crm/BookOpenIcon'
+import SunIcon from '@bitrix24/b24icons-vue/outline/SunIcon'
+import MoonIcon from '@bitrix24/b24icons-vue/outline/MoonIcon'
+import CopilotAiIcon from '@bitrix24/b24icons-vue/main/CopilotAiIcon'
+import BroomIcon from '@bitrix24/b24icons-vue/outline/BroomIcon'
+import CollapseLIcon from '@bitrix24/b24icons-vue/outline/CollapseLIcon'
 import MarkdownIcon from '@bitrix24/b24icons-vue/file-type/MarkdownIcon'
 import ChevronDownLIcon from '@bitrix24/b24icons-vue/outline/ChevronDownLIcon'
 
@@ -74,6 +79,11 @@ const icons: Record<string, unknown> = {
   'question': AiStarsQuestionIcon,
   'book': BookOpenIcon,
   'markdown': MarkdownIcon,
+  'clear': BroomIcon,
+  'panel-close': CollapseLIcon,
+  'sun': SunIcon,
+  'moon': MoonIcon,
+  'ai': CopilotAiIcon,
   'chevron-down': ChevronDownLIcon,
 }
 </script>

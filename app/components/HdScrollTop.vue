@@ -34,7 +34,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   height: 44px;
   border: 0;
   border-radius: 50%;
-  background: #fff;
+  background: var(--hd-bg);
   box-shadow: 0 4px 20px rgba(0, 0, 0, .12);
   cursor: pointer;
   opacity: 0;

@@ -11,7 +11,7 @@
 
 * { box-sizing: border-box; }
 
-html { color-scheme: light; }
+
 
 body {
   margin: 0;
@@ -54,7 +54,7 @@ body {
   height: calc(100vh - var(--hd-header-height));
   padding: 10px 8px;
   overflow: hidden;
-  border-right: 1px solid #e3e8f0;
+  border-right: 1px solid var(--hd-line);
   background: transparent;
   transition: width .2s ease, background-color .2s ease, box-shadow .2s ease;
 }
@@ -122,7 +122,7 @@ body {
 }
 
 /* --- Чат справа ----------------------------------------------------------
-   Как «Ask AI» в Docus: панель справа под шапкой, страница сужается, а не
+   Как «Ask AI» в Docus: панель справа на всю высоту, со своей строкой заголовка, страница сужается, а не
    перекрывается — статью видно, пока идёт разговор о ней.
    -------------------------------------------------------------------------*/
 
@@ -130,12 +130,12 @@ body {
 
 .hd-chat-overlay {
   position: fixed;
-  top: var(--hd-header-height);
+  top: 0;
   right: 0;
   bottom: 0;
-  z-index: 95;
+  z-index: 110;
   width: var(--hd-chat-width);
-  border-left: 1px solid #e3e8f0;
+  border-left: 1px solid var(--hd-line);
   background: var(--hd-bg);
   transform: translateX(100%);
   visibility: hidden;
@@ -162,6 +162,6 @@ body {
 }
 
 /* Градиент — только на главной и списках; статья (как в оригинале) на почти белом фоне */
-.hd-shell--plain { min-height: 100vh; background: #fdfdfe; }
+.hd-shell--plain { min-height: 100vh; background: var(--hd-bg); }
 .hd-shell--plain .hd-article-layout { background: transparent; }
-body.hd-body-plain { background: #fdfdfe; }
+body.hd-body-plain { background: var(--hd-bg); }

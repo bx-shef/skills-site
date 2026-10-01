@@ -22,6 +22,11 @@
   --hd-link:           #0154c8;   /* ссылки в тексте статьи */
   --hd-border-input:   #c9ccd0;   /* поле поиска в шапке */
   --hd-surface:        rgba(255, 255, 255, .85); /* карточки поверх градиентного фона */
+  --hd-soft:           #f1f3f5;   /* пузырь вопроса, фон кода в чате */
+  --hd-input-bg:       #f6fafb;   /* поле ввода */
+  --hd-input-border:   #c4e6ff;
+  --hd-line:           #e3e8f0;   /* линии меню, панели чата, оглавления */
+  --hd-code-bg:        #f6fafb;
 
   /* Фон страницы — диагональный градиент голубой → сиреневый, как у виджета */
   --hd-page-bg: linear-gradient(134.06deg, #eff6ff 17.59%, #eff5ff 33.41%, #eef2ff 46.32%, #f9f5ff 60.82%);
@@ -73,3 +78,40 @@
   --hd-shadow-card: 0 4px 20px rgba(0, 0, 0, .04);
   --hd-shadow-btn:  0 4px 20px rgba(0, 0, 0, .08);
 }
+
+/* ============================================================================
+   Тёмная тема (как в Docus / Bitrix24 UI): класс .dark на <html> ставит
+   Nuxt color-mode. Меняются только токены — вёрстка общая.
+   ========================================================================= */
+.dark {
+  color-scheme: dark;
+  --hd-primary:        #2f8fff;
+  --hd-bg:             #16181d;
+  --hd-border:         #262a31;
+  --hd-border-button:  #2c3139;
+  --hd-border-input:   #353b45;
+  --hd-text-primary:   #d9dde3;
+  --hd-text-secondary: #a3abb6;
+  --hd-text-tertiary:  #7d8692;
+  --hd-text-heading:   #ffffff;
+  --hd-text-brand:     #f2f4f8;
+  --hd-link:           #6cb2ff;
+  --hd-hover-bg:       #1c3048;
+  --hd-surface:        rgba(30, 33, 40, .9);
+  --hd-soft:           #262a31;
+  --hd-input-bg:       #1c1f25;
+  --hd-input-border:   #2b4a6b;
+  --hd-line:           #2a2e35;
+  --hd-code-bg:        #1c1f25;
+  --hd-page-bg: linear-gradient(134.06deg, #121624 17.59%, #131826 33.41%, #15172a 46.32%, #1a1729 60.82%);
+  --hd-shadow-card:    0 4px 20px rgba(0, 0, 0, .35);
+  --hd-shadow-btn:     0 4px 20px rgba(0, 0, 0, .4);
+}
+.dark .hd-promo--blue   { background: #142d45; }
+.dark .hd-promo--purple { background: #33203f; }
+.dark .hd-promo--cyan   { background: #12343f; }
+.dark .hd-promo--lilac  { background: #29213f; }
+.dark .hd-promo--sky    { background: #0f3a48; }
+.dark .hd-card--blue    { background: #142d45; }
+.dark .hd-toc-preview   { background: linear-gradient(160deg, #18222f 0%, var(--hd-bg) 45%); }
+.dark .hd-promo-text code { background: rgba(255, 255, 255, .08); }

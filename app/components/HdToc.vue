@@ -38,8 +38,8 @@ onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <style scoped>
-.hd-toc-title { margin: 0 0 16px; font-size: 15px; line-height: 20px; font-weight: 600; color: #000; }
-.hd-toc-list { margin: 0; padding: 0; list-style: none; border-left: 1px solid #e3e8f0; }
+.hd-toc-title { margin: 0 0 16px; font-size: 15px; line-height: 20px; font-weight: 600; color: var(--hd-text-heading); }
+.hd-toc-list { margin: 0; padding: 0; list-style: none; border-left: 1px solid var(--hd-line); }
 .hd-toc-link {
   display: block;
   margin-left: -1px;
@@ -52,5 +52,5 @@ onBeforeUnmount(() => observer?.disconnect())
   transition: var(--hd-transition);
 }
 .hd-toc-link:hover { color: var(--hd-text-primary); }
-.hd-toc-link.is-active { color: var(--hd-text-primary); border-left-color: #333; }
+.hd-toc-link.is-active { color: var(--hd-text-primary); border-left-color: var(--hd-text-primary); }
 </style>

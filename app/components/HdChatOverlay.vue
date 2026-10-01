@@ -5,10 +5,16 @@
 -->
 <template>
   <div class="hd-chat-overlay" :class="{ 'is-open': open }" role="complementary" aria-label="Чат с ИИ-агентом">
-    <div class="hd-chat">
-      <button class="hd-chat-close" type="button" aria-label="Закрыть" title="Закрыть" @click="$emit('close')">
-        <HdIcon name="close" />
+    <div class="hd-chat-bar">
+      <span class="hd-chat-bar-title">ИИ-помощник</span>
+      <button v-if="chatMessages.length" class="hd-header-icon" type="button" title="Очистить чат" aria-label="Очистить чат" @click="clear">
+        <HdIcon name="clear" />
       </button>
+      <button class="hd-header-icon" type="button" title="Свернуть" aria-label="Свернуть панель" @click="$emit('close')">
+        <HdIcon name="panel-close" />
+      </button>
+    </div>
+    <div class="hd-chat">
 
       <div ref="scroller" class="hd-chat-messages">
         <div class="hd-chat-welcome">
@@ -180,28 +186,24 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 </script>
 
 <style scoped>
+.hd-chat-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--hd-header-height);
+  padding: 0 16px 0 24px;
+  border-bottom: 1px solid var(--hd-line);
+}
+.hd-chat-bar-title { flex: 1; font-size: 16px; font-weight: 600; color: var(--hd-text-heading); }
+
 .hd-chat {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100% - var(--hd-header-height));
   padding: 24px 24px 20px;
 }
 
-.hd-chat-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: inline-flex;
-  padding: 4px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: #a8adb4;
-  font-size: 22px;
-  cursor: pointer;
-}
-.hd-chat-close:hover { color: #333; background: var(--hd-hover-bg); }
 
 .hd-chat-messages {
   flex: 1 1 auto;
@@ -216,10 +218,10 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
   overscroll-behavior: contain;
   font-size: 15px;
   line-height: 22px;
-  color: #333;
+  color: var(--hd-text-primary);
 }
 
-.hd-chat-welcome-title { margin: 0 0 14px; padding-right: 32px; font-size: 18px; line-height: 25px; font-weight: 600; color: #333; }
+.hd-chat-welcome-title { margin: 0 0 14px; padding-right: 32px; font-size: 18px; line-height: 25px; font-weight: 600; color: var(--hd-text-primary); }
 .hd-chat-welcome p { margin: 0; }
 .hd-chat-welcome ul { margin: 4px 0 0; padding-left: 20px; }
 .hd-chat-welcome li::marker { color: var(--hd-primary); }
@@ -235,15 +237,15 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-list :deep([data-role="user"] [data-slot="content"]) {
   padding: 10px 14px;
   border-radius: 12px;
-  background: #f1f3f5;
-  color: #333;
+  background: var(--hd-soft);
+  color: var(--hd-text-primary);
   font-size: 15px;
   line-height: 22px;
 }
 .hd-chat-list :deep([data-role="assistant"] [data-slot="content"]) {
   padding: 0;
   background: transparent;
-  color: #333;
+  color: var(--hd-text-primary);
   font-size: 15px;
   line-height: 22px;
   display: flex;
@@ -274,10 +276,10 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
   font-size: 20px;
   cursor: pointer;
 }
-.hd-chat-tools button:hover { color: #333; background: var(--hd-hover-bg); }
+.hd-chat-tools button:hover { color: var(--hd-text-primary); background: var(--hd-hover-bg); }
 .hd-chat-tools button.is-on { color: var(--hd-primary); }
 
-.hd-chat-search { display: inline-flex; align-items: center; gap: 14px; font-size: 16px; font-weight: 500; color: #333; }
+.hd-chat-search { display: inline-flex; align-items: center; gap: 14px; font-size: 16px; font-weight: 500; color: var(--hd-text-primary); }
 .hd-chat-search-star { width: 34px; height: 34px; animation: hd-pulse 1.4s ease-in-out infinite; }
 @keyframes hd-pulse { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.12); opacity: 1; } }
 
@@ -288,8 +290,9 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-md :deep(a) { color: var(--hd-link); text-decoration: none; }
 .hd-chat-md :deep(a:hover) { text-decoration: underline; }
 .hd-chat-md :deep(strong) { font-weight: 600; }
-.hd-chat-md :deep(code) { font: 14px/1.4 var(--hd-font-mono); background: #f1f3f5; border-radius: 6px; padding: 1px 5px; }
-.hd-chat-md :deep(pre) { margin: 0 0 .7em; padding: 12px; overflow-x: auto; background: #f6fafb; border: 1px solid var(--hd-border); border-radius: 12px; }
+.hd-chat-md :deep(:not(pre) > code) { overflow-wrap: anywhere; }
+.hd-chat-md :deep(code) { font: 14px/1.4 var(--hd-font-mono); background: var(--hd-soft); border-radius: 6px; padding: 1px 5px; }
+.hd-chat-md :deep(pre) { margin: 0 0 .7em; padding: 12px; overflow-x: auto; background: var(--hd-input-bg); border: 1px solid var(--hd-border); border-radius: 12px; }
 .hd-chat-md :deep(pre code) { background: none; padding: 0; }
 .hd-chat-md :deep(table) { border-collapse: collapse; margin: 0 0 .7em; font-size: 15px; }
 .hd-chat-md :deep(td), .hd-chat-md :deep(th) { border: 1px solid var(--hd-border-button); padding: 4px 8px; }
@@ -301,7 +304,7 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
   gap: 4px;
   padding: 12px 12px 6px;
   border-radius: 12px;
-  background: #fff;
+  background: var(--hd-bg);
   box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
 }
 .hd-chat-row { display: flex; align-items: center; gap: 12px; }
@@ -310,11 +313,11 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
   min-height: 44px;
   max-height: 160px;
   padding: 11px 12px;
-  border: 1px solid #c4e6ff;
+  border: 1px solid var(--hd-input-border);
   border-radius: 8px;
   scrollbar-width: none;
-  background: #f6fafb;
-  color: #333;
+  background: var(--hd-input-bg);
+  color: var(--hd-text-primary);
   font: inherit;
   font-size: 16px;
   line-height: 21px;
@@ -324,7 +327,7 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-input:focus { border-color: var(--hd-primary); }
 .hd-chat-disclaimer { margin: 0; text-align: center; font-size: 12px; line-height: 15px; font-style: italic; color: var(--hd-text-tertiary); }
 .hd-chat-disclaimer a { color: var(--hd-text-tertiary); text-decoration: underline; }
-.hd-chat-disclaimer a:hover { color: #333; }
+.hd-chat-disclaimer a:hover { color: var(--hd-text-primary); }
 .hd-chat-send {
   flex: 0 0 auto;
   display: inline-flex;
@@ -341,10 +344,9 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-send svg { width: 16px; height: 16px; }
 .hd-chat-send:disabled { background: #89beff; cursor: default; }
 .hd-chat-send:not(:disabled):hover { background: #0060d6; }
-.hd-chat-send.is-stop i { width: 12px; height: 12px; border-radius: 2px; background: #fff; }
+.hd-chat-send.is-stop i { width: 12px; height: 12px; border-radius: 2px; background: var(--hd-bg); }
 
 @media (max-width: 767px) {
   .hd-chat { padding: 16px; }
-  .hd-chat-close { top: 12px; right: 12px; }
 }
 </style>

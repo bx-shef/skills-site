@@ -1,5 +1,5 @@
 <!--
-  Шапка: логотип-слово + серое слово раздела, кнопка справа.
+  Шапка: логотип-слово + серое слово раздела; справа, как в Docus, — ИИ, тема, GitHub.
   Вопрос ИИ-агенту задаётся с первого экрана, из плавающего поля и из меню.
 -->
 <template>
@@ -10,9 +10,16 @@
     </NuxtLink>
 
     <div class="hd-header-actions">
-      <a class="hd-btn-outline" :href="github" target="_blank" rel="noopener">
+      <button type="button" class="hd-header-icon" :class="{ 'is-on': chatOpen }" title="Спросить ИИ" aria-label="Спросить ИИ" @click="chatOpen ? closeChat() : openChat()">
+        <HdIcon name="ai" />
+      </button>
+      <ClientOnly>
+        <button type="button" class="hd-header-icon" :title="isDark ? 'Светлая тема' : 'Тёмная тема'" aria-label="Сменить тему" @click="toggleTheme">
+          <HdIcon :name="isDark ? 'sun' : 'moon'" />
+        </button>
+      </ClientOnly>
+      <a class="hd-header-icon" :href="github" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub">
         <HdIcon name="github" />
-        <span>GitHub</span>
       </a>
     </div>
   </header>
@@ -24,4 +31,8 @@ defineProps({
   word: { type: String, default: 'Навыки' },
 })
 const github = 'https://github.com/bx-shef'
+const { open: chatOpen, openChat, closeChat } = useHdChat()
+const colorMode = useColorMode()
+const isDark = computed(() => colorMode.value === 'dark')
+const toggleTheme = () => { colorMode.preference = isDark.value ? 'light' : 'dark' }
 </script>

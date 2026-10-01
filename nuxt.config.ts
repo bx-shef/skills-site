@@ -19,11 +19,14 @@ export default defineNuxtConfig({
     '~/assets/css/content.css',
     '~/assets/css/components.css',
   ],
-  // Только светлая тема: виджет светлый
-  colorMode: { preference: 'light', fallback: 'light' },
 
   content: {
-    build: { markdown: { toc: { depth: 3, searchDepth: 3 } } },
+    build: {
+      markdown: {
+        toc: { depth: 3, searchDepth: 3 },
+        highlight: { theme: { default: 'github-light', dark: 'github-dark' } },
+      },
+    },
   },
 
   runtimeConfig: {

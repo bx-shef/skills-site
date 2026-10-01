@@ -47,21 +47,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   gap: 6px;
   width: min(380px, calc(100vw - 32px));
   padding: 6px 6px 6px 14px;
-  border: 1px solid #e3e8f0;
+  border: 1px solid var(--hd-line);
   border-radius: 12px;
-  background: rgba(255, 255, 255, .92);
+  background: var(--hd-bg);
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
   transform: translateX(-50%);
 }
 .hd-ask-float:focus-within { border-color: var(--hd-primary); }
-.hd-ask-float input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font: inherit; font-size: 14px; color: #333; }
+.hd-ask-float input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font: inherit; font-size: 14px; color: var(--hd-text-primary); }
 .hd-ask-float input::placeholder { color: var(--hd-text-tertiary); }
 .hd-ask-float kbd {
   padding: 1px 5px;
-  border: 1px solid #e3e8f0;
+  border: 1px solid var(--hd-line);
   border-radius: 5px;
-  background: #fff;
+  background: var(--hd-bg);
   font: 11px/16px var(--hd-font);
   color: var(--hd-text-secondary);
 }
