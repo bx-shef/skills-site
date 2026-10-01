@@ -87,5 +87,10 @@ const items = computed(() => {
 const visible = computed(() => items.value.slice(0, 9))
 const hidden = computed(() => items.value.slice(9))
 
-const isActive = (path: string) => route.path === path || route.path.startsWith(path + '/')
+// Подсвечиваем один пункт — самый точный: на /methodology/standard это «Стандарт», а не ещё и «Методология»
+const activePath = computed(() => items.value
+  .map(i => i.path)
+  .filter(p => route.path === p || route.path.startsWith(p + '/'))
+  .sort((a, b) => b.length - a.length)[0])
+const isActive = (path: string) => path === activePath.value
 </script>

@@ -337,66 +337,86 @@
 .hd-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 .hd-grid--2 { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
 
-/* --- Плитка темы: картинка 200px сверху, белая подпись снизу ------------- */
+/* --- Плитка темы ---------------------------------------------------------
+   Своя композиция: цветная обложка 150px с диагональным бликом, стеклянный
+   значок слева и крупная полупрозрачная иконка-водяной знак в углу.
+   -------------------------------------------------------------------------*/
 
 .hd-tile {
+  position: relative;
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
+  border-radius: 18px;
   overflow: hidden;
   background: var(--hd-surface);
   box-shadow: var(--hd-shadow-card);
   color: var(--hd-text-primary);
   text-decoration: none;
   transition: var(--hd-transition);
+  --accent: #0075ff;
+  --accent-2: #5fc3ff;
 }
-.hd-tile:hover { box-shadow: 0 8px 28px rgba(0, 0, 0, .1); transform: translateY(-2px); }
+.hd-tile:hover { box-shadow: 0 12px 32px color-mix(in srgb, var(--accent) 22%, transparent); transform: translateY(-3px); }
 
-.hd-tile-image {
+.hd-tile-cover {
   position: relative;
-  height: 200px;
+  height: 150px;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background:
+    linear-gradient(115deg, transparent 0 55%, rgba(255, 255, 255, .18) 55% 62%, transparent 62%),
+    radial-gradient(120% 140% at 0% 0%, var(--accent-2) 0%, var(--accent) 70%);
 }
-/* «Стеклянная» иконка по центру картинки — как 3D-иконки оригинала */
-.hd-glass {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 96px;
-  height: 96px;
-  border-radius: 26px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .12));
-  border: 1px solid rgba(255, 255, 255, .7);
-  box-shadow: 0 18px 30px rgba(0, 40, 120, .22), inset 0 1px 0 rgba(255, 255, 255, .8);
-  backdrop-filter: blur(6px);
-  transform: rotate(-6deg);
-}
-.hd-glass .hd-icon { width: 46px; height: 46px; color: #fff; filter: drop-shadow(0 2px 4px rgba(0, 60, 160, .35)); }
-.hd-bubble {
+.hd-tile-badge {
   position: absolute;
-  border-radius: 50%;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .08));
-  border: 1px solid rgba(255, 255, 255, .55);
+  left: 24px;
+  bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .14));
+  border: 1px solid rgba(255, 255, 255, .6);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, .15), inset 0 1px 0 rgba(255, 255, 255, .7);
+  backdrop-filter: blur(6px);
 }
-.hd-bubble--a { width: 34px; height: 34px; top: 30px; right: calc(50% - 76px); }
-.hd-bubble--b { width: 22px; height: 22px; bottom: 34px; left: calc(50% - 74px); }
+.hd-tile-badge .hd-icon { width: 30px; height: 30px; color: #fff; }
+.hd-tile-mark {
+  position: absolute;
+  right: -18px;
+  top: -14px;
+  width: 150px !important;
+  height: 150px !important;
+  color: #fff;
+  opacity: .16;
+  transform: rotate(-14deg);
+  transition: transform .4s ease, opacity .4s ease;
+}
+.hd-tile:hover .hd-tile-mark { transform: rotate(-4deg) scale(1.06); opacity: .24; }
 
-.hd-tile-body { display: flex; flex-direction: column; gap: 8px; padding: 20px; }
+.hd-tile-body { display: flex; flex-direction: column; gap: 6px; padding: 20px 24px 24px; }
 .hd-tile-title { margin: 0; font-size: 19px; line-height: 26px; font-weight: 600; color: var(--hd-text-heading); }
-.hd-tile-text { margin: 0; font-size: 15px; line-height: 20px; color: var(--hd-text-secondary); }
+.hd-tile-text { margin: 0; font-size: 15px; line-height: 21px; color: var(--hd-text-secondary); }
+.hd-tile-go {
+  position: absolute;
+  right: 22px;
+  bottom: 20px;
+  font-size: 20px;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: var(--hd-transition);
+}
+.hd-tile:hover .hd-tile-go { opacity: 1; transform: none; }
 
-/* Палитра картинок — по оттенкам плиток оригинала */
-.hd-tone-1 { background: linear-gradient(135deg, #00c2ff 0%, #0a84ff 55%, #0062ff 100%); }
-.hd-tone-2 { background: linear-gradient(135deg, #1aa0ff 0%, #0075ff 50%, #0050e6 100%); }
-.hd-tone-3 { background: linear-gradient(135deg, #dbe7f1 0%, #9cc3dc 45%, #2f8fc6 100%); }
-.hd-tone-4 { background: linear-gradient(135deg, #e9f6ff 0%, #a8dcff 45%, #47a8ff 100%); }
-.hd-tone-5 { background: linear-gradient(135deg, #f2a6ff 0%, #c27bff 50%, #8f52ff 100%); }
-.hd-tone-6 { background: linear-gradient(135deg, #36a9ff 0%, #0b7bff 55%, #0058f0 100%); }
+/* Цвета плиток */
+.hd-tone-1 { --accent: #0075ff; --accent-2: #4fc3ff; }
+.hd-tone-2 { --accent: #00a6c8; --accent-2: #5fe0d2; }
+.hd-tone-3 { --accent: #1f6fe0; --accent-2: #7a8cff; }
+.hd-tone-4 { --accent: #0f9d77; --accent-2: #63d6a6; }
+.hd-tone-5 { --accent: #8f52ff; --accent-2: #f08cff; }
+.hd-tone-6 { --accent: #e0661f; --accent-2: #ffb35f; }
 
 /* --- Промо-карточки ------------------------------------------------------
    Своё решение, не как у оригинала: белая карточка, цветная полоса сверху,

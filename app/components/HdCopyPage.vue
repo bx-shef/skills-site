@@ -105,7 +105,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
   text-decoration: none;
   cursor: pointer;
 }
-.hd-copy-page-menu > *:hover { background: var(--hd-hover-bg); color: var(--hd-text-heading); }
+.hd-copy-page-menu > *:hover { background: var(--hd-hover-bg); color: var(--hd-text-heading); text-decoration: none; }
 .hd-copy-page-logo { width: 16px; height: 16px; flex: 0 0 auto; }
 .hd-ext { margin-left: auto; color: var(--hd-text-tertiary); font-size: 12px; }
 </style>

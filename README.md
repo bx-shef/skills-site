@@ -101,7 +101,7 @@ BXSHEF_EVAL_KEY=… npm run dev                    # http://localhost:3000, ча
 плитки тем (картинки — CSS-градиенты со «стеклянной» иконкой вместо 3D-картинок оригинала),
 промо-карточки, «Решение найдётся всегда», «Самые читаемые статьи»; «Все темы» — как
 `allSections.php`. Светлая и тёмная тема (как в Docus): `useColorMode` Bitrix24 UI, все цвета — токены в `tokens.css`, у `.dark` свои значения. UI-база — `@bitrix24/b24ui-nuxt` (Nuxt UI и Docus убраны),
-иконки — `@bitrix24/b24icons-vue` через `HdIcon` (короткие имена → компоненты, список в самом файле). Поиск по разделам —
+шрифты — Geologica (текст, variable woff2 по подмножествам, `@fontsource-variable/geologica`) и GetVoIP Grotesque (заголовки, CC BY-ND 3.0 — файл без изменений, лицензия в `public/fonts/getvoip-grotesque/`), иконки — `@bitrix24/b24icons-vue` через `HdIcon` (короткие имена → компоненты, список в самом файле). Поиск по разделам —
 `queryCollectionSearchSections`, чат — `/api/assistant`.
 
 ## Что не хранится в репозитории

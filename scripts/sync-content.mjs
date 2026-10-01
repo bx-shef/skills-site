@@ -63,8 +63,12 @@ const stdPages = [
 ]
 write('1.methodology/.navigation.yml', 'title: Методология\nicon: ruler\n')
 write('1.methodology/index.md', page(read(path.join(std, 'README.md')) || '# bxshef', { title: 'bxshef: методология и проверка навыков', description: 'Как писать навыки ИИ-агентов для Битрикса и как проверять, что им можно верить', source: gh('skills-standard', 'README.md') }))
+// В STANDARD.md правило — жирное начало абзаца («**1. Имя — …** текст»). На сайте — заголовок
+// «## 1. Имя — …»: у страницы появляется оглавление и якоря на каждое правило.
+const ruleHeadings = (md) => md.replace(/^\*\*(\d+\.\s[^\n]*?)\*\*[ \t]*/gm, (_, h) => `## ${h.replace(/\.$/, '')}\n\n`)
 for (const [out, file, title, description] of stdPages) {
-  const md = read(path.join(std, file)); if (!md) continue
+  let md = read(path.join(std, file)); if (!md) continue
+  if (file === 'STANDARD.md') md = ruleHeadings(md)
   write(`1.methodology/${out}`, page(absLinks(md, 'skills-standard'), { title, description, source: gh('skills-standard', file) }))
 }
 
