@@ -88,16 +88,16 @@ function plainText(body: unknown): string {
 
     <section class="hd-section hd-section--first">
       <div class="hd-grid">
-        <NuxtLink v-for="(t, i) in tiles" :key="t.to" :to="t.to" class="hd-tile">
-          <div class="hd-tile-image" :class="`hd-tone-${i + 1}`">
-            <span class="hd-bubble hd-bubble--a" />
-            <span class="hd-bubble hd-bubble--b" />
-            <span class="hd-glass"><HdIcon :name="t.icon" /></span>
+        <NuxtLink v-for="(t, i) in tiles" :key="t.to" :to="t.to" class="hd-tile" :class="`hd-tone-${i + 1}`">
+          <div class="hd-tile-cover">
+            <span class="hd-tile-badge"><HdIcon :name="t.icon" /></span>
+            <HdIcon :name="t.icon" class="hd-tile-mark" />
           </div>
           <div class="hd-tile-body">
             <h3 class="hd-tile-title">{{ t.title }}</h3>
             <p class="hd-tile-text">{{ t.text }}</p>
           </div>
+          <span class="hd-tile-go" aria-hidden="true">→</span>
         </NuxtLink>
       </div>
       <div class="hd-section-more">

@@ -1,3 +1,17 @@
 /* Tailwind и Bitrix24 UI (@bitrix24/b24ui-nuxt) — база; оформление виджета — в tokens/layout/content/components */
 @import "tailwindcss";
 @import "@bitrix24/b24ui-nuxt";
+
+/* Шрифты. Geologica (OFL) — текст: variable woff2, браузер качает только нужные
+   подмножества (кириллица/латиница) по unicode-range.
+   GetVoIP Grotesque (CC BY-ND 3.0, © Sergiy Tkachenko / GetVoIP.com) — только заголовки;
+   файл без изменений (лицензия запрещает производные), лицензия рядом в public/fonts. */
+@import "@fontsource-variable/geologica/wght.css";
+
+@font-face {
+  font-family: 'GetVoIP Grotesque';
+  src: url('/fonts/getvoip-grotesque/GetVoIP-Grotesque.otf') format('opentype');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}

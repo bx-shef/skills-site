@@ -165,3 +165,9 @@ body {
 .hd-shell--plain { min-height: 100vh; background: var(--hd-bg); }
 .hd-shell--plain .hd-article-layout { background: transparent; }
 body.hd-body-plain { background: var(--hd-bg); }
+
+/* Заголовки — GetVoIP Grotesque, текст — Geologica */
+h1, h2, h3, .hd-logo, .hd-hero-title, .hd-section-title, .hd-tile-title, .hd-promo-title,
+.hd-support-title, .hd-article-card-title, .hd-topics-title, .hd-footer-logo, .hd-chat-welcome-title {
+  font-family: var(--hd-font-heading);
+}

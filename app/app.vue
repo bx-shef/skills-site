@@ -10,6 +10,8 @@ const appConfig = useAppConfig()
 
 useHead({
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
+  // шрифт заголовков нужен на первом экране — грузим сразу
+  link: [{ rel: 'preload', href: '/fonts/getvoip-grotesque/GetVoIP-Grotesque.otf', as: 'font', type: 'font/otf', crossorigin: '' }],
   titleTemplate: (t?: string) => t ? `${t} · bxshef` : appConfig.seo.title,
 })
 

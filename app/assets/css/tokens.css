@@ -38,7 +38,8 @@
   --hd-hover-bg:       #e6f4ff;
 
   /* --- Типографика --- */
-  --hd-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --hd-font: 'Geologica Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --hd-font-heading: 'GetVoIP Grotesque', 'Geologica Variable', -apple-system, sans-serif;
   --hd-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --hd-size-sm: 14px;
