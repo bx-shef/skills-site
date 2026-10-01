@@ -39,8 +39,15 @@ const page = (md, { title, description, source }) => {
   return `${fm}\n\n${body.trim()}${foot}\n`
 }
 const gh = (repo, file) => ({ label: `${repo}/${file}`, url: `${ORG}/${repo}/blob/main/${file}` })
-// относительные ссылки на GitHub-файлы того же репозитория → абсолютные
-const absLinks = (md, repo) => md.replace(/\]\((?!https?:|#|\/)([^)]+\.md)\)/g, (_, f) => `](${ORG}/${repo}/blob/main/${f})`)
+// Относительные ссылки (от каталога dir файла-источника): страница модуля, которая есть на сайте
+// (docs/*.md, README.md) — на сайт; остальное (CONTRIBUTING.md, examples/*.php, logrotate/…) — на GitHub.
+const absLinks = (md, repo, dir = '') => md.replace(/\]\((?!https?:|mailto:|#|\/)([^)\s#]+)(#[^)\s]*)?\)/g, (_, f, anchor = '') => {
+  const file = path.posix.normalize(path.posix.join(dir, f))
+  if (file === 'README.md') return `](/modules/${repo}${anchor})`
+  const doc = file.match(/^docs\/([^/]+)\.md$/)
+  if (doc && fs.existsSync(path.join(SRC, repo, file))) return `](/modules/${repo}/${doc[1].replace(/^\d+_/, '')}${anchor})`
+  return `](${ORG}/${repo}/blob/main/${file}${anchor})`
+})
 
 // 1. Методология
 const std = path.join(SRC, 'skills-standard')
@@ -86,7 +93,7 @@ modules.forEach(([r, id, d], mi) => {
   for (const f of fs.readdirSync(docs).filter(f => f.endsWith('.md')).sort()) {
     const md = read(path.join(docs, f))
     const slug = f.replace(/^\d+_/, '').replace(/\.md$/, '')
-    write(`3.modules/${mi + 1}.${r}/${j++}.${slug}.md`, page(absLinks(md, r), { title: titleOf(md, slug), source: gh(r, `docs/${f}`) }))
+    write(`3.modules/${mi + 1}.${r}/${j++}.${slug}.md`, page(absLinks(md, r, 'docs'), { title: titleOf(md, slug), source: gh(r, `docs/${f}`) }))
   }
 })
 // 4. llms-full.txt — весь сайт одним файлом для ИИ-агентов и для чата (режим context)
