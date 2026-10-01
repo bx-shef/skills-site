@@ -38,20 +38,6 @@ body {
   background: var(--hd-bg);
 }
 
-/* Поиск в шапке: отступ от логотипа растёт с окном, но не больше 161px */
-.hd-header-search {
-  display: flex;
-  align-items: center;
-  gap: var(--hd-space-md);
-  flex: 1 1 auto;
-  max-width: 680px;
-  min-width: 0;
-  margin-left: clamp(16px, 8%, 161px);
-  transition: opacity .2s ease;
-}
-/* На главной поиск в шапке появляется, когда большой поиск ушёл за край */
-.hd-header-search.is-hidden { opacity: 0; visibility: hidden; }
-
 .hd-header-actions { display: flex; align-items: center; gap: var(--hd-space-md); margin-left: auto; }
 
 /* --- Меню слева ----------------------------------------------------------
@@ -157,7 +143,6 @@ body {
   :root { --hd-sidebar-width: 0px; }
   .hd-sidebar { display: none; }
   .hd-header { padding: 12px 16px; }
-  .hd-header-search { margin-left: 0; }
   .hd-article-layout { padding: 0 16px 48px; }
   .hd-content { padding: 0 16px; }
 }

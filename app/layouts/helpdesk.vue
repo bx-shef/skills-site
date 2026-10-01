@@ -6,7 +6,7 @@
 -->
 <template>
   <div class="hd-shell">
-    <HdHeader :search-hidden="searchHidden" />
+    <HdHeader />
 
     <aside class="hd-sidebar sidebar-menu">
       <HdMenu />
@@ -28,7 +28,7 @@
         </div>
         <aside class="hd-aside">
           <HdToc v-if="tocLinks.length" :links="tocLinks" />
-          <HdAiBanner />
+          <HdDiscussAi />
         </aside>
       </div>
 
@@ -60,10 +60,9 @@
 <script setup lang="ts">
 withDefaults(defineProps<{
   article?: boolean
-  searchHidden?: boolean
   tocLinks?: Array<{ id: string, text: string, depth: number }>
   breadcrumbs?: Array<{ title: string, path?: string }>
-}>(), { article: false, searchHidden: false, tocLinks: () => [], breadcrumbs: () => [] })
+}>(), { article: false, tocLinks: () => [], breadcrumbs: () => [] })
 
 const { open: chatOpen, closeChat } = useHdChat()
 

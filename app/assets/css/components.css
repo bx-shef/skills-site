@@ -630,7 +630,6 @@
   .hd-section { padding: 48px 0; }
   .hd-promo-content { max-width: 100%; }
   .hd-promo:not(.hd-promo--resource) .hd-promo-art { opacity: .35; }
-  .hd-header-search { display: none; }
   .hd-topics-title { font-size: 30px; }
 }
 

@@ -28,12 +28,17 @@ async function pages(event: Parameters<typeof defineEventHandler>[0] extends (e:
 }
 
 function pick(all: Page[], question: string): Page[] {
+  // «Обсудить с ИИ»: в вопросе адрес страницы сайта — она идёт в контекст первой
+  const pathOf = (u: string) => u.replace(/^https?:\/\/[^/]+/, '').replace(/\/$/, '')
+  const asked = new Set((question.match(/https?:\/\/\S+/g) || []).map(pathOf))
+  const linked = asked.size ? all.filter(p => p.url && asked.has(pathOf(p.url))) : []
   const q = tokens(question)
   const scored = all.map(p => ({ p, s: [...q].reduce((n, w) => n + (p.words.has(w) ? 1 : 0), 0) + (q.size && [...q].some(w => p.title.toLowerCase().includes(w)) ? 3 : 0) }))
     .sort((a, b) => b.s - a.s)
-  const out: Page[] = []
-  let size = 0
+  const out: Page[] = [...linked]
+  let size = linked.reduce((n, p) => n + p.text.length, 0)
   for (const { p, s } of scored) {
+    if (out.includes(p)) continue
     if (s === 0 && out.length) break
     if (size + p.text.length > CONTEXT_LIMIT) continue
     out.push(p); size += p.text.length
@@ -63,6 +68,7 @@ export default defineEventHandler(async (event) => {
   const instructions = [
     'Ты — помощник по сайту skills-site.bx-shef.by: методология и проверка навыков ИИ-агентов для Битрикса, навыки к модулям shef.*.',
     'Отвечай по-русски, коротко, с точными именами команд, файлов и правил из документации ниже. Заголовки markdown не используй; выделяй жирным.',
+    'Если просят пересказать страницу — перескажи её коротко по-русски (5–8 пунктов) и в конце предложи задать вопрос по ней.',
     'Давай ссылки на страницы вида [название](URL) — URL бери из строк «URL:» ниже. Если ответа в документации нет — так и скажи и отправь на GitHub bx-shef.',
     '',
     '=== СТРАНИЦЫ САЙТА, ПОДОБРАННЫЕ ПОД ВОПРОС ===',

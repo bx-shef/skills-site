@@ -69,19 +69,10 @@ function plainText(body: unknown): string {
   return value.map(walk).join('')
 }
 
-// Поиск в шапке скрыт, пока виден большой поиск первого экрана — как в оригинале
-const heroSearch = ref<HTMLElement>()
-const heroSearchVisible = ref(true)
-const onScroll = () => {
-  const r = heroSearch.value?.getBoundingClientRect()
-  heroSearchVisible.value = !r || r.bottom > 59
-}
-onMounted(() => { onScroll(); window.addEventListener('scroll', onScroll, { passive: true }) })
-onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 </script>
 
 <template>
-  <NuxtLayout name="helpdesk" :search-hidden="heroSearchVisible">
+  <NuxtLayout name="helpdesk">
     <section class="hd-hero">
       <div class="hd-hero-glow" aria-hidden="true" />
       <div class="hd-hero-content">
@@ -89,7 +80,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
           <span class="hd-hero-brand">bxshef</span>
           <span class="hd-hero-word">Навыки</span>
         </h1>
-        <div ref="heroSearch" style="width: 100%">
+        <div style="width: 100%">
           <HdSearch hero />
         </div>
       </div>
