@@ -24,7 +24,7 @@
           <div v-if="msg.role === 'user'" class="hd-chat-own"><span>{{ textOf(msg) }}</span></div>
           <div v-else class="hd-chat-answer">
             <MDC v-if="textOf(msg)" :value="textOf(msg)" tag="div" class="hd-chat-md" />
-            <span v-else class="hd-chat-dots" aria-label="Думает"><i /><i /><i /></span>
+            <span v-else class="hd-chat-search"><HdStar class="hd-chat-search-star" />Ищу ответ среди {{ articlesCount }} статей</span>
             <div v-if="textOf(msg) && !(busy && msg === chatMessages[chatMessages.length - 1])" class="hd-chat-tools">
               <button type="button" :title="copiedId === msg.id ? 'Скопировано' : 'Копировать'" @click="copy(msg)">
                 <HdIcon :name="copiedId === msg.id ? 'check' : 'copy'" />
@@ -34,6 +34,10 @@
             </div>
           </div>
         </template>
+        <!-- запрос ушёл, ответа ещё нет -->
+        <div v-if="busy && chatMessages[chatMessages.length - 1]?.role === 'user'" class="hd-chat-answer">
+          <span class="hd-chat-search"><HdStar class="hd-chat-search-star" />Ищу ответ среди {{ articlesCount }} статей</span>
+        </div>
 
         <div v-if="error" class="hd-chat-answer">
           <p class="hd-chat-error">Не удалось выполнить запрос.</p>
@@ -42,25 +46,24 @@
       </div>
 
       <form class="hd-chat-form" @submit.prevent="submit">
-        <span class="hd-chat-avatar" aria-hidden="true"><HdStar /></span>
-        <div class="hd-chat-field">
+        <div class="hd-chat-row">
           <textarea
             ref="input"
             v-model="draft"
             class="hd-chat-input"
             rows="1"
-            placeholder="Напишите вопрос"
             aria-label="Текст вопроса"
             @keydown.enter.exact.prevent="submit"
           />
-          <button v-if="chatMessages.length && !busy" class="hd-chat-clear" type="button" title="Начать заново" @click="clear">
-            <HdIcon name="history" />
-          </button>
           <button v-if="busy" class="hd-chat-send is-stop" type="button" aria-label="Остановить" @click="stopChat()"><i /></button>
           <button v-else class="hd-chat-send" type="submit" aria-label="Отправить" :disabled="!draft.trim()">
             <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.5 2.3c0-.6.7-1 1.2-.7l9 5.7c.5.3.5 1 0 1.4l-9 5.7c-.5.3-1.2-.1-1.2-.7V2.3Z" /></svg>
           </button>
         </div>
+        <p class="hd-chat-disclaimer">
+          Ответы BitrixGPT могут быть неточны, проверяйте важную информацию.
+          <NuxtLink to="/methodology/method" @click="$emit('close')">Подробнее</NuxtLink>
+        </p>
       </form>
     </div>
   </div>
@@ -89,6 +92,12 @@ const chat = new Chat({
 const chatMessages = computed(() => chat.messages)
 const busy = computed(() => chat.status === 'streaming' || chat.status === 'submitted')
 const error = computed(() => chat.error)
+
+// «Ищу ответ среди N статей» — сколько страниц документации на сайте
+const navigation = inject<Ref<Array<{ children?: unknown[] }>>>('navigation', ref([]))
+const countPages = (items: Array<{ children?: unknown[] }>): number =>
+  items.reduce((n, i) => n + (i.children?.length ? countPages(i.children as Array<{ children?: unknown[] }>) : 1), 0)
+const articlesCount = computed(() => countPages(navigation.value || []))
 
 const draft = ref('')
 const input = ref<HTMLTextAreaElement | null>(null)
@@ -202,11 +211,9 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-tools button:hover { color: #333; background: var(--hd-hover-bg); }
 .hd-chat-tools button.is-on { color: var(--hd-primary); }
 
-.hd-chat-dots { display: inline-flex; gap: 5px; padding: 8px 0; }
-.hd-chat-dots i { width: 7px; height: 7px; border-radius: 50%; background: #9fc8ff; animation: hd-dot 1s infinite ease-in-out; }
-.hd-chat-dots i:nth-child(2) { animation-delay: .15s; }
-.hd-chat-dots i:nth-child(3) { animation-delay: .3s; }
-@keyframes hd-dot { 0%, 100% { opacity: .3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+.hd-chat-search { display: inline-flex; align-items: center; gap: 14px; font-size: 16px; font-weight: 500; color: #333; }
+.hd-chat-search-star { width: 34px; height: 34px; animation: hd-pulse 1.4s ease-in-out infinite; }
+@keyframes hd-pulse { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.12); opacity: 1; } }
 
 .hd-chat-md :deep(p) { margin: 0 0 .7em; }
 .hd-chat-md :deep(p:last-child) { margin-bottom: 0; }
@@ -221,36 +228,25 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-md :deep(table) { border-collapse: collapse; margin: 0 0 .7em; font-size: 15px; }
 .hd-chat-md :deep(td), .hd-chat-md :deep(th) { border: 1px solid var(--hd-border-button); padding: 4px 8px; }
 
-/* Поле внизу — как большой поиск первого экрана */
+/* Поле внизу — как у помощника оригинала: поле, справа круглая кнопка, под ними — оговорка */
 .hd-chat-form {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 12px 6px;
   border-radius: 16px;
   background: #fff;
   box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
 }
-.hd-chat-avatar { flex: 0 0 auto; display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; }
-.hd-chat-avatar svg { width: 30px; height: 30px; }
-.hd-chat-field {
+.hd-chat-row { display: flex; align-items: center; gap: 12px; }
+.hd-chat-input {
   flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 48px;
-  padding: 6px 6px 6px 12px;
+  min-height: 44px;
+  max-height: 160px;
+  padding: 11px 12px;
   border: 1px solid #c4e6ff;
   border-radius: 12px;
   background: #f6fafb;
-}
-.hd-chat-field:focus-within { border-color: var(--hd-primary); }
-.hd-chat-input {
-  flex: 1 1 auto;
-  max-height: 160px;
-  padding: 4px 0;
-  border: 0;
-  background: transparent;
   color: #333;
   font: inherit;
   font-size: 16px;
@@ -258,18 +254,10 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
   resize: none;
   outline: none;
 }
-.hd-chat-input::placeholder { color: var(--hd-text-tertiary); }
-.hd-chat-clear {
-  display: inline-flex;
-  padding: 7px;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  color: #6a737f;
-  font-size: 20px;
-  cursor: pointer;
-}
-.hd-chat-clear:hover { background: var(--hd-hover-bg); color: #333; }
+.hd-chat-input:focus { border-color: var(--hd-primary); }
+.hd-chat-disclaimer { margin: 0; text-align: center; font-size: 12px; line-height: 15px; font-style: italic; color: var(--hd-text-tertiary); }
+.hd-chat-disclaimer a { color: var(--hd-text-tertiary); text-decoration: underline; }
+.hd-chat-disclaimer a:hover { color: #333; }
 .hd-chat-send {
   flex: 0 0 auto;
   display: inline-flex;
@@ -291,6 +279,5 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 @media (max-width: 767px) {
   .hd-chat { padding: 16px; }
   .hd-chat-close { top: 12px; right: 12px; }
-  .hd-chat-avatar { display: none; }
 }
 </style>
