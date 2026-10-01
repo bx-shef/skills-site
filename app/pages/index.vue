@@ -1,6 +1,6 @@
 <!--
   Главная по образцу «Битрикс24 Ответы»: первый экран с ИИ-поиском, плитки тем,
-  промо-карточки, «Решение найдётся всегда», самые нужные статьи.
+  промо-карточки, «Остались вопросы», самые нужные статьи.
   content/index.md остаётся источником заголовка и описания (и текста для llms-full.txt).
 -->
 <script setup lang="ts">
@@ -106,7 +106,7 @@ function plainText(body: unknown): string {
     </section>
 
     <section class="hd-section">
-      <h2 class="hd-section-title">Всё для старта с bxshef</h2>
+      <h2 class="hd-section-title">Первый навык за вечер</h2>
       <div class="hd-grid hd-grid--2">
         <div class="hd-promo hd-promo--blue">
           <div class="hd-promo-art hd-promo-art--blue" aria-hidden="true"><HdIcon name="folder" /></div>
@@ -133,7 +133,7 @@ function plainText(body: unknown): string {
     </section>
 
     <section class="hd-section">
-      <h2 class="hd-section-title">Для тех, кто хочет больше</h2>
+      <h2 class="hd-section-title">Инструменты и исходники</h2>
       <div class="hd-grid">
         <div class="hd-promo hd-promo--cyan hd-promo--resource">
           <div class="hd-promo-art hd-promo-art--cyan" aria-hidden="true"><HdIcon name="bot" /></div>
@@ -170,7 +170,7 @@ function plainText(body: unknown): string {
     </section>
 
     <section class="hd-section">
-      <h2 class="hd-section-title">Решение найдётся всегда</h2>
+      <h2 class="hd-section-title">Остались вопросы</h2>
       <div class="hd-grid hd-grid--2">
         <button type="button" class="hd-support-card" @click="openChat()">
           <span class="hd-support-icon"><HdIcon name="chat" /></span>
@@ -190,7 +190,7 @@ function plainText(body: unknown): string {
     </section>
 
     <section v-if="articles?.length" class="hd-section" style="padding-bottom: 120px">
-      <h2 class="hd-section-title">Самые читаемые статьи</h2>
+      <h2 class="hd-section-title">С чего начать читать</h2>
       <div class="hd-articles">
         <NuxtLink v-for="a in articles" :key="a.path" :to="a.path" class="hd-article-card">
           <h3 class="hd-article-card-title">{{ a.title }}</h3>

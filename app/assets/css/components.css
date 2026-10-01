@@ -291,12 +291,12 @@
 .hd-hero-glow::before {
   width: 420px; height: 300px;
   left: 18%; top: 22%;
-  background: radial-gradient(closest-side, rgba(87, 206, 255, .75), rgba(87, 206, 255, 0));
+  background: radial-gradient(closest-side, rgba(64, 214, 190, .45), rgba(64, 214, 190, 0));
 }
 .hd-hero-glow::after {
   width: 520px; height: 340px;
   right: 6%; top: 14%;
-  background: radial-gradient(closest-side, rgba(124, 170, 255, .55), rgba(190, 160, 255, 0));
+  background: radial-gradient(closest-side, rgba(70, 140, 255, .4), rgba(70, 140, 255, 0));
   animation-delay: -4s;
 }
 @keyframes hd-glow {
@@ -398,61 +398,63 @@
 .hd-tone-5 { background: linear-gradient(135deg, #f2a6ff 0%, #c27bff 50%, #8f52ff 100%); }
 .hd-tone-6 { background: linear-gradient(135deg, #36a9ff 0%, #0b7bff 55%, #0058f0 100%); }
 
-/* --- Промо-карточки: цветной фон, заголовок, текст, синие кнопки --------- */
+/* --- Промо-карточки ------------------------------------------------------
+   Своё решение, не как у оригинала: белая карточка, цветная полоса сверху,
+   значок-иконка в потоке над заголовком, кнопки внизу.
+   -------------------------------------------------------------------------*/
 
 .hd-promo {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 220px;
-  padding: 32px 20px 24px 32px;
-  border-radius: 20px;
-  overflow: hidden;
+  gap: 16px;
+  min-height: 200px;
+  padding: 28px 28px 24px;
+  border-radius: 16px;
+  background: var(--hd-surface);
   box-shadow: var(--hd-shadow-card);
+  overflow: hidden;
+  --accent: #0075ff;
+  --accent-2: #5fc3ff;
 }
-.hd-promo--blue   { background: var(--hd-bubble-own, #e3f4ff); }
-.hd-promo--purple { background: #f4ddff; }
-.hd-promo--cyan   { background: #dff6ff; }
-.hd-promo--lilac  { background: #f1e7ff; }
-.hd-promo--sky    { background: #bbf0ff; }
+.hd-promo::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.hd-promo--blue   { --accent: #0075ff; --accent-2: #5fc3ff; }
+.hd-promo--purple { --accent: #8f52ff; --accent-2: #f08cff; }
+.hd-promo--cyan   { --accent: #00a6c8; --accent-2: #5fe0d2; }
+.hd-promo--lilac  { --accent: #b14dff; --accent-2: #ff8fb8; }
+.hd-promo--sky    { --accent: #1f6fe0; --accent-2: #7a8cff; }
 
-.hd-promo-content { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 6px; max-width: 60%; flex: 1; }
-.hd-promo-title { margin: 0; font-size: 19px; line-height: 26px; font-weight: 500; color: var(--hd-text-heading); }
-.hd-promo-text { margin: 0; font-size: 15px; line-height: 20px; color: var(--hd-text-heading); }
+.hd-promo-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, var(--accent-2), var(--accent));
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.hd-promo-art .hd-icon { width: 26px; height: 26px; color: #fff; }
+.hd-promo-content { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.hd-promo-title { margin: 0; font-size: 19px; line-height: 26px; font-weight: 600; color: var(--hd-text-heading); }
+.hd-promo-text { margin: 0; font-size: 15px; line-height: 21px; color: var(--hd-text-secondary); }
 .hd-promo-text code {
   font: 13px/1.4 var(--hd-font-mono);
   padding: 1px 6px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, .7);
+  background: var(--hd-soft);
+  color: var(--hd-text-primary);
 }
-.hd-promo-buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: auto; padding-top: 20px; }
-
-/* Большая «стеклянная» иконка в правом верхнем углу карточки */
-.hd-promo-art {
-  position: absolute;
-  top: -10px;
-  right: -6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 150px;
-  height: 150px;
-  border-radius: 40px;
-  transform: rotate(-12deg);
-  box-shadow: 0 24px 40px rgba(0, 80, 200, .18);
-}
-.hd-promo-art .hd-icon { width: 72px; height: 72px; color: #fff; filter: drop-shadow(0 3px 6px rgba(0, 40, 120, .3)); }
-.hd-promo-art--blue   { background: linear-gradient(145deg, #7ad3ff, #1c8cff); }
-.hd-promo-art--purple { background: linear-gradient(145deg, #f3b8ff, #a764ff); }
-.hd-promo-art--cyan   { background: linear-gradient(145deg, #9ef0ff, #2bb8ff); }
-
-/* Карточки «Для тех, кто хочет больше» — выше и текст снизу */
-.hd-promo--resource { min-height: 263px; padding: 32px 32px 24px; justify-content: flex-end; }
-.hd-promo--resource .hd-promo-content { max-width: 100%; flex: 0 0 auto; gap: 12px; }
-.hd-promo--resource .hd-promo-text { color: var(--hd-text-primary); }
-.hd-promo--resource .hd-promo-buttons { margin-top: 0; padding-top: 0; }
-.hd-promo--resource .hd-promo-art { width: 120px; height: 120px; top: -14px; right: 14px; border-radius: 32px; }
-.hd-promo--resource .hd-promo-art .hd-icon { width: 58px; height: 58px; }
+.hd-promo-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; padding-top: 14px; }
+.hd-promo .hd-btn-primary { background: var(--accent); }
+.hd-promo .hd-btn-primary:hover { background: color-mix(in srgb, var(--accent) 85%, #000); }
+.hd-promo--resource { min-height: 0; }
 
 /* --- «Решение найдётся всегда»: белые карточки с иконкой ----------------- */
 

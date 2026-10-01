@@ -31,7 +31,8 @@
   --hd-float-shadow:   0 4px 20px rgba(0, 0, 0, .1);
 
   /* Фон страницы — диагональный градиент голубой → сиреневый, как у виджета */
-  --hd-page-bg: linear-gradient(134.06deg, #eff6ff 17.59%, #eff5ff 33.41%, #eef2ff 46.32%, #f9f5ff 60.82%);
+  /* фон главной — свой: холодный голубой с мятным уходом, не как у оригинала */
+  --hd-page-bg: radial-gradient(1200px 600px at 85% -10%, #e4f0ff 0%, transparent 60%), radial-gradient(900px 500px at -10% 30%, #e6faf5 0%, transparent 55%), linear-gradient(180deg, #f7f9fc 0%, #f3f6fb 100%);
 
   /* Наведение на пункт меню: очень светлый голубой, не прозрачность акцента */
   --hd-hover-bg:       #e6f4ff;
@@ -107,15 +108,10 @@
   --hd-code-bg:        #1c1f25;
   --hd-float-bg:       #252a33;
   --hd-float-shadow:   0 6px 24px rgba(0, 0, 0, .55), 0 0 0 1px rgba(47, 143, 255, .15);
-  --hd-page-bg: linear-gradient(134.06deg, #121624 17.59%, #131826 33.41%, #15172a 46.32%, #1a1729 60.82%);
+  --hd-page-bg: radial-gradient(1200px 600px at 85% -10%, #14233a 0%, transparent 60%), radial-gradient(900px 500px at -10% 30%, #112a28 0%, transparent 55%), linear-gradient(180deg, #121419 0%, #14161c 100%);
   --hd-shadow-card:    0 4px 20px rgba(0, 0, 0, .35);
   --hd-shadow-btn:     0 4px 20px rgba(0, 0, 0, .4);
 }
-.dark .hd-promo--blue   { background: #142d45; }
-.dark .hd-promo--purple { background: #33203f; }
-.dark .hd-promo--cyan   { background: #12343f; }
-.dark .hd-promo--lilac  { background: #29213f; }
-.dark .hd-promo--sky    { background: #0f3a48; }
 .dark .hd-card--blue    { background: #142d45; }
 .dark .hd-toc-preview   { background: linear-gradient(160deg, #18222f 0%, var(--hd-bg) 45%); }
 .dark .hd-promo-text code { background: rgba(255, 255, 255, .08); }
