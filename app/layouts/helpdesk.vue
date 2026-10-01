@@ -1,6 +1,6 @@
 <!--
   Макет по образцу «Битрикс24 Ответы» (helpdesk.bitrix24.ru/widget2/):
-  белая шапка с поиском, пустая колонка 84px с линией слева, по центру —
+  белая шапка с поиском, меню-иконки 84px слева (раскрывается по наведению), по центру —
   секции на градиентном фоне или статья на белом листе с оглавлением справа.
   Чат с ИИ-агентом — оверлей поверх страницы, открывается из поиска.
 -->
@@ -8,7 +8,9 @@
   <div class="hd-shell">
     <HdHeader :search-hidden="searchHidden" />
 
-    <aside class="hd-sidebar" aria-hidden="true" />
+    <aside class="hd-sidebar sidebar-menu">
+      <HdMenu />
+    </aside>
 
     <div class="hd-main">
       <div v-if="article" class="hd-article-layout">
@@ -42,6 +44,8 @@
         </div>
       </div>
     </footer>
+
+    <HdScrollTop />
 
     <ClientOnly>
       <HdChatOverlay :open="chatOpen" @close="closeChat()" />

@@ -12,12 +12,13 @@ app/
   app.vue                      оболочка: B24App (Bitrix24 UI), навигация по контенту
   app.config.ts                заголовок и описание сайта
   utils/site.ts                useSeo, крошки по навигации
-  layouts/helpdesk.vue         макет: шапка с поиском, колонка 84px с линией слева, статья на белом листе с оглавлением, подвал
+  layouts/helpdesk.vue         макет: шапка с поиском, меню-иконки 84px слева (HdMenu, раскрывается по наведению), кнопка «Наверх», статья на белом листе с оглавлением, подвал
   components/Hd*.vue           шапка, поиск (шапка и первый экран), чат-оверлей, оглавление «В этой статье», крошки, баннер ИИ-поиска
   components/content/          hd-cards / hd-card / hd-faq / hd-faq-item — для markdown лендинга
   assets/css/                  tokens → layout → content → components (порядок важен)
   pages/index.vue              главная: ИИ-поиск, плитки тем, промо, «Самые читаемые статьи»
   pages/topics.vue             «Все темы» (база знаний) — из навигации контента
+  pages/search.vue             «Интеллектуальный поиск» (/search?q=) — по словам в разделах страниц
   pages/[[lang]]/[...slug].vue страницы документации
 content.config.ts              коллекции landing (content/index.md) и docs (остальное, с .navigation.yml)
 Dockerfile                     двухэтапная сборка: sync-content + nuxt build → node-server

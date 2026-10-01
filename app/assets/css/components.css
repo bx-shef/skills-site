@@ -633,3 +633,42 @@
   .hd-header-search { display: none; }
   .hd-topics-title { font-size: 30px; }
 }
+
+/* --- Левое меню (sidebar-menu оригинала) -------------------------------- */
+
+.sidebar-menu__panel { display: flex; flex-direction: column; justify-content: space-between; min-height: 100%; gap: 12px; }
+.sidebar-menu__nav { display: flex; flex-direction: column; gap: 2px; }
+.sidebar-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 50px;
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--hd-text-primary);
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--hd-transition);
+}
+.sidebar-menu__item:hover, .sidebar-menu__item.is-active { background: var(--hd-hover-bg); color: #000; }
+.sidebar-menu__item.is-active { font-weight: 500; }
+.sidebar-menu__icon-wrapper { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; color: #2e86ff; }
+.sidebar-menu__icon { width: 26px; height: 26px; }
+.sidebar-menu__support-icon { color: var(--hd-text-secondary); }
+/* подписи видны только в раскрытом меню */
+.sidebar-menu__item-text { opacity: 0; transition: opacity .2s ease; overflow: hidden; text-overflow: ellipsis; }
+.hd-sidebar:hover .sidebar-menu__item-text { opacity: 1; }
+.sidebar-menu__show-all-btn { min-height: 40px; color: var(--hd-text-secondary); }
+.sidebar-menu__show-all-btn .sidebar-menu__icon-wrapper { color: var(--hd-text-secondary); }
+.sidebar-menu__show-all-btn .sidebar-menu__item-text { order: 2; }
+.sidebar-menu__show-all-icon { transition: transform .2s ease; }
+.sidebar-menu__show-all-icon.is-open { transform: rotate(180deg); }
+.sidebar-menu__support { border-top: 1px solid #e3e8f0; padding-top: 8px; }

@@ -77,7 +77,7 @@
 
         <div v-if="error" class="hd-chat-answer">
           <p class="hd-chat-error">Не удалось выполнить запрос.</p>
-          <NuxtLink to="/topics" class="hd-chat-fallback" @click="$emit('close')">🔎 Попробуйте найти ответ через поиск по темам</NuxtLink>
+          <NuxtLink :to="{ path: '/search', query: { q: lastQuestion } }" class="hd-chat-fallback" @click="$emit('close')">🔎 Попробуйте найти ответ через поиск по ключевым словам</NuxtLink>
         </div>
       </div>
 
@@ -145,6 +145,9 @@ type Source = { title: string, url: string }
 const sourcesOf = (part: unknown) => ((part as { data?: Source[] }).data || [])
 // Ссылки из llms-full.txt абсолютные (https://skills-site…/путь) — внутри сайта переходим без перезагрузки
 const localPath = (url: string) => { try { return new URL(url).pathname } catch { return url } }
+
+// Последний вопрос — для ссылки «поиск по ключевым словам», когда ИИ не ответил
+const lastQuestion = computed(() => { const m = [...chatMessages.value].reverse().find(x => x.role === 'user'); return m ? textOf(m) : '' })
 
 const textOf = (m: UIMessage) => m.parts.filter(p => p.type === 'text').map(p => (p as { text: string }).text).join('')
 

@@ -54,9 +54,9 @@ body {
 
 .hd-header-actions { display: flex; align-items: center; gap: var(--hd-space-md); margin-left: auto; }
 
-/* --- Колонка слева -------------------------------------------------------
-   В виджете это меню; на сайте пунктов нет, остаётся ровно то, что видно
-   в оригинале: пустая колонка 84px и тонкая линия по правому краю.
+/* --- Меню слева ----------------------------------------------------------
+   Как sidebar-menu оригинала: 84px иконок, по наведению раскрывается поверх
+   текста (не раздвигает его), линия по правому краю.
    -------------------------------------------------------------------------*/
 
 .hd-sidebar {
@@ -66,16 +66,17 @@ body {
   z-index: 90;
   width: var(--hd-sidebar-width);
   height: calc(100vh - var(--hd-header-height));
-  padding: 26px 0 20px;
-  pointer-events: none;
+  padding: 10px 8px;
+  overflow: hidden;
+  border-right: 1px solid #e3e8f0;
+  background: transparent;
+  transition: width .2s ease, background-color .2s ease, box-shadow .2s ease;
 }
-.hd-sidebar::after {
-  content: '';
-  display: block;
-  margin-left: auto;
-  width: 1px;
-  height: 100%;
-  background: #e3e8f0;
+.hd-sidebar:hover {
+  width: var(--hd-sidebar-open);
+  overflow-y: auto;
+  background: var(--hd-bg);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, .06);
 }
 
 .hd-main {
