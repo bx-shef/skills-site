@@ -103,7 +103,7 @@
         </div>
         <p class="hd-chat-disclaimer">
           Ответы BitrixGPT могут быть неточны, проверяйте важную информацию.
-          <NuxtLink to="/methodology/method" @click="$emit('close')">Подробнее</NuxtLink>
+          <NuxtLink to="/ai-answers">Подробнее</NuxtLink>
         </p>
       </form>
     </div>

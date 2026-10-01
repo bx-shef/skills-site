@@ -5,8 +5,8 @@
 -->
 <template>
   <div ref="root" class="hd-copy-page">
-    <button type="button" class="hd-copy-page-main" @click="copyMarkdown">
-      <HdIcon :name="copied ? 'check' : 'copy'" />
+    <button type="button" class="hd-copy-page-main" title="Копировать текст статьи (Markdown)" @click="copyMarkdown">
+      <HdIcon :name="copied ? 'check' : 'markdown'" />
       <span>{{ copied ? 'Скопировано' : 'Копировать страницу' }}</span>
     </button>
     <button type="button" class="hd-copy-page-toggle" aria-label="Ещё" :aria-expanded="open" @click="open = !open">

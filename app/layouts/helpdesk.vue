@@ -18,8 +18,8 @@
           <div class="hd-article-head">
             <HdBreadcrumbs :items="breadcrumbs" />
             <span class="hd-article-head-actions">
-              <HdCopyPage />
-              <button class="hd-icon-btn" type="button" :title="copied ? 'Ссылка скопирована' : 'Скопировать ссылку'" @click="copyLink">
+              <HdCopyPage v-if="docPage" />
+              <button class="hd-icon-btn" type="button" :title="copied ? 'Ссылка скопирована' : 'Скопировать ссылку на статью'" @click="copyLink">
                 <HdIcon :name="copied ? 'check' : 'link'" />
               </button>
             </span>
@@ -28,7 +28,7 @@
         </div>
         <aside class="hd-aside">
           <HdToc v-if="tocLinks.length" :links="tocLinks" />
-          <HdDiscussAi :title="pageTitle" />
+          <HdDiscussAi v-if="docPage" :title="pageTitle" />
         </aside>
       </div>
 
@@ -61,9 +61,10 @@
 withDefaults(defineProps<{
   article?: boolean
   pageTitle?: string
+  docPage?: boolean   // страница документации: есть /raw/*.md и её можно обсудить с ИИ
   tocLinks?: Array<{ id: string, text: string, depth: number }>
   breadcrumbs?: Array<{ title: string, path?: string }>
-}>(), { article: false, tocLinks: () => [], breadcrumbs: () => [] })
+}>(), { article: false, docPage: true, tocLinks: () => [], breadcrumbs: () => [] })
 
 const { open: chatOpen, closeChat } = useHdChat()
 
