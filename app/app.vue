@@ -25,7 +25,7 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 })
 
-const { data: navigation } = await useAsyncData('navigation_docs', () => queryCollectionNavigation('docs'), {
+const { data: navigation } = await useAsyncData('navigation_docs', () => queryCollectionNavigation('docs', ['description']), {
   transform: (data: ContentNavigationItem[]) => transformNavigation(data, false, 'ru'),
 })
 provide('navigation', navigation)

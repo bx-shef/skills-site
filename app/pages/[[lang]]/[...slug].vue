@@ -31,6 +31,8 @@ const breadcrumbs = computed(() => {
 })
 
 const tocLinks = computed(() => page.value?.body?.toc?.links || [])
+// Плашка «В статье:» под заголовком — те же разделы второго уровня, не больше восьми
+const previewLinks = computed(() => tocLinks.value.filter((l: { depth: number }) => l.depth === 2).slice(0, 8))
 
 useSeo({ title, description, type: 'article', breadcrumbs: breadcrumbs.value })
 defineOgImage('Docs', { title: title?.slice(0, 60), description: formatOgDescription(title, description) })
@@ -44,8 +46,17 @@ addPrerenderPath(`/raw${route.path}.md`)
     :toc-links="tocLinks"
     :breadcrumbs="breadcrumbs"
   >
-    <h1>{{ page?.title }}</h1>
+    <div class="hd-article-title-wrap">
+      <h1>{{ page?.title }}</h1>
+    </div>
     <p v-if="page?.description" class="hd-lead">{{ page.description }}</p>
+
+    <div v-if="previewLinks.length > 1" class="hd-toc-preview">
+      <p>В статье:</p>
+      <ul>
+        <li v-for="link in previewLinks" :key="link.id"><a :href="`#${link.id}`">{{ link.text }}</a></li>
+      </ul>
+    </div>
 
     <ContentRenderer v-if="page" :value="page" />
 
@@ -64,13 +75,14 @@ addPrerenderPath(`/raw${route.path}.md`)
 </template>
 
 <style scoped>
-.hd-lead { margin: calc(-1 * var(--hd-space-md)) 0 var(--hd-space-2xl); color: var(--hd-text-secondary); }
+.hd-lead { margin: 0 0 var(--hd-space-xl); color: var(--hd-text-secondary); }
 .hd-surround {
   display: flex;
   justify-content: space-between;
   gap: var(--hd-space-xl);
   margin-top: var(--hd-space-3xl);
   padding-top: var(--hd-space-2xl);
+  font-size: 15px;
   border-top: 1px solid var(--hd-border);
 }
 .hd-surround-link { display: flex; flex-direction: column; gap: 2px; color: var(--hd-text-primary); text-decoration: none; font-size: var(--hd-size-sm); }

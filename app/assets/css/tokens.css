@@ -18,6 +18,13 @@
   --hd-text-secondary: #525c69;
   --hd-text-tertiary:  #828b95;
   --hd-text-heading:   #000000;   /* заголовки статьи и активный пункт меню */
+  --hd-text-brand:     #292a39;   /* логотип и заголовок первого экрана */
+  --hd-link:           #0154c8;   /* ссылки в тексте статьи */
+  --hd-border-input:   #c9ccd0;   /* поле поиска в шапке */
+  --hd-surface:        rgba(255, 255, 255, .85); /* карточки поверх градиентного фона */
+
+  /* Фон страницы — диагональный градиент голубой → сиреневый, как у виджета */
+  --hd-page-bg: linear-gradient(134.06deg, #eff6ff 17.59%, #eff5ff 33.41%, #eef2ff 46.32%, #f9f5ff 60.82%);
 
   /* Наведение на пункт меню: очень светлый голубой, не прозрачность акцента */
   --hd-hover-bg:       #e6f4ff;
@@ -33,7 +40,7 @@
   --hd-line-md: 23px;
 
   /* --- Раскладка --- */
-  --hd-header-height:  58px;
+  --hd-header-height:  59px;
   --hd-sidebar-width:  84px;    /* узкое меню-иконки */
   --hd-sidebar-open:   280px;   /* раскрытое: в оригинале едет по ширине */
   --hd-main-max:       1440px;  /* вся страница по центру */
@@ -64,19 +71,5 @@
 
   /* --- Тень карточки --- */
   --hd-shadow-card: 0 4px 20px rgba(0, 0, 0, .04);
-}
-
-/* Тёмная тема. В оригинале её нет — виджет только светлый. Добавлена, потому
-   что Docus умеет переключать, а без неё на тёмной теме всё побелеет.
-   Переопределены только те токены, что меняются. */
-:root[data-theme="dark"] {
-  --hd-bg:             #17181a;
-  --hd-border:         #2a2c2f;
-  --hd-border-button:  #33363a;
-  --hd-text-primary:   #e8eaed;
-  --hd-text-secondary: #b0b6bd;
-  --hd-text-tertiary:  #8a9199;
-  --hd-text-heading:   #ffffff;
-  --hd-hover-bg:       #16324a;
-  --hd-shadow-card:    0 4px 20px rgba(0, 0, 0, .35);
+  --hd-shadow-btn:  0 4px 20px rgba(0, 0, 0, .08);
 }

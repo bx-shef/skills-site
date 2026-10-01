@@ -15,13 +15,14 @@ export default defineNuxtConfig({
     '~/assets/css/content.css',
     '~/assets/css/components.css',
   ],
-  // Тема переключается атрибутом data-theme на <html> — так её ждёт tokens.css
-  colorMode: { classSuffix: '', dataValue: 'theme' },
-  // Иконки разделов приходят из content/*/.navigation.yml — сканер их не видит, перечисляем явно
+  // Только светлая тема: виджет «Битрикс24 Ответы» светлый, и сайт открывается внутри Битрикс24
+  colorMode: { classSuffix: '', dataValue: 'theme', preference: 'light', fallback: 'light' },
+  // Имена иконок приходят из данных (плитки, .navigation.yml) — сканер их не видит, перечисляем явно
   icon: {
     clientBundle: {
-      icons: ['lucide:ruler', 'lucide:sparkles', 'lucide:package', 'lucide:folder', 'lucide:house', 'lucide:bot',
-        'lucide:message-circle', 'lucide:shield-check', 'lucide:sun', 'lucide:moon', 'simple-icons:github'],
+      icons: ['lucide:ruler', 'lucide:sparkles', 'lucide:package', 'lucide:folder', 'lucide:bot', 'lucide:compass',
+        'lucide:message-circle', 'lucide:flask-conical', 'lucide:square-terminal', 'lucide:git-pull-request',
+        'lucide:folder-git-2', 'lucide:message-square-heart', 'lucide:cloud', 'lucide:file-text', 'lucide:link', 'lucide:check'],
     },
   },
 

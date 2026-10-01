@@ -1,30 +1,47 @@
 <!--
-  Макет по образцу виджета поддержки Битрикс24 (набор helpdesk-docus-kit):
-  шапка с поиском, узкое меню слева, статья рядом с оглавлением.
-  Чат с ИИ-агентом — оверлей поверх страницы, открывается из меню и из поиска.
+  Макет по образцу «Битрикс24 Ответы» (helpdesk.bitrix24.ru/widget2/):
+  белая шапка с поиском, пустая колонка 84px с линией слева, по центру —
+  секции на градиентном фоне или статья на белом листе с оглавлением справа.
+  Чат с ИИ-агентом — оверлей поверх страницы, открывается из поиска.
 -->
 <template>
   <div class="hd-shell">
-    <HdHeader :title="title" @toggle-menu="menuOpen = !menuOpen" />
+    <HdHeader :search-hidden="searchHidden" />
 
-    <aside class="hd-sidebar" :class="{ 'is-open': menuOpen }">
-      <HdMenu @open-chat="openChat()" @navigate="menuOpen = false" />
-    </aside>
+    <aside class="hd-sidebar" aria-hidden="true" />
 
-    <div class="hd-main" @click="menuOpen && (menuOpen = false)">
+    <div class="hd-main">
       <div v-if="article" class="hd-article-layout">
         <div class="hd-article">
-          <HdBreadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
+          <div class="hd-article-head">
+            <HdBreadcrumbs :items="breadcrumbs" />
+            <button class="hd-icon-btn" type="button" :title="copied ? 'Ссылка скопирована' : 'Скопировать ссылку'" @click="copyLink">
+              <UIcon :name="copied ? 'i-lucide-check' : 'i-lucide-link'" />
+            </button>
+          </div>
           <slot />
         </div>
-        <HdToc v-if="toc && tocLinks.length" :links="tocLinks" />
+        <aside class="hd-aside">
+          <HdToc v-if="tocLinks.length" :links="tocLinks" />
+          <HdAiBanner />
+        </aside>
       </div>
 
       <div v-else class="hd-content">
-        <HdBreadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
         <slot />
       </div>
     </div>
+
+    <footer class="hd-footer">
+      <div class="hd-footer-inner">
+        <NuxtLink to="/" class="hd-footer-logo">bxshef</NuxtLink>
+        <div class="hd-footer-socials">
+          <a href="https://github.com/bx-shef" target="_blank" rel="noopener" title="GitHub"><UIcon name="i-lucide-github" /></a>
+          <a href="/llms.txt" target="_blank" title="llms.txt для ИИ-агентов"><UIcon name="i-lucide-bot" /></a>
+          <a href="https://agentskills.io" target="_blank" rel="noopener" title="Agent Skills"><UIcon name="i-lucide-sparkles" /></a>
+        </div>
+      </div>
+    </footer>
 
     <ClientOnly>
       <HdChatOverlay :open="chatOpen" @close="closeChat()" />
@@ -33,13 +50,21 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
-  title:       { type: String,  default: 'bxshef' },
-  article:     { type: Boolean, default: false },
-  toc:         { type: Boolean, default: true },
-  tocLinks:    { type: Array as PropType<Array<{ id: string, text: string, depth: number }>>, default: () => [] },
-  breadcrumbs: { type: Array as PropType<Array<{ title: string, path?: string }>>, default: () => [] },
-})
+withDefaults(defineProps<{
+  article?: boolean
+  searchHidden?: boolean
+  tocLinks?: Array<{ id: string, text: string, depth: number }>
+  breadcrumbs?: Array<{ title: string, path?: string }>
+}>(), { article: false, searchHidden: false, tocLinks: () => [], breadcrumbs: () => [] })
 
-const { open: chatOpen, menuOpen, openChat, closeChat } = useHdChat()
+const { open: chatOpen, closeChat } = useHdChat()
+
+const copied = ref(false)
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(location.href.split('#')[0])
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 1500)
+  } catch { /* буфер недоступен во фрейме без разрешения — молча */ }
+}
 </script>

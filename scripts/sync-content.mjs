@@ -28,7 +28,8 @@ for (const r of REPOS) {
 // content/ пересобирается целиком, кроме index.md (лендинг пишется руками)
 for (const e of fs.readdirSync(OUT)) if (e !== 'index.md') fs.rmSync(path.join(OUT, e), { recursive: true, force: true })
 
-const read = (p) => fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null
+// CRLF → LF: при git autocrlf (Windows) «.» в регулярках не берёт \r, и заголовок H1 не срезался
+const read = (p) => fs.existsSync(p) ? fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n') : null
 const write = (rel, text) => { const p = path.join(OUT, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, text) }
 const stripFront = (md) => md.replace(/^---\n[\s\S]*?\n---\n/, '')
 const titleOf = (md, fallback) => (md.match(/^#\s+(.+)$/m) || [])[1] || fallback

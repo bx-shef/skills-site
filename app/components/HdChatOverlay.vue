@@ -138,9 +138,8 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join(), () => {
   justify-content: space-between;
   gap: var(--hd-space-md);
   padding-bottom: var(--hd-space-xl);
-  border-bottom: 1px solid var(--hd-border);
 }
-.hd-chat-title { display: block; font-size: var(--hd-size-lg); font-weight: 600; }
+.hd-chat-title { display: block; font-size: 21px; line-height: 29px; font-weight: 600; color: #333; }
 .hd-chat-sub { display: block; font-size: 12px; color: var(--hd-text-tertiary); }
 .hd-chat-actions { display: flex; gap: var(--hd-space-sm); flex: 0 0 auto; }
 
@@ -168,14 +167,15 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join(), () => {
   margin: 0;
   max-width: 85%;
   padding: var(--hd-space-md) var(--hd-space-xl);
-  border-radius: var(--hd-radius-md);
-  background: var(--hd-border);
-  font-size: var(--hd-size-sm);
+  border-radius: 16px;
+  background: var(--hd-surface);
+  box-shadow: var(--hd-shadow-card);
+  font-size: 15px;
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
 }
-.hd-chat-message--own .hd-chat-text { background: var(--hd-hover-bg); }
+.hd-chat-message--own .hd-chat-text { background: #e3f4ff; box-shadow: none; }
 .hd-chat-md { white-space: normal; }
 .hd-chat-md :deep(p) { margin: 0 0 .6em; }
 .hd-chat-md :deep(p:last-child) { margin-bottom: 0; }
@@ -194,8 +194,10 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join(), () => {
   display: flex;
   align-items: flex-end;
   gap: var(--hd-space-md);
-  padding-top: var(--hd-space-xl);
-  border-top: 1px solid var(--hd-border);
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--hd-bg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
 }
 
 .hd-chat-input {
@@ -203,13 +205,13 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join(), () => {
   min-height: 40px;
   max-height: 160px;
   padding: var(--hd-space-md);
-  border: 1px solid var(--hd-border-button);
-  border-radius: var(--hd-radius-md);
-  background: var(--hd-bg);
+  border: 1px solid #c4e6ff;
+  border-radius: 12px;
+  background: #f6fafb;
   color: var(--hd-text-primary);
   font: inherit;
-  font-size: var(--hd-size-sm);
-  resize: vertical;
+  font-size: 16px;
+  resize: none;
   outline: none;
 }
 .hd-chat-input:focus { border-color: var(--hd-primary); }

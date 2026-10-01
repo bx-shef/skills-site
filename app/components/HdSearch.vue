@@ -1,30 +1,57 @@
 <!--
-  Поиск с историей запросов. Ищет по заголовкам и тексту разделов всех страниц
-  (queryCollectionSearchSections). Кнопка «→» и Enter без выбранного результата
-  отправляют вопрос ИИ-агенту — открывается чат-оверлей с этим вопросом.
+  Поиск с историей запросов, как в «Битрикс24 Ответы». Два вида: компактный
+  в шапке и большой (hero) на первом экране — с аватаром ИИ и круглой кнопкой.
+  Ищет по заголовкам и тексту разделов всех страниц (queryCollectionSearchSections).
+  Enter и кнопка «отправить» задают вопрос ИИ-агенту — открывается чат-оверлей.
 -->
 <template>
-  <div class="hd-search-wrap" @keydown.escape="close">
-    <div class="hd-search">
-      <input
-        v-model="query"
-        class="hd-search-input"
-        type="search"
-        placeholder="Найти на сайте или спросить ИИ-агента"
-        aria-label="Поиск по сайту"
-        autocomplete="off"
-        @focus="historyOpen = true"
-        @keydown.enter.prevent="submit"
-      >
+  <div class="hd-search-wrap" :class="{ 'hd-search-wrap--hero': hero }" @keydown.escape="close">
+    <div :class="hero ? 'hd-search-box' : 'hd-search-row'">
+      <span v-if="hero" class="hd-search-avatar" aria-hidden="true"><HdStar /></span>
+
+      <div class="hd-search">
+        <HdStar v-if="!hero" class="hd-search-star" />
+        <input
+          v-model="query"
+          class="hd-search-input"
+          type="search"
+          :placeholder="placeholder"
+          aria-label="Поиск по сайту"
+          autocomplete="off"
+          @focus="historyOpen = true"
+          @keydown.enter.prevent="submit"
+        >
+        <button
+          class="hd-search-history-toggle"
+          type="button"
+          aria-label="История запросов"
+          title="История запросов"
+          @click.stop="historyOpen = !historyOpen"
+        >
+          <UIcon name="i-lucide-history" />
+        </button>
+        <button
+          v-if="hero"
+          class="hd-search-send"
+          type="button"
+          aria-label="Спросить ИИ-агента"
+          :disabled="query.trim().length < 2"
+          @click="submit"
+        >
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.5 2.3c0-.6.7-1 1.2-.7l9 5.7c.5.3.5 1 0 1.4l-9 5.7c-.5.3-1.2-.1-1.2-.7V2.3Z" /></svg>
+        </button>
+      </div>
 
       <button
-        class="hd-search-btn"
+        v-if="!hero"
+        class="hd-search-send"
         type="button"
         aria-label="Спросить ИИ-агента"
-        title="Спросить ИИ-агента"
         :disabled="query.trim().length < 2"
         @click="submit"
-      >→</button>
+      >
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 3.5 17 10 3.5 16.5 6 10 3.5 3.5Z" /><path d="M6 10h5" stroke-linecap="round" /></svg>
+      </button>
     </div>
 
     <!-- История показывается, пока не начали печатать -->
@@ -36,7 +63,7 @@
         type="button"
         @click="pick(item)"
       >
-        <span aria-hidden="true">↻</span>
+        <UIcon name="i-lucide-history" />
         <span>{{ item }}</span>
       </button>
     </div>
@@ -53,7 +80,7 @@
         <span v-if="item.crumb" class="hd-search-result-crumb">{{ item.crumb }}</span>
       </NuxtLink>
       <button class="hd-search-history-btn hd-search-ask" type="button" @click="submit">
-        <span aria-hidden="true">✦</span>
+        <HdStar class="hd-search-star" />
         <span>Спросить ИИ-агента: «{{ query.trim() }}»</span>
       </button>
     </div>
@@ -61,6 +88,11 @@
 </template>
 
 <script setup lang="ts">
+defineProps({
+  hero: { type: Boolean, default: false },
+  placeholder: { type: String, default: 'Напишите вопрос. Например: как написать навык для модуля?' },
+})
+
 const { openChat } = useHdChat()
 
 const query = ref('')
@@ -91,14 +123,17 @@ const results = computed(() => {
     .slice(0, 8)
 })
 
+const root = getCurrentInstance()
 onMounted(() => {
   try { history.value = JSON.parse(localStorage.getItem('hd-search-history') || '[]') } catch { history.value = [] }
   document.addEventListener('click', onDocumentClick)
 })
 onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
 
+// Закрываем список по клику мимо именно этого поиска: их на главной два
 function onDocumentClick(e: MouseEvent) {
-  if (!(e.target as HTMLElement)?.closest?.('.hd-search-wrap')) historyOpen.value = false
+  const el = root?.proxy?.$el as HTMLElement | undefined
+  if (el && !el.contains(e.target as Node)) historyOpen.value = false
 }
 
 function remember(q: string) {
@@ -107,7 +142,7 @@ function remember(q: string) {
   try { localStorage.setItem('hd-search-history', JSON.stringify(next)) } catch { /* пустяк */ }
 }
 
-// Enter и «→» — вопрос ИИ-агенту. Страницу из результатов выбирают кликом.
+// Enter и «отправить» — вопрос ИИ-агенту. Страницу из результатов выбирают кликом.
 function submit() {
   const q = query.value.trim()
   if (q.length < 2) return
@@ -121,8 +156,9 @@ function close() { historyOpen.value = false; query.value = '' }
 </script>
 
 <style scoped>
-.hd-search-wrap { position: relative; width: 100%; min-width: 0; max-width: 560px; }
-.hd-search-result { flex-direction: column; align-items: flex-start; gap: 2px; text-decoration: none; }
+.hd-search-row { display: flex; align-items: center; gap: 12px; }
+.hd-search-result { flex-direction: column; align-items: flex-start; gap: 2px; }
+.hd-search-result-title { color: var(--hd-text-primary); }
 .hd-search-result-crumb { font-size: 12px; color: var(--hd-text-tertiary); }
-.hd-search-ask { color: var(--hd-primary); border-top: 1px solid var(--hd-border); border-radius: 0; }
+.hd-search-ask { color: var(--hd-primary); }
 </style>
