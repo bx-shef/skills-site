@@ -17,9 +17,12 @@
         <div class="hd-article">
           <div class="hd-article-head">
             <HdBreadcrumbs :items="breadcrumbs" />
-            <button class="hd-icon-btn" type="button" :title="copied ? 'Ссылка скопирована' : 'Скопировать ссылку'" @click="copyLink">
-              <HdIcon :name="copied ? 'check' : 'link'" />
-            </button>
+            <span class="hd-article-head-actions">
+              <HdCopyPage />
+              <button class="hd-icon-btn" type="button" :title="copied ? 'Ссылка скопирована' : 'Скопировать ссылку'" @click="copyLink">
+                <HdIcon :name="copied ? 'check' : 'link'" />
+              </button>
+            </span>
           </div>
           <slot />
         </div>
@@ -46,6 +49,7 @@
     </footer>
 
     <HdScrollTop />
+    <HdAskFloating v-if="article" />
 
     <ClientOnly>
       <HdChatOverlay :open="chatOpen" @close="closeChat()" />

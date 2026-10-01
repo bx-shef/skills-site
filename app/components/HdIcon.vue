@@ -37,6 +37,8 @@ import KnowledgeBaseIcon from '@bitrix24/b24icons-vue/outline/KnowledgeBaseIcon'
 import CodeIcon from '@bitrix24/b24icons-vue/common-service/CodeIcon'
 import AiStarsQuestionIcon from '@bitrix24/b24icons-vue/outline/AiStarsQuestionIcon'
 import BookOpenIcon from '@bitrix24/b24icons-vue/crm/BookOpenIcon'
+import MarkdownIcon from '@bitrix24/b24icons-vue/file-type/MarkdownIcon'
+import ChevronDownLIcon from '@bitrix24/b24icons-vue/outline/ChevronDownLIcon'
 
 defineProps<{ name: string }>()
 
@@ -71,6 +73,8 @@ const icons: Record<string, unknown> = {
   'code': CodeIcon,
   'question': AiStarsQuestionIcon,
   'book': BookOpenIcon,
+  'markdown': MarkdownIcon,
+  'chevron-down': ChevronDownLIcon,
 }
 </script>
 

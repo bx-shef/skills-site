@@ -35,6 +35,8 @@ const tocLinks = computed(() => page.value?.body?.toc?.links || [])
 const previewLinks = computed(() => tocLinks.value.filter((l: { depth: number }) => l.depth === 2).slice(0, 8))
 
 useSeo({ title, description, type: 'article' })
+// Markdown страницы (/raw/<путь>.md) — в пререндер: на него ведёт «Копировать страницу»
+prerenderRoutes(`/raw${route.path.replace(/\/$/, '')}.md`)
 </script>
 
 <template>
