@@ -3,15 +3,15 @@
   <nav class="hd-breadcrumbs" aria-label="Путь к странице">
     <span class="hd-breadcrumbs-nav">
       <button class="hd-icon-btn" type="button" aria-label="Назад" @click="router.back()">
-        <UIcon name="i-lucide-chevron-left" />
+        <HdIcon name="chevron-left" />
       </button>
       <button class="hd-icon-btn" type="button" aria-label="Вперёд" :disabled="!canForward" @click="router.forward()">
-        <UIcon name="i-lucide-chevron-right" />
+        <HdIcon name="chevron-right" />
       </button>
     </span>
     <NuxtLink to="/">Главная</NuxtLink>
     <template v-for="(item, i) in items" :key="item.path || i">
-      <span class="hd-breadcrumbs-sep" aria-hidden="true"><UIcon name="i-lucide-chevron-right" /></span>
+      <span class="hd-breadcrumbs-sep" aria-hidden="true"><HdIcon name="chevron-right" /></span>
       <!-- последняя крошка — текущая страница, ссылкой не делаем -->
       <span v-if="i === items.length - 1" aria-current="page">{{ item.title }}</span>
       <NuxtLink v-else :to="item.path">{{ item.title }}</NuxtLink>

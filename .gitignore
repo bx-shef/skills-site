@@ -7,3 +7,4 @@ node_modules/
 content/*
 !content/index.md
 public/llms-full.txt
+public/llms.txt

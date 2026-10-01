@@ -40,7 +40,7 @@
   transition: var(--hd-transition);
 }
 .hd-article a:hover { text-decoration: underline; }
-/* Docus оборачивает заголовки в якорь-ссылку — цвет заголовка, не ссылки */
+/* Nuxt Content оборачивает заголовки в якорь-ссылку — цвет заголовка, не ссылки */
 .hd-article h1 a, .hd-article h2 a, .hd-article h3 a, .hd-article h4 a { color: inherit; }
 .hd-article h2 a:hover, .hd-article h3 a:hover { text-decoration: none; }
 
@@ -116,7 +116,7 @@
 .hd-breadcrumbs a { color: var(--hd-text-tertiary); text-decoration: none; }
 .hd-breadcrumbs a:hover { color: var(--hd-text-heading); }
 .hd-breadcrumbs-sep { display: inline-flex; width: 24px; justify-content: center; color: #333; }
-.hd-breadcrumbs-sep .iconify { width: 12px; height: 12px; }
+.hd-breadcrumbs-sep .hd-icon { width: 12px; height: 12px; }
 .hd-breadcrumbs-nav { display: inline-flex; gap: 4px; padding-right: 6px; }
 .hd-icon-btn {
   display: inline-flex;
@@ -133,7 +133,7 @@
 }
 .hd-icon-btn:hover { background: var(--hd-hover-bg); }
 .hd-icon-btn:disabled { color: #c9ccd0; cursor: default; background: transparent; }
-.hd-icon-btn .iconify { width: 18px; height: 18px; }
+.hd-icon-btn .hd-icon { width: 18px; height: 18px; }
 
 .hd-article-title-wrap { padding: 10px 0 20px; }
 
@@ -148,3 +148,7 @@
 .hd-toc-preview p { margin: 0 0 8px; font-size: 16px; }
 .hd-toc-preview ul { margin: 4px 0 0; padding-left: 20px; }
 .hd-toc-preview li { padding: 4px 0; font-size: 17px; }
+
+/* Tailwind preflight убирает маркеры списков — в тексте статьи и в чате они нужны */
+.hd-article ul, .hd-toc-preview ul, .hd-chat-welcome ul { list-style: disc; }
+.hd-article ol { list-style: decimal; }

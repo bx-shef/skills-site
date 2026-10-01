@@ -1,16 +1,17 @@
 # skills-site.bx-shef.by
 
-Сайт методологии bxshef: [Docus](https://docus.dev) (Nuxt) в Docker, контент из репозиториев
+Сайт методологии bxshef: Nuxt + [Nuxt Content](https://content.nuxt.com) + [Bitrix24 UI](https://github.com/bitrix24/b24ui) в Docker, контент из репозиториев
 bx-shef при сборке образа, чат по содержимому сайта через BitrixGPT, `llms.txt` / `llms-full.txt`
 для ИИ-агентов. Вёрстка — 1 в 1 с виджетом «Битрикс24 Ответы» (helpdesk.bitrix24.ru/widget2/): сайт открывается внутри Битрикс24.
 
 ```
 content/index.md               лендинг — единственный текст, который живёт здесь
-scripts/sync-content.mjs       клонирует skills-standard, skills, options, problems, insync → content/, public/llms-full.txt
+scripts/sync-content.mjs       клонирует skills-standard, skills, options, problems, insync → content/, public/llms.txt, public/llms-full.txt
 server/api/assistant.post.ts   чат: OpenAI-совместимый провайдер (BitrixGPT через AI Router), подбор страниц под вопрос
 app/
-  app.vue                      оболочка вместо штатной Docus (без её шапки, подвала и панели ассистента)
-  app.config.ts                заголовок, FAQ чата, ссылки
+  app.vue                      оболочка: B24App (Bitrix24 UI), навигация по контенту
+  app.config.ts                заголовок и описание сайта
+  utils/site.ts                useSeo, крошки по навигации
   layouts/helpdesk.vue         макет: шапка с поиском, колонка 84px с линией слева, статья на белом листе с оглавлением, подвал
   components/Hd*.vue           шапка, поиск (шапка и первый экран), чат-оверлей, оглавление «В этой статье», крошки, баннер ИИ-поиска
   components/content/          hd-cards / hd-card / hd-faq / hd-faq-item — для markdown лендинга
@@ -18,7 +19,7 @@ app/
   pages/index.vue              главная: ИИ-поиск, плитки тем, промо, «Самые читаемые статьи»
   pages/topics.vue             «Все темы» (база знаний) — из навигации контента
   pages/[[lang]]/[...slug].vue страницы документации
-content.config.ts              коллекция landing (слой Docus её не заводит, когда есть свой index.vue)
+content.config.ts              коллекции landing (content/index.md) и docs (остальное, с .navigation.yml)
 Dockerfile                     двухэтапная сборка: sync-content + nuxt build → node-server
 docker-compose.prod.yml        прод: образ ghcr.io/bx-shef/skills-site за nginx-proxy, Watchtower
 docker-compose.yml             локальная сборка из исходников на 127.0.0.1:3000
@@ -80,14 +81,13 @@ BXSHEF_EVAL_KEY=… npm run dev                    # http://localhost:3000, ча
 
 ## Чат
 
-Свой обработчик `server/api/assistant.post.ts` на `apiPath` встроенного ассистента Docus
-(`docus.assistant.enabled: true`); штатная панель Docus не рендерится — чат живёт в
-`HdChatOverlay` (оверлей поверх страницы, открывается из поиска по Enter / кнопке, из карточки «Спросить ИИ-агента» и баннера под оглавлением),
-история — в localStorage. Режим `context` (по умолчанию): из `llms-full.txt` под вопрос
-подбираются до 8 страниц (≤ 60 КБ) и кладутся в системный промпт — работает с любой моделью.
-Режим `mcp`: поиск по документации инструментами встроенного MCP-сервера Docus (`/mcp`) — для
-моделей с tool calling. Модель и адрес — `BXSHEF_CHAT_MODEL`, `BXSHEF_EVAL_URL`. Ключ — только
-в `.env` на сервере или в окружении, в файлах репозитория его нет.
+`server/api/assistant.post.ts` (AI SDK, OpenAI-совместимый провайдер): из `llms-full.txt` под
+вопрос подбираются до 8 страниц (≤ 60 КБ) и кладутся в системный промпт — работает с любой
+моделью. Окно чата — `HdChatOverlay`, как помощник «Битрикс24 Ответы»: приветствие с примерами,
+вопрос пузырём справа, ответ с «копировать / нравится / не нравится», при ошибке — ссылка на
+«Все темы». Открывается из поиска (Enter / кнопка), карточки «Спросить ИИ-агента» и баннера под
+оглавлением; история — в localStorage. Модель и адрес — `BXSHEF_CHAT_MODEL`, `BXSHEF_EVAL_URL`.
+Ключ `BXSHEF_EVAL_KEY` — только в `.env` на сервере или в окружении, в файлах репозитория его нет.
 
 Проверено: вопрос «Почему ИИ-агент не берёт мой навык?» → ответ со ссылкой на пункт 2
 стандарта, командами `bxshef lint`/`eval` и цифрой из прогона 1.
@@ -99,7 +99,8 @@ BXSHEF_EVAL_KEY=… npm run dev                    # http://localhost:3000, ча
 виджета «Битрикс24 Ответы». Разметка главной повторяет его блоки: первый экран с ИИ-поиском,
 плитки тем (картинки — CSS-градиенты со «стеклянной» иконкой вместо 3D-картинок оригинала),
 промо-карточки, «Решение найдётся всегда», «Самые читаемые статьи»; «Все темы» — как
-`allSections.php`. Тема только светлая, как у оригинала. Поиск по разделам —
+`allSections.php`. Тема только светлая, как у оригинала. UI-база — `@bitrix24/b24ui-nuxt` (Nuxt UI и Docus убраны),
+иконки — `@bitrix24/b24icons-vue` через `HdIcon` (короткие имена → компоненты, список в самом файле). Поиск по разделам —
 `queryCollectionSearchSections`, чат — `/api/assistant`.
 
 ## Что не хранится в репозитории

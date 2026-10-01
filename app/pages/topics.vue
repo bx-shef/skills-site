@@ -12,13 +12,13 @@ useSeo({ title: 'Все темы', description: 'Методология, нав�
 const navigation = inject<Ref<ContentNavigationItem[]>>('navigation', ref([]))
 
 const icons: Record<string, string> = {
-  '/methodology/standard': 'i-lucide-ruler',
-  '/methodology/method': 'i-lucide-flask-conical',
-  '/methodology/bxshef': 'i-lucide-square-terminal',
-  '/methodology/action': 'i-lucide-git-pull-request',
-  '/methodology/template': 'i-lucide-folder-git-2',
-  '/methodology/feedback': 'i-lucide-message-square-heart',
-  '/methodology/feedback-vibecode': 'i-lucide-cloud',
+  '/methodology/standard': 'ruler',
+  '/methodology/method': 'question',
+  '/methodology/bxshef': 'terminal',
+  '/methodology/action': 'code',
+  '/methodology/template': 'folder',
+  '/methodology/feedback': 'feedback',
+  '/methodology/feedback-vibecode': 'cloud',
 }
 
 type Topic = { path: string, title: string, text: string, icon: string }
@@ -27,7 +27,7 @@ const groups = computed(() => (navigation.value || [])
   .map((n) => {
     const own = n.children!.find(c => c.path === n.path)
     const topics: Topic[] = []
-    if (own) topics.push({ path: own.path, title: 'Обзор раздела', text: String(own.description || ''), icon: 'i-lucide-compass' })
+    if (own) topics.push({ path: own.path, title: 'Обзор раздела', text: String(own.description || ''), icon: 'compass' })
     for (const c of n.children!) {
       if (c.path === n.path) continue
       const index = c.children?.find(x => x.path === c.path)
@@ -35,7 +35,7 @@ const groups = computed(() => (navigation.value || [])
         path: c.path,
         title: c.title,
         text: String(c.description || index?.description || (c.children ? `${c.children.length} страниц` : '')),
-        icon: icons[c.path] || (n.icon as string) || 'i-lucide-file-text',
+        icon: icons[c.path] || (n.icon as string) || 'book',
       })
     }
     return { title: n.title, path: n.path, topics }
@@ -50,7 +50,7 @@ const groups = computed(() => (navigation.value || [])
 
     <div class="hd-topics-head">
       <h1 class="hd-topics-title">
-        <span class="hd-topics-badge"><UIcon name="i-lucide-compass" /></span>
+        <span class="hd-topics-badge"><HdIcon name="compass" /></span>
         База знаний
       </h1>
       <p class="hd-topics-sub">Все темы</p>
@@ -60,7 +60,7 @@ const groups = computed(() => (navigation.value || [])
       <h2 class="hd-section-title">{{ g.title }}</h2>
       <div class="hd-topics-panel">
         <NuxtLink v-for="t in g.topics" :key="t.path" :to="t.path" class="hd-topic">
-          <span class="hd-topic-icon"><UIcon :name="t.icon" /></span>
+          <span class="hd-topic-icon"><HdIcon :name="t.icon" /></span>
           <span>
             <p class="hd-topic-title">{{ t.title }}</p>
             <p v-if="t.text" class="hd-topic-text">{{ t.text }}</p>

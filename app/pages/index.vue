@@ -4,8 +4,6 @@
   content/index.md остаётся источником заголовка и описания (и текста для llms-full.txt).
 -->
 <script setup lang="ts">
-import type { DocsCollectionItem } from '@nuxt/content'
-
 definePageMeta({ layout: false })
 
 const { data: page } = await useAsyncData('landing', () => queryCollection('landing').path('/').first())
@@ -13,30 +11,29 @@ if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: 'Page not found', fatal: true })
 }
 
-const title = page.value.seo?.title || page.value.title
-const description = page.value.seo?.description || page.value.description
+const title = page.value.title
+const description = page.value.description
 useSeo({ title, description, type: 'website' })
-defineOgImage('Landing', { title: title?.slice(0, 60), description: formatOgDescription(title, description) })
 
 const { openChat } = useHdChat()
 
 // Плитки тем — как «С чего начать / Мессенджер / Задачи…» в оригинале
 const tiles = [
-  { to: '/methodology/standard', icon: 'i-lucide-ruler', title: 'Стандарт навыка', text: '11 правил, каждое — из провала на стенде' },
-  { to: '/methodology/method', icon: 'i-lucide-flask-conical', title: 'Методология проверки', text: 'lint → eval → стенд: что и как измерено' },
-  { to: '/methodology/bxshef', icon: 'i-lucide-square-terminal', title: 'bxshef — CLI', text: 'lint, eval, feedback для своих навыков' },
-  { to: '/methodology/action', icon: 'i-lucide-git-pull-request', title: 'GitHub Action', text: 'Та же проверка в CI любого репозитория' },
-  { to: '/skills', icon: 'i-lucide-sparkles', title: 'Навыки shef.*', text: 'Готовые навыки к модулям shef.options, shef.problems, shef.insync' },
-  { to: '/modules', icon: 'i-lucide-package', title: 'Модули shef.*', text: 'Документация модулей для коробки Битрикс24 и БУС' },
+  { to: '/methodology/standard', icon: 'ruler', title: 'Стандарт навыка', text: '11 правил, каждое — из провала на стенде' },
+  { to: '/methodology/method', icon: 'question', title: 'Методология проверки', text: 'lint → eval → стенд: что и как измерено' },
+  { to: '/methodology/bxshef', icon: 'terminal', title: 'bxshef — CLI', text: 'lint, eval, feedback для своих навыков' },
+  { to: '/methodology/action', icon: 'code', title: 'GitHub Action', text: 'Та же проверка в CI любого репозитория' },
+  { to: '/skills', icon: 'sparkles', title: 'Навыки shef.*', text: 'Готовые навыки к модулям shef.options, shef.problems, shef.insync' },
+  { to: '/modules', icon: 'package', title: 'Модули shef.*', text: 'Документация модулей для коробки Битрикс24 и БУС' },
 ]
 
 // «Самые читаемые» — ключевые страницы; текст карточки — начало страницы
 const featured = ['/methodology/standard', '/methodology/method', '/methodology/template', '/methodology/bxshef']
 const { data: articles } = await useAsyncData('landing-articles', async () => {
-  const items = await queryCollection('docs').where('path', 'IN', featured).all() as DocsCollectionItem[]
+  const items = await queryCollection('docs').where('path', 'IN', featured).all() 
   return featured
     .map(p => items.find(i => i.path === p))
-    .filter((i): i is DocsCollectionItem => !!i)
+    .filter(<T>(i: T | undefined): i is T => !!i)
     .map((i) => {
       const text = plainText(i.body).replace(/\s+/g, ' ').trim()
       return {
@@ -104,7 +101,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
           <div class="hd-tile-image" :class="`hd-tone-${i + 1}`">
             <span class="hd-bubble hd-bubble--a" />
             <span class="hd-bubble hd-bubble--b" />
-            <span class="hd-glass"><UIcon :name="t.icon" /></span>
+            <span class="hd-glass"><HdIcon :name="t.icon" /></span>
           </div>
           <div class="hd-tile-body">
             <h3 class="hd-tile-title">{{ t.title }}</h3>
@@ -121,7 +118,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       <h2 class="hd-section-title">Всё для старта с bxshef</h2>
       <div class="hd-grid hd-grid--2">
         <div class="hd-promo hd-promo--blue">
-          <div class="hd-promo-art hd-promo-art--blue" aria-hidden="true"><UIcon name="i-lucide-folder-git-2" /></div>
+          <div class="hd-promo-art hd-promo-art--blue" aria-hidden="true"><HdIcon name="folder" /></div>
           <div class="hd-promo-content">
             <h3 class="hd-promo-title">Заготовка репозитория</h3>
             <p class="hd-promo-text">Навыки, проверка и CI — с первого коммита</p>
@@ -131,13 +128,13 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
           </div>
         </div>
         <div class="hd-promo hd-promo--purple">
-          <div class="hd-promo-art hd-promo-art--purple" aria-hidden="true"><UIcon name="i-lucide-download" /></div>
+          <div class="hd-promo-art hd-promo-art--purple" aria-hidden="true"><HdIcon name="download" /></div>
           <div class="hd-promo-content">
             <h3 class="hd-promo-title">Навыки в проект</h3>
             <p class="hd-promo-text">Одна команда — и ИИ-агент пишет по канону модуля: <code>npx skills add bx-shef/skills</code></p>
             <div class="hd-promo-buttons">
-              <NuxtLink to="/skills" class="hd-btn-primary"><UIcon name="i-lucide-sparkles" />Навыки</NuxtLink>
-              <a href="https://github.com/bx-shef/skills" target="_blank" rel="noopener" class="hd-btn-primary"><UIcon name="i-lucide-github" />GitHub</a>
+              <NuxtLink to="/skills" class="hd-btn-primary"><HdIcon name="sparkles" />Навыки</NuxtLink>
+              <a href="https://github.com/bx-shef/skills" target="_blank" rel="noopener" class="hd-btn-primary"><HdIcon name="github" />GitHub</a>
             </div>
           </div>
         </div>
@@ -148,7 +145,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       <h2 class="hd-section-title">Для тех, кто хочет больше</h2>
       <div class="hd-grid">
         <div class="hd-promo hd-promo--cyan hd-promo--resource">
-          <div class="hd-promo-art hd-promo-art--cyan" aria-hidden="true"><UIcon name="i-lucide-bot" /></div>
+          <div class="hd-promo-art hd-promo-art--cyan" aria-hidden="true"><HdIcon name="bot" /></div>
           <div class="hd-promo-content">
             <h3 class="hd-promo-title">Сайт для ИИ-агентов</h3>
             <p class="hd-promo-text">Весь сайт одним файлом — отдайте его своему агенту</p>
@@ -159,7 +156,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
           </div>
         </div>
         <div class="hd-promo hd-promo--lilac hd-promo--resource">
-          <div class="hd-promo-art hd-promo-art--purple" aria-hidden="true"><UIcon name="i-lucide-message-square-heart" /></div>
+          <div class="hd-promo-art hd-promo-art--purple" aria-hidden="true"><HdIcon name="feedback" /></div>
           <div class="hd-promo-content">
             <h3 class="hd-promo-title">Отзывы ИИ-агентов</h3>
             <p class="hd-promo-text">Что пригодилось и чего не хватило — после каждой задачи</p>
@@ -169,7 +166,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
           </div>
         </div>
         <div class="hd-promo hd-promo--sky hd-promo--resource">
-          <div class="hd-promo-art hd-promo-art--blue" aria-hidden="true"><UIcon name="i-lucide-github" /></div>
+          <div class="hd-promo-art hd-promo-art--blue" aria-hidden="true"><HdIcon name="github" /></div>
           <div class="hd-promo-content">
             <h3 class="hd-promo-title">Исходники</h3>
             <p class="hd-promo-text">Методология, CLI и навыки — MIT, правки через PR</p>
@@ -185,14 +182,14 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       <h2 class="hd-section-title">Решение найдётся всегда</h2>
       <div class="hd-grid hd-grid--2">
         <button type="button" class="hd-support-card" @click="openChat()">
-          <span class="hd-support-icon"><UIcon name="i-lucide-message-circle" /></span>
+          <span class="hd-support-icon"><HdIcon name="chat" /></span>
           <span class="hd-support-body">
             <span class="hd-support-title">Спросить ИИ-агента</span>
             <span class="hd-support-text">Отвечает по методологии, навыкам и документации модулей — со ссылками на страницы сайта.</span>
           </span>
         </button>
         <a href="https://github.com/bx-shef/skills-standard/issues" target="_blank" rel="noopener" class="hd-support-card">
-          <span class="hd-support-icon"><UIcon name="i-lucide-life-buoy" /></span>
+          <span class="hd-support-icon"><HdIcon name="help" /></span>
           <span class="hd-support-body">
             <span class="hd-support-title">Написать автору</span>
             <span class="hd-support-text">Вопрос, ошибка в навыке или идея — заведите issue на GitHub, ответим там же.</span>
@@ -208,8 +205,8 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
           <h3 class="hd-article-card-title">{{ a.title }}</h3>
           <p class="hd-article-card-text">{{ a.excerpt }}</p>
           <div class="hd-article-card-meta">
-            <span class="hd-stat"><UIcon name="i-lucide-list" />{{ a.sections }} {{ plural(a.sections, 'раздел', 'раздела', 'разделов') }}</span>
-            <span class="hd-stat"><UIcon name="i-lucide-clock" />{{ a.minutes }} мин</span>
+            <span class="hd-stat"><HdIcon name="list" />{{ a.sections }} {{ plural(a.sections, 'раздел', 'раздела', 'разделов') }}</span>
+            <span class="hd-stat"><HdIcon name="clock" />{{ a.minutes }} мин</span>
           </div>
         </NuxtLink>
       </div>

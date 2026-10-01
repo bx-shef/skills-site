@@ -16,7 +16,7 @@
 
     <div class="hd-header-actions">
       <a class="hd-btn-outline" :href="github" target="_blank" rel="noopener">
-        <UIcon name="i-lucide-github" />
+        <HdIcon name="github" />
         <span>GitHub</span>
       </a>
     </div>

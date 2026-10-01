@@ -28,7 +28,7 @@
           title="История запросов"
           @click.stop="historyOpen = !historyOpen"
         >
-          <UIcon name="i-lucide-history" />
+          <HdIcon name="history" />
         </button>
         <button
           v-if="hero"
@@ -63,7 +63,7 @@
         type="button"
         @click="pick(item)"
       >
-        <UIcon name="i-lucide-history" />
+        <HdIcon name="history" />
         <span>{{ item }}</span>
       </button>
     </div>

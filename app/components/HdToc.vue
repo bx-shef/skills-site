@@ -18,7 +18,7 @@
 type Link = { id: string, text: string, depth: number, children?: Link[] }
 const props = defineProps<{ links: Link[] }>()
 
-// В Docus оглавление вложенное (h3 внутри h2) — показываем только h2, как оригинал
+// Оглавление Nuxt Content вложенное (h3 внутри h2) — показываем только h2, как оригинал
 const flat = computed(() => props.links.filter(l => l.depth <= 2))
 
 const active = ref('')

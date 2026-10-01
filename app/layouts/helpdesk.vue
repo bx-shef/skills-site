@@ -16,7 +16,7 @@
           <div class="hd-article-head">
             <HdBreadcrumbs :items="breadcrumbs" />
             <button class="hd-icon-btn" type="button" :title="copied ? 'Ссылка скопирована' : 'Скопировать ссылку'" @click="copyLink">
-              <UIcon :name="copied ? 'i-lucide-check' : 'i-lucide-link'" />
+              <HdIcon :name="copied ? 'check' : 'link'" />
             </button>
           </div>
           <slot />
@@ -36,9 +36,9 @@
       <div class="hd-footer-inner">
         <NuxtLink to="/" class="hd-footer-logo">bxshef</NuxtLink>
         <div class="hd-footer-socials">
-          <a href="https://github.com/bx-shef" target="_blank" rel="noopener" title="GitHub"><UIcon name="i-lucide-github" /></a>
-          <a href="/llms.txt" target="_blank" title="llms.txt для ИИ-агентов"><UIcon name="i-lucide-bot" /></a>
-          <a href="https://agentskills.io" target="_blank" rel="noopener" title="Agent Skills"><UIcon name="i-lucide-sparkles" /></a>
+          <a href="https://github.com/bx-shef" target="_blank" rel="noopener" title="GitHub"><HdIcon name="github" /></a>
+          <a href="/llms.txt" target="_blank" title="llms.txt для ИИ-агентов"><HdIcon name="bot" /></a>
+          <a href="https://agentskills.io" target="_blank" rel="noopener" title="Agent Skills"><HdIcon name="sparkles" /></a>
         </div>
       </div>
     </footer>

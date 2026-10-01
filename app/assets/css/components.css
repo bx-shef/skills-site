@@ -39,7 +39,7 @@
   transition: var(--hd-transition);
 }
 .hd-btn-outline:hover { border-color: #c9ccd0; color: var(--hd-text-heading); }
-.hd-btn-outline svg, .hd-btn-outline .iconify { width: 16px; height: 16px; }
+.hd-btn-outline svg, .hd-btn-outline .hd-icon { width: 16px; height: 16px; }
 
 /* Синяя кнопка в промо-карточках */
 .hd-btn-primary {
@@ -61,7 +61,7 @@
   transition: var(--hd-transition);
 }
 .hd-btn-primary:hover { background: #0060d6; color: #fff; text-decoration: none; }
-.hd-btn-primary .iconify { width: 18px; height: 18px; }
+.hd-btn-primary .hd-icon { width: 18px; height: 18px; }
 
 /* Белая «таблетка» под сеткой: «Все темы», «Показать ещё» */
 .hd-btn-pill {
@@ -162,7 +162,7 @@
   cursor: pointer;
 }
 .hd-search-history-toggle:hover { background: var(--hd-hover-bg); color: var(--hd-text-heading); }
-.hd-search-history-toggle .iconify { width: 16px; height: 16px; }
+.hd-search-history-toggle .hd-icon { width: 16px; height: 16px; }
 
 .hd-search-send {
   flex: 0 0 auto;
@@ -214,7 +214,7 @@
 .hd-search-wrap--hero .hd-search:focus-within { border-color: var(--hd-primary); }
 .hd-search-wrap--hero .hd-search-input { font-size: 16px; line-height: 21px; padding: 4px 0; }
 .hd-search-wrap--hero .hd-search-history-toggle { width: 34px; height: 34px; border-radius: 10px; }
-.hd-search-wrap--hero .hd-search-history-toggle .iconify { width: 20px; height: 20px; }
+.hd-search-wrap--hero .hd-search-history-toggle .hd-icon { width: 20px; height: 20px; }
 .hd-search-wrap--hero .hd-search-send {
   width: 38px;
   height: 38px;
@@ -376,7 +376,7 @@
   backdrop-filter: blur(6px);
   transform: rotate(-6deg);
 }
-.hd-glass .iconify { width: 46px; height: 46px; color: #fff; filter: drop-shadow(0 2px 4px rgba(0, 60, 160, .35)); }
+.hd-glass .hd-icon { width: 46px; height: 46px; color: #fff; filter: drop-shadow(0 2px 4px rgba(0, 60, 160, .35)); }
 .hd-bubble {
   position: absolute;
   border-radius: 50%;
@@ -441,7 +441,7 @@
   transform: rotate(-12deg);
   box-shadow: 0 24px 40px rgba(0, 80, 200, .18);
 }
-.hd-promo-art .iconify { width: 72px; height: 72px; color: #fff; filter: drop-shadow(0 3px 6px rgba(0, 40, 120, .3)); }
+.hd-promo-art .hd-icon { width: 72px; height: 72px; color: #fff; filter: drop-shadow(0 3px 6px rgba(0, 40, 120, .3)); }
 .hd-promo-art--blue   { background: linear-gradient(145deg, #7ad3ff, #1c8cff); }
 .hd-promo-art--purple { background: linear-gradient(145deg, #f3b8ff, #a764ff); }
 .hd-promo-art--cyan   { background: linear-gradient(145deg, #9ef0ff, #2bb8ff); }
@@ -452,7 +452,7 @@
 .hd-promo--resource .hd-promo-text { color: var(--hd-text-primary); }
 .hd-promo--resource .hd-promo-buttons { margin-top: 0; padding-top: 0; }
 .hd-promo--resource .hd-promo-art { width: 120px; height: 120px; top: -14px; right: 14px; border-radius: 32px; }
-.hd-promo--resource .hd-promo-art .iconify { width: 58px; height: 58px; }
+.hd-promo--resource .hd-promo-art .hd-icon { width: 58px; height: 58px; }
 
 /* --- «Решение найдётся всегда»: белые карточки с иконкой ----------------- */
 
@@ -483,7 +483,7 @@
   background: linear-gradient(145deg, #63c6ff, #0a7bff);
   box-shadow: 0 8px 16px rgba(0, 117, 255, .25);
 }
-.hd-support-icon .iconify { width: 26px; height: 26px; color: #fff; }
+.hd-support-icon .hd-icon { width: 26px; height: 26px; color: #fff; }
 .hd-support-body { display: flex; flex-direction: column; gap: 6px; }
 .hd-support-title { margin: 0; font-size: 19px; line-height: 26px; font-weight: 500; color: #000; }
 .hd-support-text { margin: 0; font-size: 15px; line-height: 20px; color: var(--hd-text-secondary); }
@@ -517,7 +517,7 @@
 }
 .hd-article-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .hd-stat { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; line-height: 15px; font-weight: 500; color: var(--hd-text-secondary); }
-.hd-stat .iconify { width: 18px; height: 18px; }
+.hd-stat .hd-icon { width: 18px; height: 18px; }
 
 /* --- Подвал -------------------------------------------------------------- */
 
@@ -525,7 +525,7 @@
 .hd-footer-socials { display: flex; gap: 12px; }
 .hd-footer-socials a { display: inline-flex; width: 26px; height: 26px; align-items: center; justify-content: center; color: var(--hd-text-brand); }
 .hd-footer-socials a:hover { color: var(--hd-primary); }
-.hd-footer-socials .iconify { width: 20px; height: 20px; }
+.hd-footer-socials .hd-icon { width: 20px; height: 20px; }
 
 /* --- «Все темы»: заголовок с иконкой и белые панели по разделам ---------- */
 
@@ -541,7 +541,7 @@
   background: linear-gradient(145deg, #8fc9ff, #2e86ff);
   box-shadow: 0 6px 14px rgba(0, 117, 255, .25);
 }
-.hd-topics-badge .iconify { width: 24px; height: 24px; color: #fff; }
+.hd-topics-badge .hd-icon { width: 24px; height: 24px; color: #fff; }
 .hd-topics-sub { margin: 0; font-size: 17px; color: var(--hd-text-primary); }
 
 .hd-topics-panel {
@@ -573,7 +573,7 @@
   background: linear-gradient(145deg, #8fc9ff, #2e86ff);
   box-shadow: 0 4px 10px rgba(0, 117, 255, .22);
 }
-.hd-topic-icon .iconify { width: 18px; height: 18px; color: #fff; }
+.hd-topic-icon .hd-icon { width: 18px; height: 18px; color: #fff; }
 .hd-topic-title { margin: 0 0 4px; font-size: 15px; line-height: 20px; font-weight: 600; color: #000; transition: color .2s ease; }
 .hd-topic-text {
   margin: 0;

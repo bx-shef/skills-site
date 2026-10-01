@@ -1,0 +1,3 @@
+/* Tailwind и Bitrix24 UI (@bitrix24/b24ui-nuxt) — база; оформление виджета — в tokens/layout/content/components */
+@import "tailwindcss";
+@import "@bitrix24/b24ui-nuxt";
