@@ -1,0 +1,8 @@
+# .env с ключом в образ не попадает
+.env
+node_modules
+.output
+.nuxt
+.data
+.sources
+.claude

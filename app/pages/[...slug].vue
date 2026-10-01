@@ -1,11 +1,11 @@
 <!--
   Страница документации в макете helpdesk: статья рядом с оглавлением,
   крошки из навигации, внизу — ссылка на исходник (её ставит sync-content) и соседи.
-  Переопределяет одноимённую страницу слоя Docus.
+  
 -->
 <script setup lang="ts">
 import { kebabCase } from 'scule'
-import type { ContentNavigationItem, DocsCollectionItem } from '@nuxt/content'
+import type { ContentNavigationItem } from '@nuxt/content'
 
 definePageMeta({ layout: false })
 
@@ -13,7 +13,7 @@ const route = useRoute()
 const navigation = inject<Ref<ContentNavigationItem[]>>('navigation')
 
 const [{ data: page }, { data: surround }] = await Promise.all([
-  useAsyncData(kebabCase(route.path), () => queryCollection('docs').path(route.path).first() as Promise<DocsCollectionItem>),
+  useAsyncData(kebabCase(route.path), () => queryCollection('docs').path(route.path).first()),
   useAsyncData(`${kebabCase(route.path)}-surround`, () => queryCollectionItemSurroundings('docs', route.path, { fields: ['description'] })),
 ])
 
@@ -21,8 +21,8 @@ if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: 'Page not found', fatal: true })
 }
 
-const title = page.value.seo?.title || page.value.title
-const description = page.value.seo?.description || page.value.description
+const title = page.value.title
+const description = page.value.description
 
 const breadcrumbs = computed(() => {
   const found = findPageBreadcrumbs(navigation?.value, page.value?.path || '') || []
@@ -31,21 +31,33 @@ const breadcrumbs = computed(() => {
 })
 
 const tocLinks = computed(() => page.value?.body?.toc?.links || [])
+// Плашка «В статье:» под заголовком — те же разделы второго уровня, не больше восьми
+const previewLinks = computed(() => tocLinks.value.filter((l: { depth: number }) => l.depth === 2).slice(0, 8))
 
-useSeo({ title, description, type: 'article', breadcrumbs: breadcrumbs.value })
-defineOgImage('Docs', { title: title?.slice(0, 60), description: formatOgDescription(title, description) })
-addPrerenderPath(`/raw${route.path}.md`)
+useSeo({ title, description, type: 'article' })
+// Markdown страницы (/raw/<путь>.md) — в пререндер: на него ведёт «Копировать страницу»
+prerenderRoutes(`/raw${route.path.replace(/\/$/, '')}.md`)
 </script>
 
 <template>
   <NuxtLayout
     name="helpdesk"
     :article="true"
+    :page-title="page?.title"
     :toc-links="tocLinks"
     :breadcrumbs="breadcrumbs"
   >
-    <h1>{{ page?.title }}</h1>
+    <div class="hd-article-title-wrap">
+      <h1>{{ page?.title }}</h1>
+    </div>
     <p v-if="page?.description" class="hd-lead">{{ page.description }}</p>
+
+    <div v-if="previewLinks.length > 1" class="hd-toc-preview">
+      <p>В статье:</p>
+      <ul>
+        <li v-for="link in previewLinks" :key="link.id"><a :href="`#${link.id}`">{{ link.text }}</a></li>
+      </ul>
+    </div>
 
     <ContentRenderer v-if="page" :value="page" />
 
@@ -64,13 +76,14 @@ addPrerenderPath(`/raw${route.path}.md`)
 </template>
 
 <style scoped>
-.hd-lead { margin: calc(-1 * var(--hd-space-md)) 0 var(--hd-space-2xl); color: var(--hd-text-secondary); }
+.hd-lead { margin: 0 0 var(--hd-space-xl); color: var(--hd-text-secondary); }
 .hd-surround {
   display: flex;
   justify-content: space-between;
   gap: var(--hd-space-xl);
   margin-top: var(--hd-space-3xl);
   padding-top: var(--hd-space-2xl);
+  font-size: 15px;
   border-top: 1px solid var(--hd-border);
 }
 .hd-surround-link { display: flex; flex-direction: column; gap: 2px; color: var(--hd-text-primary); text-decoration: none; font-size: var(--hd-size-sm); }

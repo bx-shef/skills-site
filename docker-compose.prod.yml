@@ -35,8 +35,6 @@ services:
       BXSHEF_EVAL_KEY: ${BXSHEF_EVAL_KEY:-}
       BXSHEF_EVAL_URL: ${BXSHEF_EVAL_URL:-https://vibecode.bitrix24.tech/v1}
       BXSHEF_CHAT_MODEL: ${BXSHEF_CHAT_MODEL:-bitrix/bitrixgpt-5.6-agent}
-      # context — страницы сайта под вопрос в промпт (любая модель); mcp — поиск инструментами (нужен tool calling)
-      ASSISTANT_MODE: ${ASSISTANT_MODE:-context}
       NITRO_HOST: 0.0.0.0
       NITRO_PORT: 3000
     restart: unless-stopped

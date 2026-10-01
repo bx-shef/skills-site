@@ -1,7 +1,7 @@
-<!-- Карточка для markdown: :::hd-card{title="…" to="/…" icon="i-lucide-ruler"} текст ::: -->
+<!-- Карточка для markdown: :::hd-card{title="…" to="/…" icon="ruler"} текст ::: -->
 <template>
   <component :is="to ? NuxtLink : 'div'" :to="to" class="hd-card hd-card-link" :class="{ 'hd-card--blue': blue }">
-    <UIcon v-if="icon" :name="icon" class="hd-card-icon" />
+    <HdIcon v-if="icon" :name="icon" class="hd-card-icon" />
     <p class="hd-card-title">{{ title }}</p>
     <div class="hd-card-text"><slot /></div>
   </component>

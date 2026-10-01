@@ -1,22 +1,26 @@
 /* ============================================================================
-   Раскладка виджета поддержки.
+   Раскладка виджета «Битрикс24 Ответы» (helpdesk.bitrix24.ru/widget2/).
 
    Устройство оригинала:
-     шапка  — sticky сверху, 58px;
-     меню   — fixed слева, 84px, только иконки, раскрывается по наведению;
-     текст  — по центру, статья рядом с оглавлением;
-     чат    — оверлей на весь экран поверх, но меню остаётся видно.
+     фон    — диагональный градиент на всю страницу;
+     шапка  — sticky сверху, белая, 59px; логотип + слово, поиск, кнопка справа;
+     слева  — колонка 84px с тонкой вертикальной линией (в виджете пустая);
+     текст  — по центру, до 1018px; статья — на белом листе рядом с оглавлением;
+     чат    — оверлей на весь экран поверх страницы.
    ========================================================================= */
 
 * { box-sizing: border-box; }
 
+
+
 body {
   margin: 0;
+  min-height: 100vh;
   font-family: var(--hd-font);
-  font-size: var(--hd-size-sm);
-  line-height: var(--hd-line-sm);
+  font-size: 16px;
+  line-height: 24px;
   color: var(--hd-text-primary);
-  background: var(--hd-bg);
+  background: var(--hd-page-bg) fixed;
 }
 
 /* --- Шапка --------------------------------------------------------------- */
@@ -26,32 +30,19 @@ body {
   top: 0;
   z-index: 100;
   width: 100%;
-  min-height: var(--hd-header-height);
+  height: var(--hd-header-height);
   display: flex;
   align-items: center;
-  padding: 0 var(--hd-space-xl);
+  gap: var(--hd-space-xl);
+  padding: 12px 32px;
   background: var(--hd-bg);
-  border-bottom: 1px solid var(--hd-border);
-}
-
-/* Поиск не прижат к логотипу и не растянут на всю ширину: отступ растёт с
-   окном, но не больше 161px. Формула из оригинала. */
-.hd-header-search {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: var(--hd-space-xs);
-  flex: 1 1 auto;
-  max-width: 560px;
-  min-width: 0;
-  margin-left: clamp(16px, 8%, 161px);
 }
 
 .hd-header-actions { display: flex; align-items: center; gap: var(--hd-space-md); margin-left: auto; }
 
 /* --- Меню слева ----------------------------------------------------------
-   Меню вынуто из потока (fixed), поэтому содержимое само под него не
-   сдвинется — отступ задаётся ниже, у .hd-main.
+   Как sidebar-menu оригинала: 84px иконок, по наведению раскрывается поверх
+   текста (не раздвигает его), линия по правому краю.
    -------------------------------------------------------------------------*/
 
 .hd-sidebar {
@@ -62,16 +53,17 @@ body {
   width: var(--hd-sidebar-width);
   height: calc(100vh - var(--hd-header-height));
   padding: 10px 8px;
-  overflow-x: hidden;
+  overflow: hidden;
+  border-right: 1px solid var(--hd-line);
+  background: transparent;
+  transition: width .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+.hd-sidebar:hover {
+  width: var(--hd-sidebar-open);
   overflow-y: auto;
   background: var(--hd-bg);
-  transition: width .2s ease;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, .06);
 }
-
-/* Раскрытие по наведению: видны подписи. Меню наезжает на текст, а не
-   раздвигает его — иначе строки прыгали бы при каждом движении мыши. */
-.hd-sidebar:hover,
-.hd-sidebar.is-open { width: var(--hd-sidebar-open); }
 
 .hd-main {
   position: relative;
@@ -80,75 +72,96 @@ body {
   padding-left: var(--hd-sidebar-width);
 }
 
+/* Обычная страница (главная, «Все темы»): секции по центру до 1018px */
 .hd-content {
   width: 100%;
-  max-width: var(--hd-content-max);
+  max-width: calc(var(--hd-content-max) + 48px);
   margin: 0 auto;
-  padding: 0 var(--hd-space-2xl) 48px;
+  padding: 0 var(--hd-space-2xl);
 }
 
-/* --- Статья с оглавлением ------------------------------------------------ */
+/* --- Статья: белый лист, текст и оглавление ------------------------------ */
 
 .hd-article-layout {
   width: 100%;
+  min-height: calc(100vh - var(--hd-header-height));
   max-width: var(--hd-article-max);
   margin: 0 auto;
-  padding: 0 var(--hd-article-pad);
+  padding: 0 32px 80px;
   display: flex;
   gap: var(--hd-article-gap);
   align-items: flex-start;
+  background: var(--hd-bg);
 }
 
 .hd-article { flex: 1; min-width: 0; max-width: var(--hd-article-text); }
 
-.hd-toc {
+.hd-aside {
   display: none;
-  padding-top: 26px;
-  padding-bottom: 30px;
-  margin-right: 72px;
   flex: 0 0 auto;
+  width: 188px;
+  margin-right: 40px;
+  padding-top: 24px;
   position: sticky;
-  top: calc(var(--hd-header-height) + var(--hd-space-2xl));
+  top: var(--hd-header-height);
 }
 
-/* Оглавление показываем только когда под него есть место. Порог считается
-   от суммы: текст 875 + промежуток 40 + меню 84 + поля. */
-@media (min-width: 1280px) { .hd-toc { display: block; width: 200px; } }
+/* Оглавление — только когда под него есть место рядом с текстом */
+@media (min-width: 900px) { .hd-aside { display: block; } }
 
-/* --- Чат поверх страницы -------------------------------------------------
-   Оверлей закрывает всё, кроме меню: слева оставлено ровно 84px, чтобы из
-   чата можно было уйти в другой раздел, не закрывая его.
+/* --- Подвал -------------------------------------------------------------- */
+
+.hd-footer { padding-left: var(--hd-sidebar-width); }
+.hd-footer-inner {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  max-width: var(--hd-content-max);
+  margin: 0 auto;
+  padding: 40px var(--hd-space-2xl);
+}
+
+/* --- Чат справа ----------------------------------------------------------
+   Как «Ask AI» в Docus: панель справа на всю высоту, со своей строкой заголовка, страница сужается, а не
+   перекрывается — статью видно, пока идёт разговор о ней.
    -------------------------------------------------------------------------*/
+
+:root { --hd-chat-width: 420px; }
 
 .hd-chat-overlay {
   position: fixed;
-  inset: var(--hd-header-height) 0 0 0;   /* шапка с поиском остаётся видна */
-  z-index: 80;                            /* ниже меню (90) и шапки (100): из чата можно уйти в раздел */
-  padding-left: var(--hd-sidebar-width);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 110;
+  width: var(--hd-chat-width);
+  border-left: 1px solid var(--hd-line);
   background: var(--hd-bg);
-  opacity: 0;
+  transform: translateX(100%);
   visibility: hidden;
-  transition: opacity .3s ease, visibility .3s ease;
-  will-change: opacity;
-  /* браузер не пересчитывает раскладку страницы из-за содержимого чата */
-  contain: layout style paint;
+  transition: transform .25s ease, visibility .25s ease;
 }
-.hd-chat-overlay.is-open { opacity: 1; visibility: visible; }
+.hd-chat-overlay.is-open { transform: none; visibility: visible; }
+
+/* место под панель: содержимое, подвал и плавающие элементы сдвигаются влево */
+.hd-shell { transition: padding-right .25s ease; }
+.hd-shell--chat { padding-right: var(--hd-chat-width); }
+.hd-shell--chat .scroll-to-top { right: calc(var(--hd-chat-width) + 32px); }
 
 /* --- Мобильный ----------------------------------------------------------- */
 
 @media (max-width: 767px) {
-  /* Меню уезжает за край и выдвигается кнопкой: 84px иконок на узком экране
-     отнимают у текста слишком много. */
-  .hd-sidebar {
-    width: var(--hd-sidebar-open);
-    transform: translateX(-100%);
-    transition: transform .2s ease;
-  }
-  .hd-sidebar.is-open { transform: translateX(0); }
-  .hd-sidebar:hover { width: var(--hd-sidebar-open); }
-
-  .hd-main { padding-left: 0; }
-  .hd-article-layout { padding: 0 var(--hd-space-xl); }
-  .hd-chat-overlay { padding-left: 0; }
+  :root { --hd-sidebar-width: 0px; }
+  .hd-sidebar { display: none; }
+  .hd-header { padding: 12px 16px; }
+  .hd-article-layout { padding: 0 16px 48px; }
+  .hd-content { padding: 0 16px; }
+  /* на телефоне панель чата — на весь экран */
+  :root { --hd-chat-width: 100vw; }
+  .hd-shell--chat { padding-right: 0; }
 }
+
+/* Градиент — только на главной и списках; статья (как в оригинале) на почти белом фоне */
+.hd-shell--plain { min-height: 100vh; background: var(--hd-bg); }
+.hd-shell--plain .hd-article-layout { background: transparent; }
+body.hd-body-plain { background: var(--hd-bg); }

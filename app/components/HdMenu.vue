@@ -1,71 +1,91 @@
 <!--
-  Меню слева: иконка плюс подпись. В свёрнутом виде (84px) видны только иконки,
-  подписи появляются при наведении. Разделы — из навигации Nuxt Content
-  (content/*/.navigation.yml), последний пункт открывает чат с ИИ-агентом.
+  Левое меню, как sidebar-menu «Битрикс24 Ответы»: колонка 84px с иконками 30px,
+  по наведению раскрывается с подписями поверх страницы. Видно первые 9 пунктов,
+  остальные — по «Показать все». Внизу — «Поддержка» (у нас — чат с ИИ-агентом).
+  Пункты — разделы и страницы из навигации контента.
 -->
 <template>
-  <ul class="hd-menu">
-    <li v-for="item in items" :key="item.path || item.action">
+  <div class="sidebar-menu__panel">
+    <nav class="sidebar-menu__nav" aria-label="Меню сайта">
       <NuxtLink
-        v-if="item.path"
+        v-for="item in visible"
+        :key="item.path"
         :to="item.path"
-        :external="item.external"
-        :target="item.external ? '_blank' : undefined"
-        class="hd-menu-item"
-        :class="{ 'router-link-active': isActive(item.path) }"
-        @click="$emit('navigate')"
+        class="sidebar-menu__item"
+        :class="{ 'is-active': isActive(item.path) }"
+        :title="item.title"
       >
-        <span class="hd-menu-icon" aria-hidden="true">
-          <UIcon v-if="item.icon" :name="item.icon" class="hd-menu-svg" />
-          <template v-else>{{ item.glyph }}</template>
-        </span>
-        <span class="hd-menu-label">{{ item.title }}</span>
+        <span class="sidebar-menu__icon-wrapper" aria-hidden="true"><HdIcon :name="item.icon" class="sidebar-menu__icon" /></span>
+        <span class="sidebar-menu__item-text">{{ item.title }}</span>
       </NuxtLink>
 
-      <button v-else class="hd-menu-item" type="button" @click="$emit(item.action)">
-        <span class="hd-menu-icon" aria-hidden="true">
-          <UIcon :name="item.icon" class="hd-menu-svg" />
+      <button v-if="hidden.length" type="button" class="sidebar-menu__item sidebar-menu__show-all-btn" @click="all = !all">
+        <span class="sidebar-menu__item-text">{{ all ? 'Свернуть' : 'Показать все' }}</span>
+        <span class="sidebar-menu__icon-wrapper" aria-hidden="true">
+          <svg class="sidebar-menu__show-all-icon" :class="{ 'is-open': all }" width="16" height="9" viewBox="0 0 16 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.8 8.8c.27.27.72.27.99 0l7-7a.7.7 0 0 0-.99-.99L8.3 7.31 1.8.8a.7.7 0 0 0-.99.99l7 7Z" fill="currentColor" /></svg>
         </span>
-        <span class="hd-menu-label">{{ item.title }}</span>
       </button>
-    </li>
-  </ul>
+
+      <template v-if="all">
+        <NuxtLink
+          v-for="item in hidden"
+          :key="item.path"
+          :to="item.path"
+          class="sidebar-menu__item"
+          :class="{ 'is-active': isActive(item.path) }"
+          :title="item.title"
+        >
+          <span class="sidebar-menu__icon-wrapper" aria-hidden="true"><HdIcon :name="item.icon" class="sidebar-menu__icon" /></span>
+          <span class="sidebar-menu__item-text">{{ item.title }}</span>
+        </NuxtLink>
+      </template>
+    </nav>
+
+    <div class="sidebar-menu__support">
+      <button type="button" class="sidebar-menu__item" title="Поддержка" @click="openChat()">
+        <span class="sidebar-menu__icon-wrapper" aria-hidden="true"><HdIcon name="help" class="sidebar-menu__icon sidebar-menu__support-icon" /></span>
+        <span class="sidebar-menu__item-text">Поддержка</span>
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import type { ContentNavigationItem } from '@nuxt/content'
 
-defineEmits(['open-chat', 'navigate'])
-
-type Item = { path?: string, action?: 'open-chat', icon?: string, glyph?: string, title: string, external?: boolean }
-
 const route = useRoute()
+const { openChat } = useHdChat()
 const navigation = inject<Ref<ContentNavigationItem[]>>('navigation', ref([]))
+const all = ref(false)
 
-const items = computed<Item[]>(() => {
-  const sections = (navigation?.value || [])
-    .filter(n => n.path !== '/' && (n.children?.length || n.path))
-    .map(n => ({ path: n.path, icon: (n.icon as string) || 'i-lucide-folder', title: n.title }))
-  return [
-    { path: '/', icon: 'i-lucide-house', title: 'Главная' },
-    ...sections,
-    { path: '/llms.txt', external: true, icon: 'i-lucide-bot', title: 'llms.txt для ИИ-агентов' },
-    { action: 'open-chat', icon: 'i-lucide-message-circle', title: 'Спросить ИИ-агента' },
-  ]
-})
-
-// Раздел активен и на вложенных страницах: /methodology/standard подсвечивает «Методология»
-const isActive = (path: string) => path === '/' ? route.path === '/' : route.path === path || route.path.startsWith(path + '/')
-</script>
-
-<style scoped>
-button.hd-menu-item {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
+const icons: Record<string, string> = {
+  '/methodology': 'knowledge',
+  '/methodology/standard': 'ruler',
+  '/methodology/method': 'question',
+  '/methodology/bxshef': 'terminal',
+  '/methodology/action': 'code',
+  '/methodology/template': 'folder',
+  '/methodology/feedback': 'feedback',
+  '/methodology/feedback-vibecode': 'cloud',
+  '/skills': 'sparkles',
+  '/modules': 'package',
 }
-.hd-menu-svg { width: 22px; height: 22px; display: block; }
-</style>
+
+// Разделы и их прямые подразделы/страницы, без страницы-обзора раздела (она — сам раздел)
+const items = computed(() => {
+  const out: Array<{ path: string, title: string, icon: string }> = [{ path: '/topics', title: 'Все темы', icon: 'compass' }]
+  for (const n of navigation.value || []) {
+    if (n.path === '/') continue
+    out.push({ path: n.path, title: n.title, icon: icons[n.path] || (n.icon as string) || 'book' })
+    for (const c of n.children || []) {
+      if (c.path === n.path) continue
+      out.push({ path: c.path, title: c.title, icon: icons[c.path] || (c.children ? 'package' : 'book') })
+    }
+  }
+  return out
+})
+const visible = computed(() => items.value.slice(0, 9))
+const hidden = computed(() => items.value.slice(9))
+
+const isActive = (path: string) => route.path === path || route.path.startsWith(path + '/')
+</script>

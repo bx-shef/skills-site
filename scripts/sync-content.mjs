@@ -28,7 +28,8 @@ for (const r of REPOS) {
 // content/ пересобирается целиком, кроме index.md (лендинг пишется руками)
 for (const e of fs.readdirSync(OUT)) if (e !== 'index.md') fs.rmSync(path.join(OUT, e), { recursive: true, force: true })
 
-const read = (p) => fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null
+// CRLF → LF: при git autocrlf (Windows) «.» в регулярках не берёт \r, и заголовок H1 не срезался
+const read = (p) => fs.existsSync(p) ? fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n') : null
 const write = (rel, text) => { const p = path.join(OUT, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, text) }
 const stripFront = (md) => md.replace(/^---\n[\s\S]*?\n---\n/, '')
 const titleOf = (md, fallback) => (md.match(/^#\s+(.+)$/m) || [])[1] || fallback
@@ -60,7 +61,7 @@ const stdPages = [
   ['6.feedback.md', 'feedback/README.md', 'Приёмник отзывов', 'куда уходят отзывы ИИ-агентов'],
   ['7.feedback-vibecode.md', 'feedback/VIBECODE.md', 'Приёмник на Вайбкод Black Hole', 'выкладка приёмника без своего сервера'],
 ]
-write('1.methodology/.navigation.yml', 'title: Методология\nicon: i-lucide-ruler\n')
+write('1.methodology/.navigation.yml', 'title: Методология\nicon: ruler\n')
 write('1.methodology/index.md', page(read(path.join(std, 'README.md')) || '# bxshef', { title: 'bxshef: методология и проверка навыков', description: 'Как писать навыки ИИ-агентов для Битрикса и как проверять, что им можно верить', source: gh('skills-standard', 'README.md') }))
 for (const [out, file, title, description] of stdPages) {
   const md = read(path.join(std, file)); if (!md) continue
@@ -69,7 +70,7 @@ for (const [out, file, title, description] of stdPages) {
 
 // 2. Навыки
 const sk = path.join(SRC, 'skills')
-write('2.skills/.navigation.yml', 'title: Навыки\nicon: i-lucide-sparkles\n')
+write('2.skills/.navigation.yml', 'title: Навыки\nicon: sparkles\n')
 write('2.skills/index.md', page(read(path.join(sk, 'README.md')) || '# Навыки', { title: 'Навыки shef.*', description: 'npx skills add bx-shef/skills', source: gh('skills', 'README.md') }))
 const skillsDir = path.join(sk, 'skills')
 let i = 1
@@ -80,7 +81,7 @@ for (const name of fs.readdirSync(skillsDir).sort()) {
 }
 
 // 3. Модули
-write('3.modules/.navigation.yml', 'title: Модули shef.*\nicon: i-lucide-package\n')
+write('3.modules/.navigation.yml', 'title: Модули shef.*\nicon: package\n')
 const modules = [['options', 'shef.options', 'фундамент: настройки, трейты, компоненты'], ['problems', 'shef.problems', 'логи, журнал событий, учёт проблем'], ['insync', 'shef.insync', 'агенты, импорт, API-клиенты, модели']]
 write('3.modules/index.md', `---\ntitle: Модули shef.*\ndescription: Что за чем ставить\n---\n\nТри открытых модуля (MIT), один на другом: **shef.options** → **shef.problems** → **shef.insync**. Навыки ко всем трём — в одном наборе: \`npx skills add bx-shef/skills\`.\n\n| модуль | что даёт | установка |\n|---|---|---|\n${modules.map(([r, id, d]) => `| [${id}](/modules/${r}) | ${d} | \`composer require bxshef/${r}\` |`).join('\n')}\n`)
 modules.forEach(([r, id, d], mi) => {
@@ -108,4 +109,14 @@ for (const f of walk(OUT).sort()) {
 }
 fs.mkdirSync(path.join(ROOT, 'public'), { recursive: true })
 fs.writeFileSync(path.join(ROOT, 'public', 'llms-full.txt'), full.join('\n'))
+// llms.txt — оглавление сайта со ссылками на страницы (формат llmstxt.org)
+const index = ['# bxshef', '', '> Методология и проверка навыков ИИ-агентов для разработки на Битриксе; навыки к модулям shef.*', '', `Весь сайт одним файлом: ${site}/llms-full.txt`, '', '## Документация', '']
+for (const f of walk(OUT).sort()) {
+  if (path.relative(OUT, f) === 'index.md') continue
+  const md = fs.readFileSync(f, 'utf8')
+  const title = (md.match(/^title:\s*"?(.+?)"?$/m) || [])[1] || path.basename(f, '.md')
+  const desc = (md.match(/^description:\s*"?(.+?)"?$/m) || [])[1]
+  index.push(`- [${title}](${site}${urlOf(f)})${desc ? `: ${desc}` : ''}`)
+}
+fs.writeFileSync(path.join(ROOT, 'public', 'llms.txt'), index.join('\n') + '\n')
 console.log('content/ собран из', REPOS.join(', '))

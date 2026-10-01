@@ -1,19 +1,17 @@
 /* ============================================================================
    Типографика статьи. Значения — из .article-content виджета поддержки.
 
-   Особенность оригинала, которую стоит знать: у заголовка второго уровня
-   высота строки (20px) меньше размера шрифта (21px). На одну строку это
-   незаметно, но длинный заголовок в две строки слипается. Здесь поставлено
-   1.25 — если нужна точная копия, верните 20px.
+   Особенность оригинала: у h2 высота строки (20px) меньше размера шрифта
+   (21px) — длинный заголовок в две строки слипается. Здесь 1.25.
    ========================================================================= */
 
 .hd-article { font-size: var(--hd-size-md); line-height: var(--hd-line-md); color: var(--hd-text-primary); }
 
 .hd-article h1 {
-  margin: 0 0 var(--hd-space-2xl);
-  font-size: 28px;
-  font-weight: 600;
-  line-height: 1.2;
+  margin: 0;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 38px;
   color: var(--hd-text-heading);
 }
 
@@ -37,18 +35,19 @@
 .hd-article p { margin: 0 0 var(--hd-space-xl); }
 
 .hd-article a {
-  color: var(--hd-primary);
+  color: var(--hd-link);
   text-decoration: none;
   transition: var(--hd-transition);
 }
 .hd-article a:hover { text-decoration: underline; }
-/* Docus оборачивает заголовки в якорь-ссылку — цвет заголовка, не ссылки */
+/* Nuxt Content оборачивает заголовки в якорь-ссылку — цвет заголовка, не ссылки */
 .hd-article h1 a, .hd-article h2 a, .hd-article h3 a, .hd-article h4 a { color: inherit; }
 .hd-article h2 a:hover, .hd-article h3 a:hover { text-decoration: none; }
 
 .hd-article ul,
-.hd-article ol { margin: 0 0 var(--hd-space-xl); padding-left: var(--hd-space-2xl); }
-.hd-article li { margin-bottom: var(--hd-space-sm); }
+.hd-article ol { margin: 0 0 var(--hd-space-xl); padding-left: 20px; }
+.hd-article li { padding: 4px 0; }
+.hd-article li::marker { color: var(--hd-primary); }
 
 .hd-article code {
   font: var(--hd-size-sm)/1.4 var(--hd-font-mono);
@@ -60,8 +59,9 @@
 .hd-article pre {
   margin: 0 0 var(--hd-space-2xl);
   padding: var(--hd-space-xl);
-  background: var(--hd-border);
-  border-radius: var(--hd-radius-md);
+  background: var(--hd-input-bg);
+  border: 1px solid var(--hd-border);
+  border-radius: 12px;
   overflow-x: auto;
 }
 .hd-article pre code { background: none; padding: 0; }
@@ -101,16 +101,59 @@
 .hd-spoiler[open] > summary { border-bottom: 1px solid var(--hd-border); }
 .hd-spoiler-inner { padding: var(--hd-space-xl); }
 
-/* --- Хлебные крошки --- */
+/* --- Шапка статьи: крошки со стрелками «назад/вперёд» и ссылка на статью --- */
+.hd-article-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 0 16px; }
 .hd-breadcrumbs {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   flex-wrap: wrap;
-  padding-top: var(--hd-space-2xl);
-  padding-bottom: var(--hd-space-xl);
-  font-size: var(--hd-size-sm);
+  gap: 0 4px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 19px;
   color: var(--hd-text-tertiary);
 }
-.hd-breadcrumbs a { color: var(--hd-text-secondary); text-decoration: none; }
-.hd-breadcrumbs a:hover { color: var(--hd-primary); }
-.hd-breadcrumbs-sep { padding: 0 var(--hd-space-sm); }
+.hd-breadcrumbs a { color: var(--hd-text-tertiary); text-decoration: none; }
+.hd-breadcrumbs a:hover { color: var(--hd-text-heading); }
+.hd-breadcrumbs-sep { display: inline-flex; width: 24px; justify-content: center; color: var(--hd-text-primary); }
+.hd-breadcrumbs-sep .hd-icon { width: 12px; height: 12px; }
+.hd-breadcrumbs-nav { display: inline-flex; gap: 4px; padding-right: 6px; }
+.hd-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--hd-text-primary);
+  cursor: pointer;
+}
+.hd-icon-btn:hover { background: var(--hd-hover-bg); }
+.hd-icon-btn:disabled { color: #c9ccd0; cursor: default; background: transparent; }
+.hd-icon-btn .hd-icon { width: 18px; height: 18px; }
+
+.hd-article-title-wrap { padding: 10px 0 20px; }
+
+/* «В статье расскажем, как:» — плашка с разделами статьи под заголовком */
+.hd-toc-preview {
+  margin: 10px 0 24px;
+  padding: 18px 20px 24px;
+  border: 1px solid var(--hd-border);
+  border-radius: 18px;
+  background: linear-gradient(160deg, #f4f9ff 0%, #ffffff 45%);
+}
+.hd-toc-preview p { margin: 0 0 8px; font-size: 16px; }
+.hd-toc-preview ul { margin: 4px 0 0; padding-left: 20px; }
+.hd-toc-preview li { padding: 4px 0; font-size: 17px; }
+
+/* Tailwind preflight убирает маркеры списков — в тексте статьи и в чате они нужны */
+.hd-article ul, .hd-toc-preview ul, .hd-chat-welcome ul { list-style: disc; }
+.hd-article ol { list-style: decimal; }
+.hd-article-head-actions { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+@media (max-width: 767px) { .hd-article-head { align-items: flex-start; } }
+/* колонка статьи — контейнер: шапка статьи ужимается по её ширине, а не по окну */
+.hd-article { container: hd-article / inline-size; }
+@container hd-article (max-width: 620px) { .hd-article-head { align-items: flex-start; } }
