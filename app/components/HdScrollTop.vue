@@ -44,5 +44,6 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 }
 .scroll-to-top--visible { opacity: 1; visibility: visible; transform: none; }
 .scroll-to-top:hover { box-shadow: 0 6px 24px rgba(0, 0, 0, .18); }
-@media (max-width: 767px) { .scroll-to-top { right: 16px; bottom: 16px; } }
+/* на узком экране — над плавающим полем «Задать вопрос» */
+@media (max-width: 767px) { .scroll-to-top { right: 16px; bottom: 84px; } }
 </style>

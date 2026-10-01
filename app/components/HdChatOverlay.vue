@@ -1,11 +1,10 @@
 <!--
-  Чат с ИИ-агентом, как помощник в «Битрикс24 Ответы»: белый экран поверх страницы
-  (шапка остаётся), приветствие с примерами, вопрос — серым пузырём справа, ответ —
+  Чат с ИИ-агентом, как помощник в «Битрикс24 Ответы», панелью справа (как «Ask AI» в Docus), приветствие с примерами, вопрос — серым пузырём справа, ответ —
   текстом с кнопками «копировать / нравится / не нравится», внизу поле как на главной.
   Ответы стримятся с /api/assistant (BitrixGPT через AI Router). История — в localStorage.
 -->
 <template>
-  <div class="hd-chat-overlay" :class="{ 'is-open': open }" role="dialog" aria-modal="true" aria-label="Чат с ИИ-агентом">
+  <div class="hd-chat-overlay" :class="{ 'is-open': open }" role="complementary" aria-label="Чат с ИИ-агентом">
     <div class="hd-chat">
       <button class="hd-chat-close" type="button" aria-label="Закрыть" title="Закрыть" @click="$emit('close')">
         <HdIcon name="close" />
@@ -40,13 +39,13 @@
             <template v-for="(part, index) in message.parts" :key="`${message.id}-${index}`">
               <B24ChatTool
                 v-if="part.type === 'data-sources' && sourcesOf(part).length"
-                :text="`Нашёл страницы: ${sourcesOf(part).length}`"
+                :text="sourcesOf(part).length === 1 ? `Изучаю страницу: ${sourcesOf(part)[0]?.title}` : `Нашёл страницы: ${sourcesOf(part).length}`"
                 chevron="leading"
                 class="hd-chat-tool"
               >
                 <ul class="hd-chat-sources">
                   <li v-for="src in sourcesOf(part)" :key="src.url">
-                    <NuxtLink :to="localPath(src.url)" @click="$emit('close')">{{ src.title }}</NuxtLink>
+                    <NuxtLink :to="localPath(src.url)">{{ src.title }}</NuxtLink>
                   </li>
                 </ul>
               </B24ChatTool>
@@ -186,15 +185,13 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-width: 840px;
-  margin: 0 auto;
-  padding: 24px 60px 24px;
+  padding: 24px 24px 20px;
 }
 
 .hd-chat-close {
   position: absolute;
-  top: 24px;
-  right: 24px;
+  top: 16px;
+  right: 16px;
   display: inline-flex;
   padding: 4px;
   border: 0;
@@ -214,13 +211,15 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
   flex-direction: column;
   gap: 28px;
   padding: 0 0 24px;
+  overflow-x: hidden;
+  scrollbar-width: none;
   overscroll-behavior: contain;
-  font-size: 17px;
-  line-height: 24px;
+  font-size: 15px;
+  line-height: 22px;
   color: #333;
 }
 
-.hd-chat-welcome-title { margin: 0 0 20px; font-size: 21px; line-height: 29px; font-weight: 600; color: #333; }
+.hd-chat-welcome-title { margin: 0 0 14px; padding-right: 32px; font-size: 18px; line-height: 25px; font-weight: 600; color: #333; }
 .hd-chat-welcome p { margin: 0; }
 .hd-chat-welcome ul { margin: 4px 0 0; padding-left: 20px; }
 .hd-chat-welcome li::marker { color: var(--hd-primary); }
@@ -228,21 +227,25 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-welcome li button:hover { color: var(--hd-link); }
 
 /* B24ChatMessages: вопрос — серым пузырём справа, ответ — без пузыря, как у помощника оригинала */
-.hd-chat-list { gap: 28px; }
+.hd-chat-messages::-webkit-scrollbar { display: none; }
+.hd-chat-list { gap: 28px; min-width: 0; max-width: 100%; }
+/* узкая панель: сообщения не шире её, длинный код переносится внутри блока */
+.hd-chat-list :deep(article), .hd-chat-list :deep([data-slot="container"]), .hd-chat-list :deep([data-slot="body"]) { min-width: 0; max-width: 100%; }
+.hd-chat-list :deep([data-role="user"] [data-slot="container"]) { max-width: 85%; margin-left: auto; }
 .hd-chat-list :deep([data-role="user"] [data-slot="content"]) {
-  padding: 12px 16px;
-  border-radius: 20px;
+  padding: 10px 14px;
+  border-radius: 12px;
   background: #f1f3f5;
   color: #333;
-  font-size: 17px;
-  line-height: 24px;
+  font-size: 15px;
+  line-height: 22px;
 }
 .hd-chat-list :deep([data-role="assistant"] [data-slot="content"]) {
   padding: 0;
   background: transparent;
   color: #333;
-  font-size: 17px;
-  line-height: 24px;
+  font-size: 15px;
+  line-height: 22px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -297,7 +300,7 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
   flex-direction: column;
   gap: 4px;
   padding: 12px 12px 6px;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #fff;
   box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
 }
@@ -308,7 +311,8 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
   max-height: 160px;
   padding: 11px 12px;
   border: 1px solid #c4e6ff;
-  border-radius: 12px;
+  border-radius: 8px;
+  scrollbar-width: none;
   background: #f6fafb;
   color: #333;
   font: inherit;

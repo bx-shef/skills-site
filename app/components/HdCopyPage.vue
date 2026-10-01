@@ -109,3 +109,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
 .hd-copy-page-logo { width: 16px; height: 16px; flex: 0 0 auto; }
 .hd-ext { margin-left: auto; color: var(--hd-text-tertiary); font-size: 12px; }
 </style>
+<style scoped>
+@media (max-width: 767px) { .hd-copy-page-main span { display: none; } }
+</style>

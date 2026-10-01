@@ -121,21 +121,32 @@ body {
   padding: 40px var(--hd-space-2xl);
 }
 
-/* --- Чат поверх страницы ------------------------------------------------- */
+/* --- Чат справа ----------------------------------------------------------
+   Как «Ask AI» в Docus: панель справа под шапкой, страница сужается, а не
+   перекрывается — статью видно, пока идёт разговор о ней.
+   -------------------------------------------------------------------------*/
+
+:root { --hd-chat-width: 420px; }
 
 .hd-chat-overlay {
   position: fixed;
-  inset: var(--hd-header-height) 0 0 0;   /* шапка с поиском остаётся видна */
-  z-index: 80;
-  padding-left: var(--hd-sidebar-width);
-  background: #fff;
-  opacity: 0;
+  top: var(--hd-header-height);
+  right: 0;
+  bottom: 0;
+  z-index: 95;
+  width: var(--hd-chat-width);
+  border-left: 1px solid #e3e8f0;
+  background: var(--hd-bg);
+  transform: translateX(100%);
   visibility: hidden;
-  transition: opacity .3s ease, visibility .3s ease;
-  will-change: opacity;
-  contain: layout style paint;
+  transition: transform .25s ease, visibility .25s ease;
 }
-.hd-chat-overlay.is-open { opacity: 1; visibility: visible; }
+.hd-chat-overlay.is-open { transform: none; visibility: visible; }
+
+/* место под панель: содержимое, подвал и плавающие элементы сдвигаются влево */
+.hd-shell { transition: padding-right .25s ease; }
+.hd-shell--chat { padding-right: var(--hd-chat-width); }
+.hd-shell--chat .scroll-to-top { right: calc(var(--hd-chat-width) + 32px); }
 
 /* --- Мобильный ----------------------------------------------------------- */
 
@@ -145,8 +156,12 @@ body {
   .hd-header { padding: 12px 16px; }
   .hd-article-layout { padding: 0 16px 48px; }
   .hd-content { padding: 0 16px; }
+  /* на телефоне панель чата — на весь экран */
+  :root { --hd-chat-width: 100vw; }
+  .hd-shell--chat { padding-right: 0; }
 }
 
 /* Градиент — только на главной и списках; статья (как в оригинале) на почти белом фоне */
 .hd-shell--plain { min-height: 100vh; background: #fdfdfe; }
 .hd-shell--plain .hd-article-layout { background: transparent; }
+body.hd-body-plain { background: #fdfdfe; }

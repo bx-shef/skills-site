@@ -27,18 +27,19 @@ async function pages(event: Parameters<typeof defineEventHandler>[0] extends (e:
   return list
 }
 
-function pick(all: Page[], question: string): Page[] {
-  // «Обсудить с ИИ»: в вопросе адрес страницы сайта — она идёт в контекст первой
+function pick(all: Page[], question: string, dialog = question): Page[] {
+  // «Обсудить с ИИ»: в вопросе адрес страницы сайта — в контекст идёт только она
   const pathOf = (u: string) => u.replace(/^https?:\/\/[^/]+/, '').replace(/\/$/, '')
-  const asked = new Set((question.match(/https?:\/\/\S+/g) || []).map(pathOf))
+  const asked = new Set((dialog.match(/https?:\/\/\S+/g) || []).map(pathOf))
   const linked = asked.size ? all.filter(p => p.url && asked.has(pathOf(p.url))) : []
   const q = tokens(question)
   const scored = all.map(p => ({ p, s: [...q].reduce((n, w) => n + (p.words.has(w) ? 1 : 0), 0) + (q.size && [...q].some(w => p.title.toLowerCase().includes(w)) ? 3 : 0) }))
     .sort((a, b) => b.s - a.s)
-  const out: Page[] = [...linked]
-  let size = linked.reduce((n, p) => n + p.text.length, 0)
+  // Вопрос по конкретной странице — только она: остальное модель только путает
+  if (linked.length) return linked
+  const out: Page[] = []
+  let size = 0
   for (const { p, s } of scored) {
-    if (out.includes(p)) continue
     if (s === 0 && out.length) break
     if (size + p.text.length > CONTEXT_LIMIT) continue
     out.push(p); size += p.text.length
@@ -63,7 +64,9 @@ export default defineEventHandler(async (event) => {
 
   const last = [...messages].reverse().find((m: any) => m.role === 'user')
   const question = (last?.parts || []).filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ') || ''
-  const chosen = pick(await pages(event), question)
+  // Адрес страницы ищем во всём диалоге: уточняющие вопросы после «Обсудить с ИИ» — по той же странице
+  const dialog = messages.filter((m: any) => m.role === 'user').flatMap((m: any) => (m.parts || []).filter((p: any) => p.type === 'text').map((p: any) => p.text)).join('\n')
+  const chosen = pick(await pages(event), question, dialog)
 
   const instructions = [
     'Ты — помощник по сайту skills-site.bx-shef.by: методология и проверка навыков ИИ-агентов для Битрикса, навыки к модулям shef.*.',

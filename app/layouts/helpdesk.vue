@@ -5,7 +5,7 @@
   Чат с ИИ-агентом — оверлей поверх страницы, открывается из поиска.
 -->
 <template>
-  <div class="hd-shell" :class="{ 'hd-shell--plain': article }">
+  <div class="hd-shell" :class="{ 'hd-shell--plain': article, 'hd-shell--chat': chatOpen }">
     <HdHeader />
 
     <aside class="hd-sidebar sidebar-menu">
@@ -65,6 +65,10 @@ withDefaults(defineProps<{
 }>(), { article: false, tocLinks: () => [], breadcrumbs: () => [] })
 
 const { open: chatOpen, closeChat } = useHdChat()
+
+// Фон страницы: на статье — почти белый (как в оригинале), градиент — на главной и списках
+const props_ = getCurrentInstance()?.props as { article?: boolean }
+useHead({ bodyAttrs: { class: computed(() => props_?.article ? 'hd-body-plain' : '') } })
 
 const copied = ref(false)
 async function copyLink() {
