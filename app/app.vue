@@ -11,7 +11,15 @@ const appConfig = useAppConfig()
 useHead({
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   // шрифт заголовков нужен на первом экране — грузим сразу
-  link: [{ rel: 'preload', href: '/fonts/getvoip-grotesque/GetVoIP-Grotesque.otf', as: 'font', type: 'font/otf', crossorigin: '' }],
+  link: [
+    { rel: 'preload', href: '/fonts/getvoip-grotesque/GetVoIP-Grotesque.otf', as: 'font', type: 'font/otf', crossorigin: '' },
+    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' },
+    { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+    // Для ИИ-агентов: весь сайт текстом (llmstxt.org)
+    { rel: 'alternate', type: 'text/plain', href: '/llms.txt', title: 'llms.txt' },
+    { rel: 'alternate', type: 'text/plain', href: '/llms-full.txt', title: 'llms-full.txt' },
+  ],
   titleTemplate: (t?: string) => t ? `${t} · bxshef` : appConfig.seo.title,
 })
 

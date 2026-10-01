@@ -120,7 +120,8 @@ for (const f of walk(OUT).sort()) {
   const md = fs.readFileSync(f, 'utf8')
   const title = (md.match(/^title:\s*"?(.+?)"?$/m) || [])[1] || path.basename(f, '.md')
   const desc = (md.match(/^description:\s*"?(.+?)"?$/m) || [])[1]
-  index.push(`- [${title}](${site}${urlOf(f)})${desc ? `: ${desc}` : ''}`)
+  // по llmstxt.org — ссылка на markdown-версию страницы (/raw/<путь>.md отдаёт server/routes/raw)
+  index.push(`- [${title}](${site}/raw${urlOf(f)}.md)${desc ? `: ${desc}` : ''}`)
 }
 fs.writeFileSync(path.join(ROOT, 'public', 'llms.txt'), index.join('\n') + '\n')
 console.log('content/ собран из', REPOS.join(', '))

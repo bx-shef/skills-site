@@ -59,8 +59,8 @@
 .hd-article pre {
   margin: 0 0 var(--hd-space-2xl);
   padding: var(--hd-space-xl);
-  background: var(--hd-input-bg);
-  border: 1px solid var(--hd-border);
+  background: var(--hd-code-bg);
+  border: 1px solid var(--hd-code-border);
   border-radius: 12px;
   overflow-x: auto;
 }

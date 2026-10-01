@@ -120,7 +120,11 @@ import { isPartStreaming } from '@bitrix24/b24ui-nuxt/utils/ai'
 const props = defineProps({ open: { type: Boolean, default: false } })
 defineEmits(['close'])
 
-const { ask, page } = useHdChat()
+const { ask, page, open: chatOpenState } = useHdChat()
+// Пользователь вернулся, а чат был открыт — открываем снова (на телефоне не навязываем: там он на весь экран)
+onMounted(() => {
+  try { if (localStorage.getItem('hd-chat-open') === '1' && window.innerWidth >= 768) chatOpenState.value = true } catch { /* приватный режим */ }
+})
 
 const examples = ['Как написать навык для своего модуля?', 'Почему ИИ-агент не берёт мой навык?']
 const stored = useLocalStorage<UIMessage[]>('assistant-messages', [])
@@ -348,6 +352,7 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-send.is-stop i { width: 12px; height: 12px; border-radius: 2px; background: var(--hd-bg); }
 
 @media (max-width: 767px) {
-  .hd-chat { padding: 16px; }
+  .hd-chat { padding: 20px 20px 16px; }
+  .hd-chat-bar { padding: 0 12px 0 20px; }
 }
 </style>

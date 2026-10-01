@@ -34,7 +34,7 @@ const tocLinks = computed(() => page.value?.body?.toc?.links || [])
 // Плашка «В статье:» под заголовком — те же разделы второго уровня, не больше восьми
 const previewLinks = computed(() => tocLinks.value.filter((l: { depth: number }) => l.depth === 2).slice(0, 8))
 
-useSeo({ title, description, type: 'article' })
+useSeo({ title, description, type: 'article', markdown: `/raw${route.path.replace(/\/$/, '')}.md` })
 // Markdown страницы (/raw/<путь>.md) — в пререндер: на него ведёт «Копировать страницу»
 prerenderRoutes(`/raw${route.path.replace(/\/$/, '')}.md`)
 </script>
