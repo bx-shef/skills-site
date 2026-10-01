@@ -1,0 +1,100 @@
+name: site-image
+
+# Образ сайта в ghcr.io. Контент (skills-standard, skills, options, problems, insync) клонируется
+# при сборке — поэтому пересборка и по расписанию: правки в тех репозиториях доезжают на сайт
+# без коммита здесь. На PR — только сборка и дымовая проверка; на main и по расписанию —
+# публикация :latest (её подхватывает Watchtower на сервере) и :sha-<коммит> для отката.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '17 3 * * *'   # раз в сутки, 03:17 UTC
+  workflow_dispatch:
+  repository_dispatch:
+    types: [ content-updated ]   # из репозиториев-источников: curl на /dispatches (README)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Собрать для проверки
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          load: true
+          tags: skills-site:ci
+          build-args: SITE_URL=https://skills-site.bx-shef.by
+          cache-from: type=gha,scope=site
+          cache-to: type=gha,mode=max,scope=site
+
+      - name: Дымовая проверка
+        shell: bash
+        run: |
+          docker run -d --name site -p 127.0.0.1:3000:3000 skills-site:ci
+          for i in $(seq 1 30); do curl -fs localhost:3000/llms.txt >/dev/null && break; sleep 1; done
+          check() { got=$(curl -s -o /dev/null -w '%{http_code}' "${@:2}"); echo "$1 → $got  ${*:2}"; [ "$got" = "$1" ]; }
+          check 200 localhost:3000/
+          check 200 localhost:3000/methodology/standard
+          check 200 localhost:3000/skills
+          check 200 localhost:3000/llms.txt
+          check 200 localhost:3000/llms-full.txt
+          check 404 localhost:3000/nope
+          # без ключа чат отвечает 503, а не падает
+          check 503 -X POST -H 'content-type: application/json' -d '{"messages":[{"role":"user","parts":[{"type":"text","text":"ping"}]}]}' localhost:3000/api/assistant
+          # не curl | grep -q: grep выходит на первом совпадении, curl ловит SIGPIPE (код 23), а pipefail валит шаг
+          page=$(curl -fs localhost:3000/)
+          grep -q 'hd-shell' <<<"$page"
+          full=$(curl -fs localhost:3000/llms-full.txt)
+          grep -q 'Стандарт навыка' <<<"$full"
+
+      - name: Лог сайта
+        if: always()
+        run: docker logs site || true
+
+      - name: Вход в GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Метки образа
+        if: github.event_name != 'pull_request'
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - name: Опубликовать
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: SITE_URL=https://skills-site.bx-shef.by
+          cache-from: type=gha,scope=site

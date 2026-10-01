@@ -1,0 +1,82 @@
+/* ============================================================================
+   Токены оформления. Единственное место, где меняются цвета и размеры.
+
+   Значения сняты с виджета поддержки Битрикс24 — helpdesk.bitrix24.ru/widget2/,
+   файл стилей компонента helpdesk.widget.manager (шаблон newDesign).
+   Там они объявлены такими же переменными, так что это ровно те числа.
+
+   Откуда каждое — PARAMETERS.md.
+   ========================================================================= */
+
+:root {
+  /* --- Цвета --- */
+  --hd-primary:        #0075ff;
+  --hd-bg:             #ffffff;
+  --hd-border:         #f0f0f0;   /* линии, разделители */
+  --hd-border-button:  #edeef0;   /* границы кнопок — чуть темнее линий */
+  --hd-text-primary:   #333333;
+  --hd-text-secondary: #525c69;
+  --hd-text-tertiary:  #828b95;
+  --hd-text-heading:   #000000;   /* заголовки статьи и активный пункт меню */
+
+  /* Наведение на пункт меню: очень светлый голубой, не прозрачность акцента */
+  --hd-hover-bg:       #e6f4ff;
+
+  /* --- Типографика --- */
+  --hd-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --hd-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --hd-size-sm: 14px;
+  --hd-size-md: 17px;
+  --hd-size-lg: 18px;
+  --hd-line-sm: 19px;
+  --hd-line-md: 23px;
+
+  /* --- Раскладка --- */
+  --hd-header-height:  58px;
+  --hd-sidebar-width:  84px;    /* узкое меню-иконки */
+  --hd-sidebar-open:   280px;   /* раскрытое: в оригинале едет по ширине */
+  --hd-main-max:       1440px;  /* вся страница по центру */
+  --hd-content-max:    1018px;  /* обычная страница */
+  --hd-article-max:    1175px;  /* статья вместе с оглавлением */
+  --hd-article-text:   875px;   /* только текст статьи */
+  --hd-article-gap:    40px;    /* между текстом и оглавлением */
+  --hd-article-pad:    68px;    /* боковые поля статьи */
+
+  /* --- Скругления --- */
+  --hd-radius-sm:   6px;
+  --hd-radius-md:   10px;
+  --hd-radius-item: 8px;    /* пункт меню */
+  --hd-radius-card: 20px;   /* карточка-промо */
+
+  /* --- Отступы --- */
+  --hd-space-xs:  4px;
+  --hd-space-sm:  6px;
+  --hd-space-md:  12px;
+  --hd-space-lg:  14px;
+  --hd-space-xl:  16px;
+  --hd-space-2xl: 24px;
+  --hd-space-3xl: 32px;
+
+  /* --- Переходы. В оригинале один набор на все свойства сразу --- */
+  --hd-transition: box-shadow .2s ease, background-color .2s ease, color .2s ease,
+                   border-color .2s ease, opacity .2s ease, transform .2s ease;
+
+  /* --- Тень карточки --- */
+  --hd-shadow-card: 0 4px 20px rgba(0, 0, 0, .04);
+}
+
+/* Тёмная тема. В оригинале её нет — виджет только светлый. Добавлена, потому
+   что Docus умеет переключать, а без неё на тёмной теме всё побелеет.
+   Переопределены только те токены, что меняются. */
+:root[data-theme="dark"] {
+  --hd-bg:             #17181a;
+  --hd-border:         #2a2c2f;
+  --hd-border-button:  #33363a;
+  --hd-text-primary:   #e8eaed;
+  --hd-text-secondary: #b0b6bd;
+  --hd-text-tertiary:  #8a9199;
+  --hd-text-heading:   #ffffff;
+  --hd-hover-bg:       #16324a;
+  --hd-shadow-card:    0 4px 20px rgba(0, 0, 0, .35);
+}

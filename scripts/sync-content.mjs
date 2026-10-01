@@ -1,0 +1,104 @@
+#!/usr/bin/env node
+/**
+ * Собирает content/ сайта из репозиториев — второй копии текстов нет.
+ *
+ *   node scripts/sync-content.mjs            клонирует в .sources/ и раскладывает
+ *   SOURCES_DIR=../  node scripts/sync-content.mjs   взять уже склонированные рядом каталоги
+ *
+ * Источники: bx-shef/skills-standard (методология), bx-shef/skills (навыки),
+ * bx-shef/{options,problems,insync} (документация модулей). Ветка main.
+ */
+import { execSync } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
+
+const ROOT = path.resolve(import.meta.dirname, '..')
+const SRC = path.resolve(process.env.SOURCES_DIR || path.join(ROOT, '.sources'))
+const OUT = path.join(ROOT, 'content')
+const ORG = 'https://github.com/bx-shef'
+const REPOS = ['skills-standard', 'skills', 'options', 'problems', 'insync']
+
+fs.mkdirSync(SRC, { recursive: true })
+for (const r of REPOS) {
+  const dir = path.join(SRC, r)
+  if (fs.existsSync(dir)) { try { execSync('git pull -q --ff-only', { cwd: dir, stdio: 'ignore' }) } catch {} }
+  else execSync(`git clone -q --depth 1 ${ORG}/${r}.git ${dir}`, { stdio: 'inherit' })
+}
+
+// content/ пересобирается целиком, кроме index.md (лендинг пишется руками)
+for (const e of fs.readdirSync(OUT)) if (e !== 'index.md') fs.rmSync(path.join(OUT, e), { recursive: true, force: true })
+
+const read = (p) => fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null
+const write = (rel, text) => { const p = path.join(OUT, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, text) }
+const stripFront = (md) => md.replace(/^---\n[\s\S]*?\n---\n/, '')
+const titleOf = (md, fallback) => (md.match(/^#\s+(.+)$/m) || [])[1] || fallback
+const page = (md, { title, description, source }) => {
+  const body = stripFront(md).replace(/^#\s+.+\n/, '')
+  const fm = ['---', `title: ${JSON.stringify(title)}`, description ? `description: ${JSON.stringify(description)}` : null, '---'].filter(Boolean).join('\n')
+  const foot = source ? `\n\n::note\nИсточник: [${source.label}](${source.url}) — правки туда, сайт пересобирается сам.\n::\n` : ''
+  return `${fm}\n\n${body.trim()}${foot}\n`
+}
+const gh = (repo, file) => ({ label: `${repo}/${file}`, url: `${ORG}/${repo}/blob/main/${file}` })
+// относительные ссылки на GitHub-файлы того же репозитория → абсолютные
+const absLinks = (md, repo) => md.replace(/\]\((?!https?:|#|\/)([^)]+\.md)\)/g, (_, f) => `](${ORG}/${repo}/blob/main/${f})`)
+
+// 1. Методология
+const std = path.join(SRC, 'skills-standard')
+const stdPages = [
+  ['1.standard.md', 'STANDARD.md', 'Стандарт навыка', '11 правил, каждое из провала на стенде'],
+  ['2.method.md', 'METHOD.md', 'Методология проверки', 'lint → eval → стенд; что измерено'],
+  ['3.bxshef.md', 'bxshef/README.md', 'bxshef — CLI', 'lint, eval, feedback'],
+  ['4.action.md', 'action/README.md', 'GitHub Action', 'тот же lint + eval в любом репозитории навыков'],
+  ['5.template.md', 'template/README.md', 'Заготовка репозитория', 'с чего начать автору модуля'],
+  ['6.feedback.md', 'feedback/README.md', 'Приёмник отзывов', 'куда уходят отзывы ИИ-агентов'],
+  ['7.feedback-vibecode.md', 'feedback/VIBECODE.md', 'Приёмник на Вайбкод Black Hole', 'выкладка приёмника без своего сервера'],
+]
+write('1.methodology/.navigation.yml', 'title: Методология\nicon: i-lucide-ruler\n')
+write('1.methodology/index.md', page(read(path.join(std, 'README.md')) || '# bxshef', { title: 'bxshef: методология и проверка навыков', description: 'Как писать навыки ИИ-агентов для Битрикса и как проверять, что им можно верить', source: gh('skills-standard', 'README.md') }))
+for (const [out, file, title, description] of stdPages) {
+  const md = read(path.join(std, file)); if (!md) continue
+  write(`1.methodology/${out}`, page(absLinks(md, 'skills-standard'), { title, description, source: gh('skills-standard', file) }))
+}
+
+// 2. Навыки
+const sk = path.join(SRC, 'skills')
+write('2.skills/.navigation.yml', 'title: Навыки\nicon: i-lucide-sparkles\n')
+write('2.skills/index.md', page(read(path.join(sk, 'README.md')) || '# Навыки', { title: 'Навыки shef.*', description: 'npx skills add bx-shef/skills', source: gh('skills', 'README.md') }))
+const skillsDir = path.join(sk, 'skills')
+let i = 1
+for (const name of fs.readdirSync(skillsDir).sort()) {
+  const md = read(path.join(skillsDir, name, 'SKILL.md')); if (!md) continue
+  const desc = (md.match(/^description:\s*(.+)$/m) || [])[1] || ''
+  write(`2.skills/${i++}.${name}.md`, page(md, { title: name, description: desc.slice(0, 160), source: gh('skills', `skills/${name}/SKILL.md`) }))
+}
+
+// 3. Модули
+write('3.modules/.navigation.yml', 'title: Модули shef.*\nicon: i-lucide-package\n')
+const modules = [['options', 'shef.options', 'фундамент: настройки, трейты, компоненты'], ['problems', 'shef.problems', 'логи, журнал событий, учёт проблем'], ['insync', 'shef.insync', 'агенты, импорт, API-клиенты, модели']]
+write('3.modules/index.md', `---\ntitle: Модули shef.*\ndescription: Что за чем ставить\n---\n\nТри открытых модуля (MIT), один на другом: **shef.options** → **shef.problems** → **shef.insync**. Навыки ко всем трём — в одном наборе: \`npx skills add bx-shef/skills\`.\n\n| модуль | что даёт | установка |\n|---|---|---|\n${modules.map(([r, id, d]) => `| [${id}](/modules/${r}) | ${d} | \`composer require bxshef/${r}\` |`).join('\n')}\n`)
+modules.forEach(([r, id, d], mi) => {
+  const base = path.join(SRC, r)
+  write(`3.modules/${mi + 1}.${r}/.navigation.yml`, `title: ${id}\n`)
+  write(`3.modules/${mi + 1}.${r}/index.md`, page(absLinks(read(path.join(base, 'README.md')) || `# ${id}`, r), { title: id, description: d, source: gh(r, 'README.md') }))
+  const docs = path.join(base, 'docs')
+  if (!fs.existsSync(docs)) return
+  let j = 1
+  for (const f of fs.readdirSync(docs).filter(f => f.endsWith('.md')).sort()) {
+    const md = read(path.join(docs, f))
+    const slug = f.replace(/^\d+_/, '').replace(/\.md$/, '')
+    write(`3.modules/${mi + 1}.${r}/${j++}.${slug}.md`, page(absLinks(md, r), { title: titleOf(md, slug), source: gh(r, `docs/${f}`) }))
+  }
+})
+// 4. llms-full.txt — весь сайт одним файлом для ИИ-агентов и для чата (режим context)
+const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : e.name.endsWith('.md') ? [path.join(d, e.name)] : [])
+const urlOf = (file) => '/' + path.relative(OUT, file).replace(/\\/g, '/').replace(/(^|\/)\d+\./g, '$1').replace(/\/index\.md$|\.md$/, '').replace(/^index$/, '')
+const site = process.env.SITE_URL || 'https://skills-site.bx-shef.by'
+const full = ['# bxshef — навыки ИИ-агентов для Битрикса', '', `> Методология и проверка навыков ИИ-агентов для коробочного Битрикс24 и БУС; навыки к модулям shef.*. Сайт: ${site}`, '']
+for (const f of walk(OUT).sort()) {
+  const md = fs.readFileSync(f, 'utf8')
+  const title = (md.match(/^title:\s*"?(.+?)"?$/m) || [])[1] || path.basename(f, '.md')
+  full.push(`\n\n---\n\n# ${title}\n\nURL: ${site}${urlOf(f)}\n\n${stripFront(md).replace(/^::note[\s\S]*?::\n?/m, '').trim()}`)
+}
+fs.mkdirSync(path.join(ROOT, 'public'), { recursive: true })
+fs.writeFileSync(path.join(ROOT, 'public', 'llms-full.txt'), full.join('\n'))
+console.log('content/ собран из', REPOS.join(', '))

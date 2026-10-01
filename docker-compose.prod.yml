@@ -1,0 +1,63 @@
+# Продакшн — на сервере в /home/bitrix/skills-site/ (README.md, раздел «Сервер»). Схема та же,
+# что у приёмника отзывов (skills-standard/feedback) и остальных приложений bx-shef. Требует на хосте:
+#   - docker-сеть proxy-net и общий nginx-proxy + acme-companion (TLS Let's Encrypt) — один на сервер;
+#   - Watchtower с --label-enable — один на сервер, подхватит контейнер по метке ниже;
+#   - .env рядом с этим файлом (шаблон — .env.example).
+#
+# Наружу сайт выставляет nginx-proxy по VIRTUAL_HOST — порта на хосте нет.
+# Контент (методология, навыки, документация модулей) зашит в образ при сборке в GitHub Actions;
+# обновление контента = новый образ :latest, его ставит Watchtower.
+
+name: skills-site
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+    compress: "true"
+
+services:
+  site:
+    logging: *default-logging
+    image: ghcr.io/bx-shef/skills-site:latest
+    container_name: skills-site
+    expose:
+      - "3000"
+    environment:
+      # nginx-proxy + acme-companion: по этим переменным прокси найдёт контейнер и выпустит TLS.
+      # ⚠ DNS A-запись DOMAIN должна указывать на сервер ДО подъёма, иначе сертификат не выпустится.
+      VIRTUAL_HOST: ${DOMAIN:?set DOMAIN (skills-site.bx-shef.by)}
+      VIRTUAL_PORT: 3000
+      LETSENCRYPT_HOST: ${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
+      # Чат по контенту сайта: ключ AI Router Вайбкода. Пусто — сайт работает, чат отвечает 503.
+      BXSHEF_EVAL_KEY: ${BXSHEF_EVAL_KEY:-}
+      BXSHEF_EVAL_URL: ${BXSHEF_EVAL_URL:-https://vibecode.bitrix24.tech/v1}
+      BXSHEF_CHAT_MODEL: ${BXSHEF_CHAT_MODEL:-bitrix/bitrixgpt-5.6-agent}
+      # context — страницы сайта под вопрос в промпт (любая модель); mcp — поиск инструментами (нужен tool calling)
+      ASSISTANT_MODE: ${ASSISTANT_MODE:-context}
+      NITRO_HOST: 0.0.0.0
+      NITRO_PORT: 3000
+    restart: unless-stopped
+    healthcheck:
+      # 127.0.0.1, а не localhost: в контейнере localhost резолвится и в ::1.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/llms.txt').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - proxy-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      # Ответ чата — поток (SSE). nginx-proxy буферизует ответы, и без настройки чат отдаст всё
+      # одним куском в конце. Метки для этого у nginx-proxy нет — нужен файл
+      # vhost.d/<DOMAIN>_location с «proxy_buffering off;» на хосте (README, раздел «Сервер»).
+      # Node закрывает простаивающие соединения через 5 с, а nginx-proxy держит их до 60 с:
+      # запрос в уже закрытое соединение — 502. Без keepalive гонки нет.
+      - "com.github.nginx-proxy.nginx-proxy.keepalive=disabled"
+
+networks:
+  proxy-net:
+    external: true

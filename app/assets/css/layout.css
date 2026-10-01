@@ -1,0 +1,154 @@
+/* ============================================================================
+   Раскладка виджета поддержки.
+
+   Устройство оригинала:
+     шапка  — sticky сверху, 58px;
+     меню   — fixed слева, 84px, только иконки, раскрывается по наведению;
+     текст  — по центру, статья рядом с оглавлением;
+     чат    — оверлей на весь экран поверх, но меню остаётся видно.
+   ========================================================================= */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--hd-font);
+  font-size: var(--hd-size-sm);
+  line-height: var(--hd-line-sm);
+  color: var(--hd-text-primary);
+  background: var(--hd-bg);
+}
+
+/* --- Шапка --------------------------------------------------------------- */
+
+.hd-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  min-height: var(--hd-header-height);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--hd-space-xl);
+  background: var(--hd-bg);
+  border-bottom: 1px solid var(--hd-border);
+}
+
+/* Поиск не прижат к логотипу и не растянут на всю ширину: отступ растёт с
+   окном, но не больше 161px. Формула из оригинала. */
+.hd-header-search {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--hd-space-xs);
+  flex: 1 1 auto;
+  max-width: 560px;
+  min-width: 0;
+  margin-left: clamp(16px, 8%, 161px);
+}
+
+.hd-header-actions { display: flex; align-items: center; gap: var(--hd-space-md); margin-left: auto; }
+
+/* --- Меню слева ----------------------------------------------------------
+   Меню вынуто из потока (fixed), поэтому содержимое само под него не
+   сдвинется — отступ задаётся ниже, у .hd-main.
+   -------------------------------------------------------------------------*/
+
+.hd-sidebar {
+  position: fixed;
+  top: var(--hd-header-height);
+  left: 0;
+  z-index: 90;
+  width: var(--hd-sidebar-width);
+  height: calc(100vh - var(--hd-header-height));
+  padding: 10px 8px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--hd-bg);
+  transition: width .2s ease;
+}
+
+/* Раскрытие по наведению: видны подписи. Меню наезжает на текст, а не
+   раздвигает его — иначе строки прыгали бы при каждом движении мыши. */
+.hd-sidebar:hover,
+.hd-sidebar.is-open { width: var(--hd-sidebar-open); }
+
+.hd-main {
+  position: relative;
+  max-width: var(--hd-main-max);
+  margin: 0 auto;
+  padding-left: var(--hd-sidebar-width);
+}
+
+.hd-content {
+  width: 100%;
+  max-width: var(--hd-content-max);
+  margin: 0 auto;
+  padding: 0 var(--hd-space-2xl) 48px;
+}
+
+/* --- Статья с оглавлением ------------------------------------------------ */
+
+.hd-article-layout {
+  width: 100%;
+  max-width: var(--hd-article-max);
+  margin: 0 auto;
+  padding: 0 var(--hd-article-pad);
+  display: flex;
+  gap: var(--hd-article-gap);
+  align-items: flex-start;
+}
+
+.hd-article { flex: 1; min-width: 0; max-width: var(--hd-article-text); }
+
+.hd-toc {
+  display: none;
+  padding-top: 26px;
+  padding-bottom: 30px;
+  margin-right: 72px;
+  flex: 0 0 auto;
+  position: sticky;
+  top: calc(var(--hd-header-height) + var(--hd-space-2xl));
+}
+
+/* Оглавление показываем только когда под него есть место. Порог считается
+   от суммы: текст 875 + промежуток 40 + меню 84 + поля. */
+@media (min-width: 1280px) { .hd-toc { display: block; width: 200px; } }
+
+/* --- Чат поверх страницы -------------------------------------------------
+   Оверлей закрывает всё, кроме меню: слева оставлено ровно 84px, чтобы из
+   чата можно было уйти в другой раздел, не закрывая его.
+   -------------------------------------------------------------------------*/
+
+.hd-chat-overlay {
+  position: fixed;
+  inset: var(--hd-header-height) 0 0 0;   /* шапка с поиском остаётся видна */
+  z-index: 80;                            /* ниже меню (90) и шапки (100): из чата можно уйти в раздел */
+  padding-left: var(--hd-sidebar-width);
+  background: var(--hd-bg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s ease, visibility .3s ease;
+  will-change: opacity;
+  /* браузер не пересчитывает раскладку страницы из-за содержимого чата */
+  contain: layout style paint;
+}
+.hd-chat-overlay.is-open { opacity: 1; visibility: visible; }
+
+/* --- Мобильный ----------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  /* Меню уезжает за край и выдвигается кнопкой: 84px иконок на узком экране
+     отнимают у текста слишком много. */
+  .hd-sidebar {
+    width: var(--hd-sidebar-open);
+    transform: translateX(-100%);
+    transition: transform .2s ease;
+  }
+  .hd-sidebar.is-open { transform: translateX(0); }
+  .hd-sidebar:hover { width: var(--hd-sidebar-open); }
+
+  .hd-main { padding-left: 0; }
+  .hd-article-layout { padding: 0 var(--hd-space-xl); }
+  .hd-chat-overlay { padding-left: 0; }
+}
