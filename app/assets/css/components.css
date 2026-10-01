@@ -14,8 +14,6 @@
   text-decoration: none;
   white-space: nowrap;
 }
-.hd-logo { align-items: center; }
-.hd-logo-mark { width: 28px; height: 28px; flex: 0 0 auto; border-radius: 8px; }
 .hd-logo-brand { font-size: 24px; font-weight: 700; letter-spacing: -.02em; color: var(--hd-text-brand); }
 .hd-logo-word { font-size: 20px; font-weight: 600; color: var(--hd-text-tertiary); }
 
@@ -545,7 +543,7 @@
 
 /* --- Подвал -------------------------------------------------------------- */
 
-.hd-footer-logo { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 700; letter-spacing: -.02em; color: var(--hd-text-brand); text-decoration: none; }
+.hd-footer-logo { font-size: 19px; font-weight: 700; letter-spacing: -.02em; color: var(--hd-text-brand); text-decoration: none; }
 .hd-footer-socials { display: flex; gap: 12px; }
 .hd-footer-socials a { display: inline-flex; width: 26px; height: 26px; align-items: center; justify-content: center; color: var(--hd-text-brand); }
 .hd-footer-socials a:hover { color: var(--hd-primary); }
