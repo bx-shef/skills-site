@@ -18,9 +18,7 @@
             <HdBreadcrumbs :items="breadcrumbs" />
             <span class="hd-article-head-actions">
               <HdCopyPage v-if="docPage" />
-              <button class="hd-icon-btn" type="button" :title="copied ? 'Ссылка скопирована' : 'Скопировать ссылку на статью'" @click="copyLink">
-                <HdIcon :name="copied ? 'check' : 'link'" />
-              </button>
+              <B24Button color="air-tertiary" size="sm" :icon="icon(copied ? 'check' : 'link')" :title="copied ? 'Ссылка скопирована' : 'Скопировать ссылку на статью'" :aria-label="copied ? 'Ссылка скопирована' : 'Скопировать ссылку на статью'" @click="copyLink" />
             </span>
           </div>
           <slot />

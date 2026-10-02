@@ -116,22 +116,6 @@
 .hd-article-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 0 16px; }
 /* крошки — B24Breadcrumb; здесь только место в шапке статьи: занимают остаток строки */
 .hd-breadcrumbs { flex: 1 1 auto; min-width: 0; }
-.hd-icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--hd-text-primary);
-  cursor: pointer;
-}
-.hd-icon-btn:hover { background: var(--hd-hover-bg); }
-.hd-icon-btn:disabled { color: #c9ccd0; cursor: default; background: transparent; }
-.hd-icon-btn .hd-icon { width: 18px; height: 18px; }
 
 .hd-article-title-wrap { padding: 10px 0 20px; }
 
