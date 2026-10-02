@@ -9,21 +9,23 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
  * и кладутся в системный промпт (до ~60 КБ). Любая модель, без инструментов.
  */
 type Page = { title: string, url: string, text: string, words: Set<string> }
-let cache: { at: number, pages: Page[] } | null = null
+let cache: { pages: Page[] } | null = null
 const CONTEXT_LIMIT = 60_000
 
 const tokens = (s: string) => new Set((s.toLowerCase().match(/[a-zа-яё0-9_.\-]{4,}/g) || []))
 
-async function pages(event: Parameters<typeof defineEventHandler>[0] extends (e: infer E) => unknown ? E : never): Promise<Page[]> {
-  if (cache && Date.now() - cache.at < 10 * 60_000) return cache.pages
-  // Полный адрес, а не event.fetch: в dev файлы public/ отдаёт Vite, а не Nitro
-  const text = await fetch(new URL('/llms-full.txt', getRequestURL(event).origin)).then(r => r.ok ? r.text() : '').catch(() => '')
+async function pages(): Promise<Page[]> {
+  if (cache) return cache.pages
+  // Копия llms-full.txt в server/assets кладётся scripts/sync-content.mjs и едет в сборку.
+  // Не fetch к себе по внешнему адресу: за обратным прокси такой запрос может не пройти,
+  // и чат молча оставался без страниц.
+  const text = String(await useStorage('assets:server').getItem('llms-full.txt') || '')
   const list = text.split(/\n\n---\n\n(?=# )/).slice(1).map((chunk) => {
     const title = (chunk.match(/^# (.+)$/m) || [])[1] || ''
     const url = (chunk.match(/^URL: (\S+)$/m) || [])[1] || ''
     return { title, url, text: chunk, words: tokens(chunk) }
   })
-  if (list.length) cache = { at: Date.now(), pages: list } // пустой ответ не кэшируем
+  if (list.length) cache = { pages: list } // пустое не кэшируем
   return list
 }
 
@@ -63,7 +65,14 @@ export default defineEventHandler(async (event) => {
 
   const last = [...messages].reverse().find((m: any) => m.role === 'user')
   const question = (last?.parts || []).filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ') || ''
-  const chosen = pick(await pages(event), question, typeof page === 'string' ? page : undefined)
+  const all = await pages()
+  if (!all.length) {
+    console.error('[assistant] страницы сайта не загружены: server/assets/llms-full.txt пуст или отсутствует')
+    throw createError({ statusCode: 503, message: 'Поиск по сайту недоступен' })
+  }
+  const chosen = pick(all, question, typeof page === 'string' ? page : undefined)
+
+  console.info(`[assistant] страниц: ${all.length}, выбрано: ${chosen.map(p => p.url).join(', ') || '—'}`)
 
   const instructions = [
     'Ты — помощник по сайту skills-site.bx-shef.by: методология и проверка навыков ИИ-агентов для Битрикса, навыки к модулям shef.*.',

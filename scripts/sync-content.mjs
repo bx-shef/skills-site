@@ -113,6 +113,9 @@ for (const f of walk(OUT).sort()) {
 }
 fs.mkdirSync(path.join(ROOT, 'public'), { recursive: true })
 fs.writeFileSync(path.join(ROOT, 'public', 'llms-full.txt'), full.join('\n'))
+// та же копия — серверу чата: читается из сборки (useStorage('assets:server')), без HTTP-запроса к себе
+fs.mkdirSync(path.join(ROOT, 'server', 'assets'), { recursive: true })
+fs.writeFileSync(path.join(ROOT, 'server', 'assets', 'llms-full.txt'), full.join('\n'))
 // llms.txt — оглавление сайта со ссылками на страницы (формат llmstxt.org)
 const index = ['# bxshef', '', '> Методология и проверка навыков ИИ-агентов для разработки на Битриксе; навыки к модулям shef.*', '', `Весь сайт одним файлом: ${site}/llms-full.txt`, '', '## Документация', '']
 for (const f of walk(OUT).sort()) {
