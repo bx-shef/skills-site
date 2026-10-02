@@ -86,6 +86,17 @@ jobs:
           grep -q 'URLS_IN_PROMPT=1' <<<"$page"
           docker logs site-chat 2>&1 | grep '\[assistant\]'
 
+      # Ни одна страница не шире телефона (360 px): длинный код, таблицы и имена классов не растягивают страницу
+      - name: Страницы помещаются в экран телефона
+        shell: bash
+        run: |
+          # отдельный каталог: не ставить все зависимости сайта ради одного браузера;
+          # скрипт копируется туда же — ESM ищет пакеты рядом с файлом, а не в текущем каталоге
+          mkdir -p /tmp/mobile && cp scripts/check-mobile-width.mjs /tmp/mobile/
+          cd /tmp/mobile && npm i --no-audit --no-fund playwright-core@1.63.0
+          npx playwright-core install --with-deps chromium
+          node check-mobile-width.mjs http://localhost:3000
+
       - name: Лог сайта
         if: always()
         run: docker logs site || true

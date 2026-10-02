@@ -320,6 +320,7 @@ button.hd-chat-fallback { display: block; margin: 0 0 8px; }
 .hd-chat-md :deep(p:last-child) { margin-bottom: 0; }
 .hd-chat-md :deep(ul), .hd-chat-md :deep(ol) { margin: 0 0 .7em; padding-left: 1.3em; list-style: revert; }
 .hd-chat-md :deep(li) { padding: 2px 0; }
+.hd-chat-md :deep(:not(pre) > code) { overflow-wrap: anywhere; }
 .hd-chat-md :deep(a) { color: var(--hd-link); text-decoration: none; }
 .hd-chat-md :deep(a:hover) { text-decoration: underline; }
 .hd-chat-md :deep(strong) { font-weight: 600; }
