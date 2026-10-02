@@ -144,3 +144,5 @@
 /* колонка статьи — контейнер: шапка статьи ужимается по её ширине, а не по окну */
 .hd-article { container: hd-article / inline-size; }
 @container hd-article (max-width: 620px) { .hd-article-head { align-items: flex-start; } }
+/* значок «#» у заголовка — по середине строки заголовка при любом размере шрифта */
+:is(h2, h3, h4)[data-slot="base"] > a > [data-slot="leading"] { top: 50%; transform: translateY(-50%); }
