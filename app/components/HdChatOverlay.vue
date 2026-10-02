@@ -80,7 +80,8 @@
                 <HdIcon :name="copiedId === message.id ? 'check' : 'copy'" />
               </button>
               <button type="button" title="Полезно" :class="{ 'is-on': votes[message.id] === 1 }" @click="vote(message.id, 1)"><HdIcon name="like" /></button>
-              <button type="button" title="Не помогло" :class="{ 'is-on': votes[message.id] === -1 }" @click="vote(message.id, -1)"><HdIcon name="dislike" /></button>
+              <button type="button" :title="ratingsSent ? 'Не помогло — вопрос и ответ уйдут авторам сайта' : 'Не помогло'" :class="{ 'is-on': votes[message.id] === -1 }" @click="vote(message.id, -1)"><HdIcon name="dislike" /></button>
+              <span v-if="ratingsSent && votes[message.id] === -1" class="hd-chat-rated">Спасибо: вопрос и ответ переданы авторам сайта</span>
             </div>
           </template>
         </B24ChatMessages>
@@ -202,7 +203,24 @@ function submit() { send(draft.value) }
 function retry() { timedOut.value = false; chat.regenerate() }
 function stopChat() { chat.stop() }
 function clear() { chat.messages = []; stored.value = []; page.value = null }
-function vote(id: string, v: number) { votes.value = { ...votes.value, [id]: votes.value[id] === v ? 0 : v } }
+// Оценка ответа: в браузере — всегда (подсветка кнопки), авторам сайта — если на сервере задан
+// приёмник отзывов. При «не помогло» с ней уходят вопрос, ответ и подобранные страницы.
+const ratingsSent = useChatRatings()
+const route = useRoute()
+function vote(id: string, v: number) {
+  const next = votes.value[id] === v ? 0 : v
+  votes.value = { ...votes.value, [id]: next }
+  if (!next || !ratingsSent.value) return
+  const i = chatMessages.value.findIndex(m => m.id === id)
+  const message = chatMessages.value[i]
+  if (!message) return
+  const question = [...chatMessages.value.slice(0, i)].reverse().find(m => m.role === 'user')
+  const sources = message.parts.filter(p => p.type === 'data-sources').flatMap(p => sourcesOf(p).map(s => localPath(s.url)))
+  $fetch('/api/assistant-feedback', {
+    method: 'POST',
+    body: { rating: next, question: question ? textOf(question) : '', answer: textOf(message), sources, page: page.value?.path || route.path },
+  }).catch(() => { /* оценка в браузере уже стоит; не сохранилась у авторов — не повод мешать */ })
+}
 async function copy(m: UIMessage) {
   try {
     await navigator.clipboard.writeText(textOf(m))
@@ -309,6 +327,7 @@ button.hd-chat-fallback { display: block; margin: 0 0 8px; }
 .hd-chat-topic a { color: var(--hd-link); text-decoration: none; }
 .hd-chat-topic-close { display: inline-flex; padding: 2px; border: 0; background: none; color: var(--hd-text-tertiary); cursor: pointer; }
 .hd-chat-topic-close .hd-icon { width: 14px; height: 14px; }
+.hd-chat-rated { align-self: center; font-size: 12px; color: var(--hd-text-tertiary); }
 .hd-chat-cut { margin: 8px 0 0; font-size: 13px; color: var(--hd-text-tertiary); }
 .hd-chat-tools button {
   display: inline-flex;

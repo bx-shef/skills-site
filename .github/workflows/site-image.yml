@@ -100,6 +100,18 @@ jobs:
           legacy=$(curl -fs -X POST -H 'content-type: application/json' -d '{"messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"ping"}]}]}' localhost:3002/api/assistant)
           grep -q 'URLS_IN_PROMPT=' <<<"$legacy"
           curl -fs localhost:3002/api/assistant-info | grep -q '"model":"BitrixGPT"'
+          # Оценка ответа → приёмник отзывов (RATING): заглушка приёмника пишет тело в файл
+          node -e "require('http').createServer((q,r)=>{let b='';q.on('data',d=>b+=d);q.on('end',()=>{require('fs').writeFileSync('/tmp/rating.json',b);r.writeHead(201,{'content-type':'application/json'});r.end('{}')})}).listen(8799,'127.0.0.1')" &
+          docker run -d --name site-rating --network host -e PORT=3003 -e NITRO_PORT=3003 \
+            -e BXSHEF_CHAT_KEY=ci -e BXSHEF_CHAT_URL=http://127.0.0.1:4010/v1 -e BXSHEF_FEEDBACK_URL=http://127.0.0.1:8799 skills-site:ci
+          for i in $(seq 1 30); do curl -fs localhost:3003/llms.txt >/dev/null && break; sleep 1; done
+          curl -fs localhost:3003/api/assistant-info | grep -q '"ratings":true'
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' -d '{"rating":-1,"question":"Как?","answer":"Так.","sources":["https://x/skills"],"page":"/skills"}' localhost:3003/api/assistant-feedback)" = 201
+          grep -q '"category":"RATING"' /tmp/rating.json
+          grep -q '"rating":-1' /tmp/rating.json
+          grep -q '"sources":\["/skills"\]' /tmp/rating.json
+          # без приёмника оценка не уходит никуда — 204
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' -d '{"rating":1}' localhost:3001/api/assistant-feedback)" = 204
 
       # Ни одна страница не шире телефона (360 px): длинный код, таблицы и имена классов не растягивают страницу
       - name: Страницы помещаются в экран телефона, код читается

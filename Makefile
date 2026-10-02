@@ -9,6 +9,7 @@
 # подменить домен сайта. COMPOSE_PROJECT_NAME / COMPOSE_FILE из окружения хоста тоже снимаем.
 override COMPOSE_ENV = env -u DOMAIN -u LETSENCRYPT_EMAIL -u BXSHEF_EVAL_KEY -u BXSHEF_EVAL_URL \
 	-u BXSHEF_CHAT_URL -u BXSHEF_CHAT_KEY -u BXSHEF_CHAT_MODEL -u BXSHEF_CHAT_MODEL_NAME \
+	-u BXSHEF_FEEDBACK_URL -u BXSHEF_FEEDBACK_TOKEN \
 	-u COMPOSE_PROJECT_NAME -u COMPOSE_FILE docker compose
 override COMPOSE = $(COMPOSE_ENV) -f docker-compose.prod.yml
 override CONTAINER := skills-site

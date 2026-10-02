@@ -36,6 +36,9 @@ services:
       BXSHEF_CHAT_KEY: ${BXSHEF_CHAT_KEY:-}
       BXSHEF_CHAT_MODEL: ${BXSHEF_CHAT_MODEL:-}
       BXSHEF_CHAT_MODEL_NAME: ${BXSHEF_CHAT_MODEL_NAME:-}
+      # оценки ответов чата → приёмник отзывов (README, «Оценки ответов»)
+      BXSHEF_FEEDBACK_URL: ${BXSHEF_FEEDBACK_URL:-}
+      BXSHEF_FEEDBACK_TOKEN: ${BXSHEF_FEEDBACK_TOKEN:-}
       # прежние имена (до BXSHEF_CHAT_*) — запасные, установки с ними продолжают работать
       BXSHEF_EVAL_KEY: ${BXSHEF_EVAL_KEY:-}
       BXSHEF_EVAL_URL: ${BXSHEF_EVAL_URL:-}
