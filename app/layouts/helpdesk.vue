@@ -21,6 +21,7 @@
             </span>
           </div>
           <slot />
+          <HdArticleRating v-if="docPage" />
         </div>
         <aside class="hd-aside">
           <HdToc v-if="tocLinks.length" :links="tocLinks" />

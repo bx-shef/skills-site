@@ -137,7 +137,7 @@
 .hd-search-star { flex: 0 0 auto; width: 18px; height: 18px; }
 
 /* кнопки — B24Button: только место в строке */
-.hd-search-history-toggle, .hd-search-send { flex: 0 0 auto; }
+.hd-search-send { flex: 0 0 auto; }
 
 /* Первый экран: белая плашка 16px с тенью, аватар 44px, поле с голубой рамкой, круглая кнопка */
 .hd-search-wrap--hero { max-width: 791px; margin: 0 auto; }
