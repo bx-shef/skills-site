@@ -1,0 +1,22 @@
+[
+  { "q": "Почему ИИ-агент не берёт мой навык?", "expect": ["/methodology/standard"] },
+  { "q": "Как написать description навыка?", "expect": ["/methodology/standard"] },
+  { "q": "Сколько фраз нужно в evals/selection.json?", "expect": ["/methodology/standard", "/methodology/bxshef"] },
+  { "q": "Что проверяет bxshef lint?", "expect": ["/methodology/bxshef"] },
+  { "q": "Как запустить eval с ключом модели?", "expect": ["/methodology/bxshef", "/methodology/method"] },
+  { "q": "Как подключить проверку навыков в GitHub Actions?", "expect": ["/methodology/action"] },
+  { "q": "С чего начать свой репозиторий навыков?", "expect": ["/methodology/template", "/methodology"] },
+  { "q": "Куда уходят отзывы ИИ-агентов о навыках?", "expect": ["/methodology/feedback", "/skills/shef-feedback"] },
+  { "q": "Как поставить shef.options через composer?", "expect": ["/modules/options", "/modules/options/build-and-install"] },
+  { "q": "Как добавить опцию на страницу настроек модуля?", "expect": ["/modules/options/options", "/modules/options"] },
+  { "q": "Как выполнить код от служебного пользователя в агенте?", "expect": ["/modules/options/security", "/modules/options/traitlist"] },
+  { "q": "Как записать ошибку импорта в журнал событий с ответственным?", "expect": ["/modules/problems/monolog", "/modules/problems", "/modules/problems/events"] },
+  { "q": "Какие уровни логирования есть?", "expect": ["/modules/problems/loglevel"] },
+  { "q": "Как настроить ротацию логов?", "expect": ["/modules/problems/logrotate"] },
+  { "q": "Как сделать импорт прайса из CSV агентом?", "expect": ["/modules/insync/import", "/modules/insync"] },
+  { "q": "Как обратиться к внешнему API с таймаутом?", "expect": ["/modules/insync/api"] },
+  { "q": "Как разобрать XML выгрузку?", "expect": ["/modules/insync/xml"] },
+  { "q": "Где лежит каталог импорта и кто может загружать файлы?", "expect": ["/modules/insync/security"] },
+  { "q": "Как проверить модуль на портале перед сдачей?", "expect": ["/modules/options/portal-check", "/modules/problems/portal-check", "/modules/insync/portal-check"] },
+  { "q": "Как поставить навыки shef в проект?", "expect": ["/skills", "/methodology/bxshef"] }
+]

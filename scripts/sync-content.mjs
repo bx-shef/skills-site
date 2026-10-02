@@ -11,6 +11,7 @@
 import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
+import { chunkPage } from '../server/rag/core.mjs'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const SRC = path.resolve(process.env.SOURCES_DIR || path.join(ROOT, '.sources'))
@@ -146,6 +147,16 @@ fs.writeFileSync(path.join(ROOT, 'public', 'llms-full.txt'), full.join('\n'))
 // та же копия — серверу чата: читается из сборки (useStorage('assets:server')), без HTTP-запроса к себе
 fs.mkdirSync(path.join(ROOT, 'server', 'assets'), { recursive: true })
 fs.writeFileSync(path.join(ROOT, 'server', 'assets', 'llms-full.txt'), full.join('\n'))
+// Фрагменты для поиска чата (server/rag): страницы по ## / ###, с якорями разделов. Адреса — путями
+// сайта: ссылку на раздел модель отдаёт как /путь#якорь, внутри сайта без перезагрузки.
+const chunks = []
+for (const f of walk(OUT).sort()) {
+  const md = fs.readFileSync(f, 'utf8')
+  let title = (md.match(/^title:\s*(.+)$/m) || [])[1] || path.basename(f, '.md')
+  try { title = JSON.parse(title) } catch { title = title.replace(/^"|"$/g, '') }
+  chunks.push(...chunkPage(stripFront(md).replace(/^::note[\s\S]*?::\n?/m, ''), { title, url: urlOf(f) || '/' }))
+}
+fs.writeFileSync(path.join(ROOT, 'server', 'assets', 'rag-chunks.json'), JSON.stringify(chunks))
 // llms.txt — оглавление сайта со ссылками на страницы (формат llmstxt.org)
 const index = ['# bxshef', '', '> Методология и проверка навыков ИИ-агентов для разработки на Битриксе; навыки к модулям shef.*', '', `Весь сайт одним файлом: ${site}/llms-full.txt`, '', '## Документация', '']
 for (const f of walk(OUT).sort()) {
