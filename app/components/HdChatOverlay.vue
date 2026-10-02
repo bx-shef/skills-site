@@ -18,8 +18,8 @@
 
       <div ref="scroller" class="hd-chat-messages">
         <div class="hd-chat-welcome">
-          <h2 class="hd-chat-welcome-title"><span aria-hidden="true">👋</span> Привет! Я — ваш личный помощник.</h2>
-          <p>Я помогу найти ответы по навыкам ИИ-агентов и модулям shef.*.<br>Напишите вопрос так же, как спросили бы человека.<br>Например:</p>
+          <h2 class="hd-chat-welcome-title">ИИ-помощник по сайту</h2>
+          <p>Отвечает по методологии, навыкам и документации модулей shef.* со ссылками на страницы. Например:</p>
           <ul>
             <li v-for="q in examples" :key="q"><button type="button" @click="send(q)">«{{ q }}»</button></li>
           </ul>

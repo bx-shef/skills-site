@@ -19,8 +19,8 @@ const { openChat } = useHdChat()
 
 // Плитки тем — разделы сайта
 const tiles = [
-  { to: '/methodology/standard', icon: 'ruler', title: 'Стандарт навыка', text: '11 правил, каждое — из провала на стенде' },
-  { to: '/methodology/method', icon: 'question', title: 'Методология проверки', text: 'lint → eval → стенд: что и как измерено' },
+  { to: '/methodology/standard', icon: 'ruler', title: 'Стандарт навыка', text: '11 правил оформления SKILL.md' },
+  { to: '/methodology/method', icon: 'question', title: 'Методология проверки', text: 'lint → eval → стенд: что проверяется' },
   { to: '/methodology/bxshef', icon: 'terminal', title: 'bxshef — CLI', text: 'lint, eval, feedback для своих навыков' },
   { to: '/methodology/action', icon: 'code', title: 'GitHub Action', text: 'Та же проверка в CI любого репозитория' },
   { to: '/skills', icon: 'sparkles', title: 'Навыки shef.*', text: 'Готовые навыки к модулям shef.options, shef.problems, shef.insync' },
@@ -106,7 +106,7 @@ function plainText(body: unknown): string {
     </section>
 
     <section class="hd-section">
-      <h2 class="hd-section-title">Первый навык за вечер</h2>
+      <h2 class="hd-section-title">Начать</h2>
       <div class="hd-grid hd-grid--2">
         <div class="hd-promo hd-promo--blue">
           <div class="hd-promo-art hd-promo-art--blue" aria-hidden="true"><HdIcon name="folder" /></div>
