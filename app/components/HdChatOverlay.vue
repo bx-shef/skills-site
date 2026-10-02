@@ -67,6 +67,9 @@
                 <span v-else class="hd-chat-own-text">{{ (part as { text: string }).text }}</span>
               </template>
             </template>
+            <p v-if="(message.metadata as { finishReason?: string } | undefined)?.finishReason === 'length'" class="hd-chat-cut">
+              Ответ обрезан: модель упёрлась в лимит длины. Задайте вопрос уже или попросите продолжить.
+            </p>
           </template>
 
           <template #actions="{ message }">
@@ -271,6 +274,7 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-fallback:hover { text-decoration: underline; }
 
 .hd-chat-tools { display: flex; gap: 8px; }
+.hd-chat-cut { margin: 8px 0 0; font-size: 13px; color: var(--hd-text-tertiary); }
 .hd-chat-tools button {
   display: inline-flex;
   padding: 4px;

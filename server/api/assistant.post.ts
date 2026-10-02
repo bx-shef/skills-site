@@ -79,6 +79,7 @@ export default defineEventHandler(async (event) => {
     'Отвечай по-русски, коротко, с точными именами команд, файлов и правил из документации ниже. Заголовки markdown не используй; выделяй жирным.',
     'Если просят пересказать страницу — перескажи её коротко по-русски (5–8 пунктов) и в конце предложи задать вопрос по ней.',
     'Давай ссылки на страницы вида [название](URL) — URL бери из строк «URL:» ниже. Если ответа в документации нет — так и скажи и отправь на GitHub bx-shef.',
+    'Не придумывай команды, параметры, файлы, классы и термины, которых нет в документации ниже; общих советов «от себя» не давай.',
     '',
     '=== СТРАНИЦЫ САЙТА, ПОДОБРАННЫЕ ПОД ВОПРОС ===',
     ...chosen.map(p => p.text),
@@ -88,7 +89,11 @@ export default defineEventHandler(async (event) => {
   const stream = createUIMessageStream({
     execute: ({ writer }) => {
       writer.write({ type: 'data-sources', data: chosen.map(p => ({ title: p.title, url: p.url })) })
-      writer.merge(streamText({ system: instructions, model: provider(ai.model), messages: modelMessages }).toUIMessageStream({ sendReasoning: true }))
+      writer.merge(streamText({ system: instructions, model: provider(ai.model), messages: modelMessages }).toUIMessageStream({
+        sendReasoning: true,
+        // причина остановки — клиенту: «length» значит, что ответ обрезан лимитом токенов
+        messageMetadata: ({ part }) => part.type === 'finish' ? { finishReason: part.finishReason } : undefined,
+      }))
     },
   })
   return createUIMessageStreamResponse({ stream })
