@@ -93,6 +93,11 @@
       </div>
 
       <form class="hd-chat-form" @submit.prevent="submit">
+        <!-- Тема разговора после «Обсудить с ИИ»: страница идёт в контекст первой; ✕ — обычный поиск по сайту -->
+        <div v-if="page" class="hd-chat-topic">
+          <span>Обсуждаем: <NuxtLink :to="page.path">{{ page.title }}</NuxtLink></span>
+          <button type="button" class="hd-chat-topic-close" title="Не обсуждать страницу" aria-label="Не обсуждать страницу" @click="page = null"><HdIcon name="close" /></button>
+        </div>
         <div class="hd-chat-row">
           <textarea
             ref="input"
@@ -138,7 +143,7 @@ const votes = useLocalStorage<Record<string, number>>('assistant-votes', {})
 
 const chat = new Chat({
   messages: stored.value,
-  // page — обсуждаемая статья: сервер берёт в контекст только её
+  // page — обсуждаемая статья: сервер кладёт её в контекст первой
   transport: new DefaultChatTransport({ api: '/api/assistant', body: () => ({ page: page.value?.path }) }),
   onFinish: () => { stored.value = [...chat.messages] },
 })
@@ -298,6 +303,11 @@ button.hd-chat-fallback { display: block; margin: 0 0 8px; }
 .hd-chat-fallback:hover { text-decoration: underline; }
 
 .hd-chat-tools { display: flex; gap: 8px; }
+.hd-chat-topic { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px; font-size: 13px; color: var(--hd-text-tertiary); }
+.hd-chat-topic span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hd-chat-topic a { color: var(--hd-link); text-decoration: none; }
+.hd-chat-topic-close { display: inline-flex; padding: 2px; border: 0; background: none; color: var(--hd-text-tertiary); cursor: pointer; }
+.hd-chat-topic-close .hd-icon { width: 14px; height: 14px; }
 .hd-chat-cut { margin: 8px 0 0; font-size: 13px; color: var(--hd-text-tertiary); }
 .hd-chat-tools button {
   display: inline-flex;

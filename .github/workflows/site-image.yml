@@ -84,6 +84,11 @@ jobs:
           page=$(ask '{"page":"/skills","messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"Перескажи статью"}]}]}')
           echo "$page" | grep -o 'URLS_IN_PROMPT=[0-9]*'
           grep -q 'URLS_IN_PROMPT=1' <<<"$page"
+          # следующий вопрос в том же разговоре: обсуждаемая страница первой, плюс страницы под вопрос
+          next=$(ask '{"page":"/skills","messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"Перескажи статью «Навыки shef.*» и предложи задать по ней вопросы."}]},{"id":"2","role":"assistant","parts":[{"type":"text","text":"Пересказ"}]},{"id":"3","role":"user","parts":[{"type":"text","text":"Почему ИИ-агент не берёт мой навык? description"}]}]}')
+          echo "$next" | grep -o 'URLS_IN_PROMPT=[0-9]*'
+          grep -qE 'URLS_IN_PROMPT=([2-9]|[1-9][0-9])' <<<"$next"
+          grep -o '"data-sources","data":\[{"title":"[^"]*","url":"[^"]*"' <<<"$next" | grep -q '/skills"'
           docker logs site-chat 2>&1 | grep '\[assistant\]'
 
       # Ни одна страница не шире телефона (360 px): длинный код, таблицы и имена классов не растягивают страницу
