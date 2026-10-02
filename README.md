@@ -2,7 +2,7 @@
 
 Сайт методологии bxshef: Nuxt + [Nuxt Content](https://content.nuxt.com) + [Bitrix24 UI](https://github.com/bitrix24/b24ui) в Docker, контент из репозиториев
 bx-shef при сборке образа, чат по содержимому сайта (модель — одна на установку, см. «Модель чата»), `llms.txt` / `llms-full.txt`
-для ИИ-агентов. Вёрстка — 1 в 1 с виджетом «Битрикс24 Ответы» (helpdesk.bitrix24.ru/widget2/): сайт открывается внутри Битрикс24.
+для ИИ-агентов. Интерфейс на Bitrix24 UI — сайт открывается и внутри Битрикс24.
 
 ```
 content/index.md               лендинг — единственный текст, который живёт здесь
@@ -129,14 +129,21 @@ BXSHEF_CHAT_MODEL_NAME=DeepSeek
 
 ## Вёрстка
 
-`app/assets/css/tokens.css` — единственное место с цветами и размерами (`--hd-primary`,
-фон-градиент, ширина колонки слева, ширина текста статьи); значения сняты computed style с
-виджета «Битрикс24 Ответы». Разметка главной повторяет его блоки: первый экран с ИИ-поиском,
-плитки тем (картинки — CSS-градиенты со «стеклянной» иконкой вместо 3D-картинок оригинала),
-промо-карточки, «Решение найдётся всегда», «Самые читаемые статьи»; «Все темы» — как
-`allSections.php`. Светлая и тёмная тема (как в Docus): `useColorMode` Bitrix24 UI, все цвета — токены в `tokens.css`, у `.dark` свои значения. UI-база — `@bitrix24/b24ui-nuxt` (Nuxt UI и Docus убраны),
-шрифты — Geologica (текст, variable woff2 по подмножествам, `@fontsource-variable/geologica`) и GetVoIP Grotesque (заголовки, CC BY-ND 3.0 — файл без изменений, лицензия в `public/fonts/getvoip-grotesque/`), иконки — `@bitrix24/b24icons-vue` через `HdIcon` (короткие имена → компоненты, список в самом файле). Поиск по разделам —
-`queryCollectionSearchSections`, чат — `/api/assistant`.
+`app/assets/css/tokens.css` — единственное место с цветами и размерами (`--hd-primary`, фон,
+ширина колонки меню и текста статьи); у `.dark` свои значения, тема переключается
+`useColorMode` Bitrix24 UI. Порядок стилей: tokens → layout → content → components.
+
+Главная: первый экран с ИИ-поиском, плитки тем (CSS-градиенты с иконкой), промо-карточки,
+«Решение найдётся всегда», «Самые читаемые статьи». «Все темы» и поиск строятся из навигации
+Nuxt Content; поиск по разделам — `queryCollectionSearchSections`, чат — `/api/assistant`.
+
+UI-база — `@bitrix24/b24ui-nuxt`. Шрифты — Geologica (текст, variable woff2 по подмножествам,
+`@fontsource-variable/geologica`) и GetVoIP Grotesque (заголовки, CC BY-ND 3.0 — файл без
+изменений, лицензия в `public/fonts/getvoip-grotesque/`). Иконки — `@bitrix24/b24icons-vue`
+через `HdIcon` (короткие имена → компоненты, список в самом файле).
+
+Проверки вёрстки в CI: `scripts/check-mobile-width.mjs` — ни одна страница не шире 360 px;
+`scripts/check-code-contrast.mjs` — цвета в блоках кода не ниже 4.5:1 в обеих темах.
 
 ## Что не хранится в репозитории
 

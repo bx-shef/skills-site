@@ -1,5 +1,5 @@
 <!--
-  «Копировать страницу» с меню, как в Docus / документации Bitrix24 UI:
+  «Копировать страницу» с меню:
   копировать Markdown, посмотреть как Markdown, открыть в ChatGPT / Claude.
   Markdown страницы отдаёт server/routes/raw/[...slug].ts по адресу /raw/<путь>.md.
 -->

@@ -1,6 +1,6 @@
 <!--
   Оглавление справа «В этой статье»: серая линия слева, текущий раздел —
-  тёмный и с тёмной чертой, как в «Битрикс24 Ответы». Текущий раздел
+  тёмный и с тёмной чертой. Текущий раздел
   отслеживается по прокрутке.
 -->
 <template>
@@ -18,7 +18,7 @@
 type Link = { id: string, text: string, depth: number, children?: Link[] }
 const props = defineProps<{ links: Link[] }>()
 
-// Оглавление Nuxt Content вложенное (h3 внутри h2) — показываем только h2, как оригинал
+// Оглавление Nuxt Content вложенное (h3 внутри h2) — показываем только h2
 const flat = computed(() => props.links.filter(l => l.depth <= 2))
 
 const active = ref('')
