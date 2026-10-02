@@ -9,7 +9,7 @@
   <Teleport v-if="!badge" to="body">
     <div v-if="open" class="hd-lightbox" role="dialog" aria-modal="true" :aria-label="alt || 'Изображение'" @click="open = false">
       <img :src="src" :alt="alt">
-      <button type="button" class="hd-lightbox-close" aria-label="Закрыть"><HdIcon name="close" /></button>
+      <B24Button class="hd-lightbox-close" color="air-secondary-no-accent" rounded :icon="icon('close')" aria-label="Закрыть" />
     </div>
   </Teleport>
 </template>
@@ -50,18 +50,6 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', onKey); document.d
   animation: hd-fade .15s ease;
 }
 .hd-lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
-.hd-lightbox-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: inline-flex;
-  padding: 6px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .15);
-  color: #fff;
-  font-size: 22px;
-  cursor: pointer;
-}
+.hd-lightbox-close { position: absolute; top: 16px; right: 16px; }
 @keyframes hd-fade { from { opacity: 0; } to { opacity: 1; } }
 </style>
