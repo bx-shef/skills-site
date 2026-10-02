@@ -1,0 +1,50 @@
+# Обратный прокси с TLS для сайта — если на сервере его ещё нет. Один на сервер: им же могут
+# пользоваться другие приложения в сети proxy-net. Запуск:
+#   docker network create proxy-net
+#   docker compose -f proxy.compose.yml up -d
+#
+# nginx-proxy публикует контейнеры с переменной VIRTUAL_HOST, acme-companion выпускает для них
+# сертификаты Let's Encrypt (LETSENCRYPT_HOST). Документация: https://github.com/nginx-proxy/nginx-proxy
+# и https://github.com/nginx-proxy/acme-companion.
+name: proxy
+
+services:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:latest
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+    networks:
+      - proxy-net
+
+  acme-companion:
+    image: nginxproxy/acme-companion:latest
+    container_name: nginx-proxy-acme
+    restart: unless-stopped
+    environment:
+      NGINX_PROXY_CONTAINER: nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
+    networks:
+      - proxy-net
+
+volumes:
+  certs:
+  vhost:
+  html:
+  acme:
+
+networks:
+  proxy-net:
+    external: true

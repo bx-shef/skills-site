@@ -1,12 +1,12 @@
-# Продакшн — на сервере в /home/bitrix/skills-site/ (README.md, раздел «Сервер»). Схема та же,
-# что у приёмника отзывов (skills-standard/feedback) и остальных приложений bx-shef. Требует на хосте:
-#   - docker-сеть proxy-net и общий nginx-proxy + acme-companion (TLS Let's Encrypt) — один на сервер;
-#   - Watchtower с --label-enable — один на сервер, подхватит контейнер по метке ниже;
-#   - .env рядом с этим файлом (шаблон — .env.example).
+# Продакшн: сайт за обратным прокси с TLS (README.md, раздел «Сервер»). Требует на хосте:
+#   - docker-сеть proxy-net и обратный прокси nginx-proxy + acme-companion в ней
+#     (если нет — deploy/proxy.compose.yml);
+#   - .env рядом с этим файлом (шаблон — .env.example);
+#   - по желанию — Watchtower с --label-enable: подхватит новый :latest по метке ниже.
 #
-# Наружу сайт выставляет nginx-proxy по VIRTUAL_HOST — порта на хосте нет.
+# Наружу сайт выставляет прокси по VIRTUAL_HOST — порта на хосте нет.
 # Контент (методология, навыки, документация модулей) зашит в образ при сборке в GitHub Actions;
-# обновление контента = новый образ :latest, его ставит Watchtower.
+# обновление контента = новый образ :latest.
 
 name: skills-site
 
@@ -27,7 +27,7 @@ services:
     environment:
       # nginx-proxy + acme-companion: по этим переменным прокси найдёт контейнер и выпустит TLS.
       # ⚠ DNS A-запись DOMAIN должна указывать на сервер ДО подъёма, иначе сертификат не выпустится.
-      VIRTUAL_HOST: ${DOMAIN:?set DOMAIN (skills-site.bx-shef.by)}
+      VIRTUAL_HOST: ${DOMAIN:?set DOMAIN (например docs.example.org)}
       VIRTUAL_PORT: 3000
       LETSENCRYPT_HOST: ${DOMAIN}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}

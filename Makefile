@@ -1,7 +1,6 @@
-# Сайт skills-site.bx-shef.by. Один Makefile на два места: корень репозитория и /home/bitrix/skills-site/
-# на сервере, где лежат только docker-compose.prod.yml, этот Makefile и .env (README.md, «Сервер»).
-# Схема — как у приёмника отзывов (skills-standard/feedback): общий nginx-proxy + acme-companion
-# и Watchtower на хосте, образ из ghcr.io.
+# Сайт skills-site. Один Makefile на два места: корень репозитория и каталог сайта на сервере,
+# где лежат только docker-compose.prod.yml, этот Makefile и .env (README.md, «Сервер»).
+# Прод: образ из ghcr.io за обратным прокси с TLS в сети proxy-net.
 
 .DEFAULT_GOAL := help
 .PHONY: help build-local prod-up prod-down prod-pull prod-redeploy logs ps health doctor self-update

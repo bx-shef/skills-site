@@ -30,18 +30,35 @@ Makefile                       prod-up / prod-redeploy / logs / health / doctor 
 
 ## Сервер
 
-Схема — как у приёмника отзывов (`skills-standard/feedback`): на хосте уже есть сеть `proxy-net`,
-общий `nginx-proxy` + `acme-companion` и Watchtower с `--label-enable`. Своих не поднимаем.
+Сайт — один контейнер из образа `ghcr.io/bx-shef/skills-site`, порта на хосте у него нет: наружу
+его выставляет обратный прокси с TLS по домену. Нужно на сервере:
+
+- Docker с Compose v2;
+- DNS A-запись домена сайта → сервер (до первого запуска, иначе сертификат не выпустится);
+- обратный прокси с TLS в docker-сети `proxy-net`. Если его нет — `deploy/proxy.compose.yml`
+  (nginx-proxy + acme-companion, один на сервер):
+
+  ```bash
+  docker network create proxy-net
+  curl -fsSLO https://raw.githubusercontent.com/bx-shef/skills-site/main/deploy/proxy.compose.yml
+  docker compose -f proxy.compose.yml up -d
+  ```
+
+- по желанию — автообновление образа: любой инструмент, который перезапускает контейнер при новом
+  `:latest` (у контейнера сайта стоит метка `com.centurylinklabs.watchtower.enable=true` для
+  Watchtower); без него — `make prod-redeploy`.
+
+Сайт — в отдельном каталоге (`~/skills-site` — пример):
 
 ```bash
-mkdir -p /home/bitrix/skills-site && cd /home/bitrix/skills-site
+mkdir -p ~/skills-site && cd ~/skills-site
 curl -fsSLO https://raw.githubusercontent.com/bx-shef/skills-site/main/docker-compose.prod.yml
 curl -fsSLO https://raw.githubusercontent.com/bx-shef/skills-site/main/Makefile
 curl -fsSL  https://raw.githubusercontent.com/bx-shef/skills-site/main/.env.example -o .env
 umask 077 && $EDITOR .env        # DOMAIN, LETSENCRYPT_EMAIL, BXSHEF_CHAT_KEY (модель — «Модель чата»)
-make doctor                      # сеть, прокси, Watchtower, .env
-make prod-up                     # образ из ghcr.io, TLS выпустит acme-companion
-make health                      # сайт 200, чат 200 (или 503 без ключа)
+make doctor                      # сеть, прокси, .env
+make prod-up                     # образ из ghcr.io, сертификат выпустит acme-companion
+make health                      # сайт 200, модель, чат 200 (или 503 без ключа)
 ```
 
 **Стриминг чата.** nginx-proxy буферизует ответы, и без настройки ответ ИИ-агента приходит одним
@@ -49,7 +66,9 @@ make health                      # сайт 200, чат 200 (или 503 без �
 смонтирован в `nginx-proxy`:
 
 ```bash
-echo 'proxy_buffering off;' > /path/to/vhost.d/skills-site.bx-shef.by_location
+# каталог vhost.d прокси: для proxy.compose.yml — том proxy_vhost
+V=$(docker inspect nginx-proxy --format '{{range .Mounts}}{{if eq .Destination "/etc/nginx/vhost.d"}}{{.Source}}{{end}}{{end}}')
+echo 'proxy_buffering off;' | sudo tee "$V/<домен>_location"
 docker exec nginx-proxy nginx -s reload
 ```
 
@@ -57,7 +76,7 @@ docker exec nginx-proxy nginx -s reload
 
 **Обновления.** Образ пересобирается в GitHub Actions на каждый push в `main`, раз в сутки по
 расписанию (подхватывает правки в репозиториях-источниках) и по `repository_dispatch`. Watchtower
-ставит `:latest` сам; вручную — `make prod-redeploy`. Откат — `image: ghcr.io/bx-shef/skills-site:sha-<коммит>`
+(если подключён) ставит `:latest` сам; вручную — `make prod-redeploy`. Откат — `image: ghcr.io/bx-shef/skills-site:sha-<коммит>`
 в `docker-compose.prod.yml` и `make prod-up`.
 
 Пересборка сразу после правки в репозитории-источнике (в его workflow, токен с `contents: write`
