@@ -1,0 +1,3 @@
+# Сайт закрыт от индексации до запуска — открыть: bx-shef/skills-site#8
+User-agent: *
+Disallow: /

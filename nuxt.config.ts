@@ -7,6 +7,8 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: 'ru' },
       link: [{ rel: 'icon', href: '/favicon.ico' }],
+      // Закрыт от индексации до запуска, открыть — bx-shef/skills-site#8 (вместе с public/robots.txt и X-Robots-Tag ниже)
+      meta: [{ name: 'robots', content: 'noindex, nofollow' }],
     },
   },
 
@@ -43,6 +45,8 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'node-server',
+    // Закрыт от индексации до запуска: заголовок покрывает и не-HTML (llms.txt, /raw/*.md)
+    routeRules: { '/**': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } } },
     prerender: { crawlLinks: true, routes: ['/', '/topics'] },
   },
 })
