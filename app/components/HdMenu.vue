@@ -1,36 +1,26 @@
 <!--
-  Левое меню: колонка 84px с иконками 30px,
-  по наведению раскрывается с подписями поверх страницы. Видно первые 9 пунктов,
-  остальные — по «Показать все». Внизу — «Поддержка» (у нас — чат с ИИ-агентом).
-  Пункты — разделы и страницы из навигации контента.
+  Пункты левого меню (B24NavigationMenu в B24DashboardSidebar, см. layouts/helpdesk.vue).
+  Свёрнутое меню — иконки с подсказкой-попапом; видно первые 9 пунктов, остальные — по
+  «Показать все». Пункты — разделы и страницы из навигации контента.
 -->
 <template>
-  <div class="sidebar-menu__panel" @mouseenter="hover = true" @mouseleave="hover = false" @focusin="hover = true" @focusout="hover = false">
-    <B24NavigationMenu
-      orientation="vertical"
-      :collapsed="!hover"
-      :items="navItems"
-      class="sidebar-menu__nav"
-      aria-label="Меню сайта"
-    />
-    <B24NavigationMenu
-      orientation="vertical"
-      :collapsed="!hover"
-      :items="[{ label: 'Поддержка', icon: icon('help'), onSelect: () => openChat() }]"
-      class="sidebar-menu__support"
-    />
-  </div>
+  <B24NavigationMenu
+    orientation="vertical"
+    :collapsed="collapsed"
+    :items="navItems"
+    popover
+    tooltip
+    aria-label="Меню сайта"
+  />
 </template>
 
 <script setup lang="ts">
 import type { ContentNavigationItem } from '@nuxt/content'
 
+defineProps<{ collapsed?: boolean }>()
 const route = useRoute()
-const { openChat } = useHdChat()
 const navigation = inject<Ref<ContentNavigationItem[]>>('navigation', ref([]))
 const all = ref(false)
-// панель узкая (иконки), по наведению или фокусу раскрывается с подписями — B24NavigationMenu collapsed
-const hover = ref(false)
 
 const icons: Record<string, string> = {
   '/methodology': 'knowledge',
