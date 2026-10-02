@@ -1,30 +1,22 @@
-<!-- Крошки над статьёй, как в «Битрикс24 Ответы»: стрелки «назад/вперёд» по истории, потом путь -->
+<!-- Крошки над статьёй: B24Breadcrumb, всегда в одну строку. На узком экране — «Главная › … › раздел»:
+     текущая страница и так стоит заголовком под крошками, а полный путь на телефоне не помещается. -->
 <template>
-  <nav class="hd-breadcrumbs" aria-label="Путь к странице">
-    <span class="hd-breadcrumbs-nav">
-      <button class="hd-icon-btn" type="button" aria-label="Назад" @click="router.back()">
-        <HdIcon name="chevron-left" />
-      </button>
-      <button class="hd-icon-btn" type="button" aria-label="Вперёд" :disabled="!canForward" @click="router.forward()">
-        <HdIcon name="chevron-right" />
-      </button>
-    </span>
-    <NuxtLink to="/">Главная</NuxtLink>
-    <template v-for="(item, i) in items" :key="item.path || i">
-      <span class="hd-breadcrumbs-sep" aria-hidden="true"><HdIcon name="chevron-right" /></span>
-      <!-- последняя крошка — текущая страница, ссылкой не делаем -->
-      <span v-if="i === items.length - 1" aria-current="page">{{ item.title }}</span>
-      <NuxtLink v-else :to="item.path">{{ item.title }}</NuxtLink>
-    </template>
-  </nav>
+  <B24Breadcrumb :items="crumbs" class="hd-breadcrumbs" :b24ui="{ list: 'flex-nowrap min-w-0', item: 'min-w-0', link: 'min-w-0', linkLabel: 'truncate' }" />
 </template>
 
 <script setup lang="ts">
-defineProps<{ items: Array<{ title: string, path?: string }> }>()
-const router = useRouter()
-// «Вперёд» активна, только если в истории браузера есть куда идти
-const canForward = ref(false)
-const sync = () => { canForward.value = !!window.history.state?.forward }
-onMounted(sync)
-watch(() => router.currentRoute.value.fullPath, () => nextTick(sync))
+import { useMediaQuery } from '@vueuse/core'
+
+const props = defineProps<{ items: Array<{ title: string, path?: string }> }>()
+const narrow = useMediaQuery('(max-width: 767px)')
+
+const crumbs = computed(() => {
+  const all = [{ label: 'Главная', to: '/' }, ...props.items.map(i => ({ label: i.title, to: i.path }))]
+  const current = all.length - 1
+  // последний пункт — текущая страница, без ссылки
+  const full = all.map((c, i) => (i === current ? { label: c.label } : c))
+  if (!narrow.value || all.length <= 2) return full
+  const parent = all[current - 1]!
+  return current - 1 > 1 ? [all[0]!, { label: '…' }, parent] : [all[0]!, parent]
+})
 </script>
