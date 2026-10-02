@@ -66,6 +66,26 @@ jobs:
           full=$(curl -fs localhost:3000/llms-full.txt)
           grep -q 'Стандарт навыка' <<<"$full"
 
+      # Чат получает страницы сайта: модель-заглушка отвечает, сколько строк «URL:» пришло в промпт.
+      # Сеть хоста — чтобы контейнер достал заглушку на 127.0.0.1; внешний адрес сайта при этом не нужен.
+      - name: Чат видит страницы сайта
+        shell: bash
+        run: |
+          node scripts/mock-llm.mjs &
+          docker run -d --name site-chat --network host -e PORT=3001 -e NITRO_PORT=3001 \
+            -e BXSHEF_EVAL_KEY=ci -e BXSHEF_EVAL_URL=http://127.0.0.1:4010/v1 skills-site:ci
+          for i in $(seq 1 30); do curl -fs localhost:3001/llms.txt >/dev/null && break; sleep 1; done
+          ask() { curl -fs -X POST -H 'content-type: application/json' -d "$1" localhost:3001/api/assistant; }
+          general=$(ask '{"messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"Почему ИИ-агент не берёт мой навык?"}]}]}')
+          echo "$general" | grep -o 'URLS_IN_PROMPT=[0-9]*'
+          grep -qE 'URLS_IN_PROMPT=[1-9]' <<<"$general"
+          grep -q '/methodology/standard' <<<"$general"
+          # «Обсудить с ИИ»: в промпте ровно страница, с которой спросили
+          page=$(ask '{"page":"/skills","messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"Перескажи статью"}]}]}')
+          echo "$page" | grep -o 'URLS_IN_PROMPT=[0-9]*'
+          grep -q 'URLS_IN_PROMPT=1' <<<"$page"
+          docker logs site-chat 2>&1 | grep '\[assistant\]'
+
       - name: Лог сайта
         if: always()
         run: docker logs site || true

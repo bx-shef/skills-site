@@ -8,3 +8,4 @@ content/*
 !content/index.md
 public/llms-full.txt
 public/llms.txt
+server/assets/llms-full.txt
