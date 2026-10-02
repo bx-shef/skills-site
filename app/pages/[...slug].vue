@@ -86,7 +86,7 @@ prerenderRoutes(`/raw${route.path.replace(/\/$/, '')}.md`)
   font-size: 15px;
   border-top: 1px solid var(--hd-border);
 }
-.hd-surround-link { display: flex; flex-direction: column; gap: 2px; color: var(--hd-text-primary); text-decoration: none; font-size: var(--hd-size-sm); }
+.hd-surround-link { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; color: var(--hd-text-primary); text-decoration: none; font-size: var(--hd-size-sm); }
 .hd-surround-link:hover { color: var(--hd-primary); text-decoration: none; }
 .hd-surround-link--next { text-align: right; align-items: flex-end; }
 .hd-surround-dir { font-size: 12px; color: var(--hd-text-tertiary); }
