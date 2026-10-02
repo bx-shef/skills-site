@@ -11,47 +11,47 @@
 
       <div class="hd-search">
         <HdStar v-if="!hero" class="hd-search-star" />
-        <input
+        <B24Input
           v-model="query"
           class="hd-search-input"
           type="search"
+          no-border
           :placeholder="placeholder"
           aria-label="Поиск по сайту"
           autocomplete="off"
           @focus="historyOpen = true"
           @keydown.enter.prevent="submit"
-        >
-        <button
+        />
+        <B24Button
           class="hd-search-history-toggle"
-          type="button"
+          color="air-tertiary"
+          size="sm"
+          :icon="icon('history')"
           aria-label="История запросов"
           title="История запросов"
           @click.stop="historyOpen = !historyOpen"
-        >
-          <HdIcon name="history" />
-        </button>
-        <button
+        />
+        <B24Button
           v-if="hero"
           class="hd-search-send"
-          type="button"
+          color="air-primary"
+          rounded
+          :icon="icon('send')"
           aria-label="Спросить ИИ-агента"
           :disabled="query.trim().length < 2"
           @click="submit"
-        >
-          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.5 2.3c0-.6.7-1 1.2-.7l9 5.7c.5.3.5 1 0 1.4l-9 5.7c-.5.3-1.2-.1-1.2-.7V2.3Z" /></svg>
-        </button>
+        />
       </div>
 
-      <button
+      <B24Button
         v-if="!hero"
         class="hd-search-send"
-        type="button"
+        color="air-tertiary"
+        :icon="icon('send')"
         aria-label="Спросить ИИ-агента"
         :disabled="query.trim().length < 2"
         @click="submit"
-      >
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 3.5 17 10 3.5 16.5 6 10 3.5 3.5Z" /><path d="M6 10h5" stroke-linecap="round" /></svg>
-      </button>
+      />
     </div>
 
     <!-- История показывается, пока не начали печатать -->

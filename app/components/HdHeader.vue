@@ -10,17 +10,11 @@
     </NuxtLink>
 
     <div class="hd-header-actions">
-      <button type="button" class="hd-header-icon" :class="{ 'is-on': chatOpen }" title="Спросить ИИ" aria-label="Спросить ИИ" @click="chatOpen ? closeChat() : openChat()">
-        <HdIcon name="ai" />
-      </button>
+      <B24Button color="air-tertiary" :active="chatOpen" active-color="air-secondary-accent" :icon="icon('ai')" title="Спросить ИИ" aria-label="Спросить ИИ" @click="chatOpen ? closeChat() : openChat()" />
       <ClientOnly>
-        <button type="button" class="hd-header-icon" :title="isDark ? 'Светлая тема' : 'Тёмная тема'" aria-label="Сменить тему" @click="toggleTheme">
-          <HdIcon :name="isDark ? 'sun' : 'moon'" />
-        </button>
+        <B24Button color="air-tertiary" :icon="icon(isDark ? 'sun' : 'moon')" :title="isDark ? 'Светлая тема' : 'Тёмная тема'" aria-label="Сменить тему" @click="toggleTheme" />
       </ClientOnly>
-      <a class="hd-header-icon" :href="github" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub">
-        <HdIcon name="github" />
-      </a>
+      <B24Button color="air-tertiary" :icon="icon('github')" :to="github" target="_blank" title="GitHub" aria-label="GitHub" />
     </div>
   </header>
 </template>
