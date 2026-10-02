@@ -3,6 +3,7 @@
 // Новую иконку — сюда же: импорт явный, в сборку попадают только перечисленные.
 import type { Component } from 'vue'
 import PlayIcon from '@bitrix24/b24icons-vue/actions/PlayIcon'
+import StopIcon from '@bitrix24/b24icons-vue/actions/StopIcon'
 import GitHubIcon from '@bitrix24/b24icons-vue/social/GitHubIcon'
 import TelegramIcon from '@bitrix24/b24icons-vue/social/TelegramIcon'
 import LinkIcon from '@bitrix24/b24icons-vue/outline/LinkIcon'
@@ -80,6 +81,7 @@ export const icons: Record<string, Component> = {
   'ai': CopilotAiIcon,
   'chevron-down': ChevronDownLIcon,
   'send': PlayIcon,
+  'stop': StopIcon,
 }
 
 export const icon = (name: string): Component | undefined => icons[name]

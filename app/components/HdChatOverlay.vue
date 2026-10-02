@@ -7,12 +7,8 @@
   <div class="hd-chat-overlay" :class="{ 'is-open': open }" role="complementary" aria-label="Чат с ИИ-агентом">
     <div class="hd-chat-bar">
       <span class="hd-chat-bar-title">ИИ-помощник</span>
-      <button v-if="chatMessages.length" class="hd-header-icon" type="button" title="Очистить чат" aria-label="Очистить чат" @click="clear">
-        <HdIcon name="clear" />
-      </button>
-      <button class="hd-header-icon" type="button" title="Свернуть" aria-label="Свернуть панель" @click="$emit('close')">
-        <HdIcon name="panel-close" />
-      </button>
+      <B24Button v-if="chatMessages.length" color="air-tertiary" :icon="icon('clear')" title="Очистить чат" aria-label="Очистить чат" @click="clear" />
+      <B24Button color="air-tertiary" :icon="icon('panel-close')" title="Свернуть" aria-label="Свернуть панель" @click="$emit('close')" />
     </div>
     <div class="hd-chat">
 
@@ -21,7 +17,7 @@
           <h2 class="hd-chat-welcome-title">ИИ-помощник по сайту</h2>
           <p>Отвечает по методологии, навыкам и документации модулей shef.* со ссылками на страницы. Например:</p>
           <ul>
-            <li v-for="q in examples" :key="q"><button type="button" @click="send(q)">«{{ q }}»</button></li>
+            <li v-for="q in examples" :key="q"><B24Button color="air-tertiary-accent" size="sm" normal-case :label="`«${q}»`" class="hd-chat-example" @click="send(q)" /></li>
           </ul>
         </div>
 
@@ -76,11 +72,9 @@
 
           <template #actions="{ message }">
             <div v-if="message.role === 'assistant' && textOf(message) && !(busy && message.id === chatMessages[chatMessages.length - 1]?.id)" class="hd-chat-tools">
-              <button type="button" :title="copiedId === message.id ? 'Скопировано' : 'Копировать'" @click="copy(message)">
-                <HdIcon :name="copiedId === message.id ? 'check' : 'copy'" />
-              </button>
-              <button type="button" title="Полезно" :class="{ 'is-on': votes[message.id] === 1 }" @click="vote(message.id, 1)"><HdIcon name="like" /></button>
-              <button type="button" :title="ratingsSent ? 'Не помогло — вопрос и ответ уйдут авторам сайта' : 'Не помогло'" :class="{ 'is-on': votes[message.id] === -1 }" @click="vote(message.id, -1)"><HdIcon name="dislike" /></button>
+              <B24Button color="air-tertiary" size="sm" :icon="icon(copiedId === message.id ? 'check' : 'copy')" :title="copiedId === message.id ? 'Скопировано' : 'Копировать'" :aria-label="copiedId === message.id ? 'Скопировано' : 'Копировать'" @click="copy(message)" />
+              <B24Button :color="votes[message.id] === 1 ? 'air-secondary-accent' : 'air-tertiary'" size="sm" :icon="icon('like')" title="Полезно" aria-label="Полезно" :aria-pressed="votes[message.id] === 1" @click="vote(message.id, 1)" />
+              <B24Button :color="votes[message.id] === -1 ? 'air-secondary-accent' : 'air-tertiary'" size="sm" :icon="icon('dislike')" :title="ratingsSent ? 'Не помогло — вопрос и ответ уйдут авторам сайта' : 'Не помогло'" aria-label="Не помогло" :aria-pressed="votes[message.id] === -1" @click="vote(message.id, -1)" />
               <span v-if="ratingsSent && votes[message.id] === -1" class="hd-chat-rated">Спасибо: вопрос и ответ переданы авторам сайта</span>
             </div>
           </template>
@@ -88,7 +82,7 @@
 
         <div v-if="(error || timedOut) && !busy" class="hd-chat-answer">
           <p class="hd-chat-error">{{ timedOut ? 'Модель не ответила за 30 секунд.' : 'Не удалось выполнить запрос.' }}</p>
-          <button type="button" class="hd-chat-fallback" @click="retry">↻ Повторить</button>
+          <B24Button color="air-secondary-accent" size="sm" label="Повторить" class="hd-chat-retry" @click="retry" />
           <NuxtLink :to="{ path: '/search', query: { q: lastQuestion } }" class="hd-chat-fallback" @click="$emit('close')">🔎 Попробуйте найти ответ через поиск по ключевым словам</NuxtLink>
         </div>
       </div>
@@ -97,21 +91,21 @@
         <!-- Тема разговора после «Обсудить с ИИ»: страница идёт в контекст первой; ✕ — обычный поиск по сайту -->
         <div v-if="page" class="hd-chat-topic">
           <span>Обсуждаем: <NuxtLink :to="page.path">{{ page.title }}</NuxtLink></span>
-          <button type="button" class="hd-chat-topic-close" title="Не обсуждать страницу" aria-label="Не обсуждать страницу" @click="page = null"><HdIcon name="close" /></button>
+          <B24Button color="air-tertiary" size="xs" :icon="icon('close')" title="Не обсуждать страницу" aria-label="Не обсуждать страницу" @click="page = null" />
         </div>
         <div class="hd-chat-row">
-          <textarea
+          <B24Textarea
             ref="input"
             v-model="draft"
             class="hd-chat-input"
-            rows="1"
+            :rows="1"
+            autoresize
+            :maxrows="6"
             aria-label="Текст вопроса"
             @keydown.enter.exact.prevent="submit"
           />
-          <button v-if="busy" class="hd-chat-send is-stop" type="button" aria-label="Остановить" @click="stopChat()"><i /></button>
-          <button v-else class="hd-chat-send" type="submit" aria-label="Отправить" :disabled="!draft.trim()">
-            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.5 2.3c0-.6.7-1 1.2-.7l9 5.7c.5.3.5 1 0 1.4l-9 5.7c-.5.3-1.2-.1-1.2-.7V2.3Z" /></svg>
-          </button>
+          <B24Button v-if="busy" color="air-primary" rounded :icon="icon('stop')" aria-label="Остановить" @click="stopChat()" />
+          <B24Button v-else color="air-primary" rounded type="submit" :icon="icon('send')" aria-label="Отправить" :disabled="!draft.trim()" />
         </div>
         <p class="hd-chat-disclaimer">
           Ответы {{ modelName }} могут быть неточны, проверяйте важную информацию.
@@ -178,7 +172,7 @@ const countPages = (items: Array<{ children?: unknown[] }>): number =>
 const articlesCount = computed(() => countPages(navigation.value || []))
 
 const draft = ref('')
-const input = ref<HTMLTextAreaElement | null>(null)
+const input = ref<{ $el?: HTMLElement } | null>(null)
 const scroller = ref<HTMLElement | null>(null)
 const copiedId = ref('')
 
@@ -232,7 +226,7 @@ async function copy(m: UIMessage) {
 // Вопрос из поиска: пришёл вместе с открытием — отправляем сразу
 watch(() => [props.open, ask.value] as const, ([open, q]) => {
   if (open && q) { send(q); ask.value = '' }
-  if (open) nextTick(() => input.value?.focus({ preventScroll: true }))
+  if (open) nextTick(() => input.value?.$el?.querySelector('textarea')?.focus({ preventScroll: true }))
 }, { immediate: true })
 
 watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!error.value), () => {
@@ -280,8 +274,7 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-welcome p { margin: 0; }
 .hd-chat-welcome ul { margin: 4px 0 0; padding-left: 20px; }
 .hd-chat-welcome li::marker { color: var(--hd-primary); }
-.hd-chat-welcome li button { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; }
-.hd-chat-welcome li button:hover { color: var(--hd-link); }
+.hd-chat-example { white-space: normal; text-align: left; height: auto; }
 
 /* B24ChatMessages: вопрос — серым пузырём справа, ответ — без пузыря */
 .hd-chat-messages::-webkit-scrollbar { display: none; }
@@ -317,30 +310,17 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-sources a:hover { text-decoration: underline; }
 .hd-chat-answer { display: flex; flex-direction: column; gap: 14px; }
 .hd-chat-error { margin: 0; }
-.hd-chat-fallback { color: var(--hd-link); text-decoration: none; background: none; border: 0; padding: 0; font: inherit; text-align: left; cursor: pointer; }
-button.hd-chat-fallback { display: block; margin: 0 0 8px; }
+.hd-chat-fallback { display: block; color: var(--hd-link); text-decoration: none; }
+.hd-chat-retry { margin: 0 0 8px; }
 .hd-chat-fallback:hover { text-decoration: underline; }
 
-.hd-chat-tools { display: flex; gap: 8px; }
+.hd-chat-tools { display: flex; align-items: center; gap: 4px; margin-top: 8px; }
 .hd-chat-topic { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px; font-size: 13px; color: var(--hd-text-tertiary); }
 .hd-chat-topic span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hd-chat-topic a { color: var(--hd-link); text-decoration: none; }
-.hd-chat-topic-close { display: inline-flex; padding: 2px; border: 0; background: none; color: var(--hd-text-tertiary); cursor: pointer; }
-.hd-chat-topic-close .hd-icon { width: 14px; height: 14px; }
 .hd-chat-rated { align-self: center; font-size: 12px; color: var(--hd-text-tertiary); }
 .hd-chat-cut { margin: 8px 0 0; font-size: 13px; color: var(--hd-text-tertiary); }
-.hd-chat-tools button {
-  display: inline-flex;
-  padding: 4px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: #828b95;
-  font-size: 20px;
-  cursor: pointer;
-}
-.hd-chat-tools button:hover { color: var(--hd-text-primary); background: var(--hd-hover-bg); }
-.hd-chat-tools button.is-on { color: var(--hd-primary); }
+
 
 .hd-chat-search { display: inline-flex; align-items: center; gap: 14px; font-size: 16px; font-weight: 500; color: var(--hd-text-primary); }
 .hd-chat-search-star { width: 34px; height: 34px; animation: hd-pulse 1.4s ease-in-out infinite; }
@@ -372,43 +352,10 @@ button.hd-chat-fallback { display: block; margin: 0 0 8px; }
   box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
 }
 .hd-chat-row { display: flex; align-items: center; gap: 12px; }
-.hd-chat-input {
-  flex: 1 1 auto;
-  min-height: 44px;
-  max-height: 160px;
-  padding: 11px 12px;
-  border: 1px solid var(--hd-input-border);
-  border-radius: 8px;
-  scrollbar-width: none;
-  background: var(--hd-input-bg);
-  color: var(--hd-text-primary);
-  font: inherit;
-  font-size: 16px;
-  line-height: 21px;
-  resize: none;
-  outline: none;
-}
-.hd-chat-input:focus { border-color: var(--hd-primary); }
+.hd-chat-input { flex: 1; min-width: 0; }
 .hd-chat-disclaimer { margin: 0; text-align: center; font-size: 12px; line-height: 15px; font-style: italic; color: var(--hd-text-tertiary); }
 .hd-chat-disclaimer a { color: var(--hd-text-tertiary); text-decoration: underline; }
 .hd-chat-disclaimer a:hover { color: var(--hd-text-primary); }
-.hd-chat-send {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--hd-primary);
-  color: #fff;
-  cursor: pointer;
-}
-.hd-chat-send svg { width: 16px; height: 16px; }
-.hd-chat-send:disabled { background: #89beff; cursor: default; }
-.hd-chat-send:not(:disabled):hover { background: #0060d6; }
-.hd-chat-send.is-stop i { width: 12px; height: 12px; border-radius: 2px; background: var(--hd-bg); }
 
 @media (max-width: 767px) {
   .hd-chat { padding: 20px 20px 16px; }
