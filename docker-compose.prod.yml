@@ -31,10 +31,14 @@ services:
       VIRTUAL_PORT: 3000
       LETSENCRYPT_HOST: ${DOMAIN}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
-      # Чат по контенту сайта: ключ AI Router Вайбкода. Пусто — сайт работает, чат отвечает 503.
+      # Модель чата (одна на установку), см. .env.example и README «Модель чата». Без ключа сайт работает, чат — 503.
+      BXSHEF_CHAT_URL: ${BXSHEF_CHAT_URL:-}
+      BXSHEF_CHAT_KEY: ${BXSHEF_CHAT_KEY:-}
+      BXSHEF_CHAT_MODEL: ${BXSHEF_CHAT_MODEL:-}
+      BXSHEF_CHAT_MODEL_NAME: ${BXSHEF_CHAT_MODEL_NAME:-}
+      # прежние имена (до BXSHEF_CHAT_*) — запасные, установки с ними продолжают работать
       BXSHEF_EVAL_KEY: ${BXSHEF_EVAL_KEY:-}
-      BXSHEF_EVAL_URL: ${BXSHEF_EVAL_URL:-https://vibecode.bitrix24.tech/v1}
-      BXSHEF_CHAT_MODEL: ${BXSHEF_CHAT_MODEL:-bitrix/bitrixgpt-5.6-agent}
+      BXSHEF_EVAL_URL: ${BXSHEF_EVAL_URL:-}
       NITRO_HOST: 0.0.0.0
       NITRO_PORT: 3000
     restart: unless-stopped

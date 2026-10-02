@@ -1,4 +1,4 @@
-# skills-site.bx-shef.by — Nuxt + Nuxt Content + Bitrix24 UI, чат по контенту через BitrixGPT.
+# skills-site.bx-shef.by — Nuxt + Nuxt Content + Bitrix24 UI, чат по контенту сайта.
 # Контент подтягивается из репозиториев bx-shef при сборке образа: второй копии текстов нет.
 FROM node:22-bookworm-slim AS build
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates python3 make g++ && rm -rf /var/lib/apt/lists/*

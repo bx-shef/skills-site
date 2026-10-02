@@ -9,6 +9,10 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     environment:
+      BXSHEF_CHAT_URL: ${BXSHEF_CHAT_URL:-}
+      BXSHEF_CHAT_KEY: ${BXSHEF_CHAT_KEY:-}
+      BXSHEF_CHAT_MODEL: ${BXSHEF_CHAT_MODEL:-}
+      BXSHEF_CHAT_MODEL_NAME: ${BXSHEF_CHAT_MODEL_NAME:-}
+      # прежние имена (до BXSHEF_CHAT_*) — запасные, установки с ними продолжают работать
       BXSHEF_EVAL_KEY: ${BXSHEF_EVAL_KEY:-}
-      BXSHEF_EVAL_URL: ${BXSHEF_EVAL_URL:-https://vibecode.bitrix24.tech/v1}
-      BXSHEF_CHAT_MODEL: ${BXSHEF_CHAT_MODEL:-bitrix/bitrixgpt-5.6-agent}
+      BXSHEF_EVAL_URL: ${BXSHEF_EVAL_URL:-}

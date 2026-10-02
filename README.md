@@ -1,13 +1,13 @@
 # skills-site.bx-shef.by
 
 Сайт методологии bxshef: Nuxt + [Nuxt Content](https://content.nuxt.com) + [Bitrix24 UI](https://github.com/bitrix24/b24ui) в Docker, контент из репозиториев
-bx-shef при сборке образа, чат по содержимому сайта через BitrixGPT, `llms.txt` / `llms-full.txt`
+bx-shef при сборке образа, чат по содержимому сайта (модель — одна на установку, см. «Модель чата»), `llms.txt` / `llms-full.txt`
 для ИИ-агентов. Вёрстка — 1 в 1 с виджетом «Битрикс24 Ответы» (helpdesk.bitrix24.ru/widget2/): сайт открывается внутри Битрикс24.
 
 ```
 content/index.md               лендинг — единственный текст, который живёт здесь
 scripts/sync-content.mjs       клонирует skills-standard, skills, options, problems, insync → content/, public/llms.txt, public/llms-full.txt
-server/api/assistant.post.ts   чат: OpenAI-совместимый провайдер (BitrixGPT через AI Router), подбор страниц под вопрос
+server/api/assistant.post.ts   чат: OpenAI-совместимый провайдер (server/utils/chat-config.ts), подбор страниц под вопрос
 app/
   app.vue                      оболочка: B24App (Bitrix24 UI), навигация по контенту
   app.config.ts                заголовок и описание сайта
@@ -38,7 +38,7 @@ mkdir -p /home/bitrix/skills-site && cd /home/bitrix/skills-site
 curl -fsSLO https://raw.githubusercontent.com/bx-shef/skills-site/main/docker-compose.prod.yml
 curl -fsSLO https://raw.githubusercontent.com/bx-shef/skills-site/main/Makefile
 curl -fsSL  https://raw.githubusercontent.com/bx-shef/skills-site/main/.env.example -o .env
-umask 077 && $EDITOR .env        # DOMAIN, LETSENCRYPT_EMAIL, BXSHEF_EVAL_KEY
+umask 077 && $EDITOR .env        # DOMAIN, LETSENCRYPT_EMAIL, BXSHEF_CHAT_KEY (модель — «Модель чата»)
 make doctor                      # сеть, прокси, Watchtower, .env
 make prod-up                     # образ из ghcr.io, TLS выпустит acme-companion
 make health                      # сайт 200, чат 200 (или 503 без ключа)
@@ -75,7 +75,7 @@ docker exec nginx-proxy nginx -s reload
 ```bash
 npm install
 SOURCES_DIR=../  node scripts/sync-content.mjs   # взять склонированные рядом репозитории (или без SOURCES_DIR — клонирует в .sources/)
-BXSHEF_EVAL_KEY=… npm run dev                    # http://localhost:3000, чат работает в dev
+BXSHEF_CHAT_KEY=… npm run dev                    # http://localhost:3000, чат работает в dev
 ```
 
 Или из Docker: `make build-local` (контент тянется из GitHub, ~3–5 мин).
@@ -84,14 +84,48 @@ BXSHEF_EVAL_KEY=… npm run dev                    # http://localhost:3000, ча
 
 `server/api/assistant.post.ts` (AI SDK, OpenAI-совместимый провайдер): из `llms-full.txt` под
 вопрос подбираются до 8 страниц (≤ 60 КБ) и кладутся в системный промпт — работает с любой
-моделью. Окно чата — `HdChatOverlay`, как помощник «Битрикс24 Ответы»: приветствие с примерами,
-вопрос пузырём справа, ответ с «копировать / нравится / не нравится», при ошибке — ссылка на
-«Все темы». Открывается из поиска (Enter / кнопка), карточки «Спросить ИИ-агента» и баннера под
-оглавлением; история — в localStorage. Модель и адрес — `BXSHEF_CHAT_MODEL`, `BXSHEF_EVAL_URL`.
-Ключ `BXSHEF_EVAL_KEY` — только в `.env` на сервере или в окружении, в файлах репозитория его нет.
+моделью. «Обсудить с ИИ» делает страницу темой разговора: первый ответ — её пересказ, дальше она
+идёт в контекст первой. Окно чата — `HdChatOverlay`; история — в localStorage браузера.
 
-Проверено: вопрос «Почему ИИ-агент не берёт мой навык?» → ответ со ссылкой на пункт 2
-стандарта, командами `bxshef lint`/`eval` и цифрой из прогона 1.
+### Модель чата
+
+Одна модель на установку, задаётся окружением при запуске контейнера (`.env` рядом с
+`docker-compose.prod.yml`), пересборка не нужна. Читает `server/utils/chat-config.ts`:
+
+| переменная | что | по умолчанию |
+|---|---|---|
+| `BXSHEF_CHAT_URL` | адрес OpenAI-совместимого API | `https://vibecode.bitrix24.tech/v1` (AI Router Вайбкода) |
+| `BXSHEF_CHAT_KEY` | ключ; пусто — чат выключен (503), сайт работает | — |
+| `BXSHEF_CHAT_MODEL` | id модели у провайдера | `bitrix/bitrixgpt-5.6-agent` |
+| `BXSHEF_CHAT_MODEL_NAME` | как называть модель на сайте («Ответы … могут быть неточны») | по id: BitrixGPT, DeepSeek, Claude, GPT, Qwen, Gemini |
+
+`BXSHEF_EVAL_URL` / `BXSHEF_EVAL_KEY` (переменные `bxshef eval`) — запасные: установки, где ключ
+лежит под этими именами, работают. Ключ — только в `.env` или окружении, в репозитории его нет.
+
+BitrixGPT через AI Router:
+
+```bash
+BXSHEF_CHAT_URL=https://vibecode.bitrix24.tech/v1
+BXSHEF_CHAT_KEY=…
+BXSHEF_CHAT_MODEL=bitrix/bitrixgpt-5.6-agent
+```
+
+DeepSeek напрямую (id моделей сверить с документацией DeepSeek):
+
+```bash
+BXSHEF_CHAT_URL=https://api.deepseek.com/v1
+BXSHEF_CHAT_KEY=sk-…
+BXSHEF_CHAT_MODEL=deepseek-chat
+BXSHEF_CHAT_MODEL_NAME=DeepSeek
+```
+
+Если AI Router отдаёт нужную модель тем же ключом — меняется только `BXSHEF_CHAT_MODEL`.
+Рассуждения reasoning-моделей (поле `reasoning_content` у `deepseek-reasoner`) провайдер AI SDK
+отдаёт отдельным каналом — в чате они в блоке «Размышление», не в ответе.
+
+Проверка после смены модели: `make prod-up && make health` — строка `model <имя>` и `chat 200`;
+затем вопрос в чате, ответ на который есть на сайте (например, «Почему ИИ-агент не берёт мой
+навык?» — ответ про `description`, правило 2 стандарта).
 
 ## Вёрстка
 
