@@ -8,7 +8,8 @@ RUN npm ci --no-audit --no-fund
 COPY . .
 ARG SITE_URL=https://skills-site.bx-shef.by
 ENV SITE_URL=$SITE_URL
-RUN node scripts/sync-content.mjs && npm run build
+# поиск чата не хуже порога на evals/chat-retrieval.json — иначе образ не собирается
+RUN node scripts/sync-content.mjs && node scripts/rag-eval.mjs --min 0.85 && npm run build
 
 FROM node:22-bookworm-slim
 WORKDIR /app

@@ -9,3 +9,4 @@ content/*
 public/llms-full.txt
 public/llms.txt
 server/assets/llms-full.txt
+server/assets/rag-chunks.json

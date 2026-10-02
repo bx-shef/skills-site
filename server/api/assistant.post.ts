@@ -1,53 +1,39 @@
 import { streamText, convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse } from 'ai'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 
+import { buildIndex, select } from '../rag/core.mjs'
+
 /**
  * Чат по контенту сайта. Провайдер — любой OpenAI-совместимый endpoint, модель — одна
  * на установку (server/utils/chat-config.ts: BXSHEF_CHAT_*).
  *
- * Из /llms-full.txt (все страницы сайта) выбираются страницы, ближайшие к вопросу по словам,
- * и кладутся в системный промпт (до ~60 КБ). Любая модель, без инструментов.
+ * Поиск — server/rag: страницы порезаны на разделы (## / ###), BM25 со стеммингом, в промпт идут
+ * лучшие разделы (до ~24 КБ) со ссылками вида /путь#якорь. Качество поиска меряет
+ * scripts/rag-eval.mjs на evals/chat-retrieval.json. Любая модель, без инструментов.
  */
-type Page = { title: string, url: string, text: string, words: Set<string> }
-let cache: { pages: Page[] } | null = null
-const CONTEXT_LIMIT = 60_000
+type Chunk = { title: string, heading: string, url: string, page: string, text: string }
+let index: ReturnType<typeof buildIndex> | null = null
+const HISTORY = 10 // последних сообщений разговора уходит модели
 
-const tokens = (s: string) => new Set((s.toLowerCase().match(/[a-zа-яё0-9_.\-]{4,}/g) || []))
-
-async function pages(): Promise<Page[]> {
-  if (cache) return cache.pages
-  // Копия llms-full.txt в server/assets кладётся scripts/sync-content.mjs и едет в сборку.
-  // Не fetch к себе по внешнему адресу: за обратным прокси такой запрос может не пройти,
-  // и чат молча оставался без страниц.
-  const text = String(await useStorage('assets:server').getItem('llms-full.txt') || '')
-  const list = text.split(/\n\n---\n\n(?=# )/).slice(1).map((chunk) => {
-    const title = (chunk.match(/^# (.+)$/m) || [])[1] || ''
-    const url = (chunk.match(/^URL: (\S+)$/m) || [])[1] || ''
-    return { title, url, text: chunk, words: tokens(chunk) }
-  })
-  if (list.length) cache = { pages: list } // пустое не кэшируем
-  return list
+async function getIndex() {
+  if (index) return index
+  // server/assets/rag-chunks.json пишет scripts/sync-content.mjs, он едет в сборку.
+  // Не fetch к себе по внешнему адресу: за обратным прокси такой запрос может не пройти.
+  const raw = await useStorage('assets:server').getItem('rag-chunks.json')
+  const chunks = Array.isArray(raw) ? raw : JSON.parse(String(raw || '[]'))
+  if (chunks.length) index = buildIndex(chunks) // пустое не кэшируем
+  return index
 }
 
-function pick(all: Page[], question: string, page?: string, firstQuestion = true): Page[] {
-  // «Обсудить с ИИ»: клиент прислал путь статьи. Первый запрос — пересказ, в контексте только она;
-  // дальше она остаётся темой разговора (идёт первой), а к ней добавляются страницы под новый вопрос
-  const pathOf = (u: string) => u.replace(/^https?:\/\/[^/]+/, '').replace(/\/$/, '') || '/'
-  const linked = page ? all.filter(p => p.url && pathOf(p.url) === pathOf(page)) : []
-  if (linked.length && firstQuestion) return linked
-  const q = tokens(question)
-  const scored = all.filter(p => !linked.includes(p))
-    .map(p => ({ p, s: [...q].reduce((n, w) => n + (p.words.has(w) ? 1 : 0), 0) + (q.size && [...q].some(w => p.title.toLowerCase().includes(w)) ? 3 : 0) }))
-    .sort((a, b) => b.s - a.s)
-  const out: Page[] = [...linked]
-  let size = linked.reduce((n, p) => n + p.text.length, 0)
-  for (const { p, s } of scored) {
-    if (s === 0 && out.length) break
-    if (size + p.text.length > CONTEXT_LIMIT) continue
-    out.push(p); size += p.text.length
-    if (out.length >= 8) break
-  }
-  return out
+// Фрагменты одной страницы — одним блоком: заголовок, «URL:», разделы со своими якорями
+function render(chosen: Chunk[]): string {
+  const byPage = new Map<string, Chunk[]>()
+  for (const c of chosen) byPage.set(c.page, [...(byPage.get(c.page) || []), c])
+  return [...byPage.values()].map(list => [
+    `# ${list[0]!.title}`,
+    `URL: ${list[0]!.page}`,
+    ...list.map(c => c.heading ? `## ${c.heading} (${c.url})\n${c.text}` : c.text),
+  ].join('\n\n')).join('\n\n---\n\n')
 }
 
 export default defineEventHandler(async (event) => {
@@ -56,36 +42,43 @@ export default defineEventHandler(async (event) => {
   if (!ai.key) throw createError({ statusCode: 503, message: 'Ключ модели не задан (BXSHEF_CHAT_KEY) — чат выключен' })
 
   const provider = createOpenAICompatible({ name: 'router', baseURL: ai.url, apiKey: ai.key })
-  const modelMessages = await convertToModelMessages(messages)
+  const modelMessages = await convertToModelMessages(messages.slice(-HISTORY))
 
   const last = [...messages].reverse().find((m: any) => m.role === 'user')
   const question = (last?.parts || []).filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ') || ''
-  const all = await pages()
-  if (!all.length) {
-    console.error('[assistant] страницы сайта не загружены: server/assets/llms-full.txt пуст или отсутствует')
+  const idx = await getIndex()
+  if (!idx) {
+    console.error('[assistant] поиск не загружен: server/assets/rag-chunks.json пуст или отсутствует')
     throw createError({ statusCode: 503, message: 'Поиск по сайту недоступен' })
   }
   // пересказ — первый вопрос разговора или запрос «Обсудить с ИИ» посреди него (тот же текст, что шлёт discussPage)
   const firstQuestion = messages.filter((m: any) => m.role === 'user').length <= 1 || question.startsWith('Перескажи статью «')
-  const chosen = pick(all, question, typeof page === 'string' ? page : undefined, firstQuestion)
+  // «Обсудить с ИИ»: клиент прислал путь статьи. Первый запрос — пересказ, в контексте только она;
+  // дальше она остаётся темой (идёт первой), к ней добавляются разделы под новый вопрос
+  const path = typeof page === 'string' ? (page.replace(/^https?:\/\/[^/]+/, '').replace(/\/$/, '') || '/') : undefined
+  const discussed = path && idx.pages[path] ? path : undefined
+  const chosen: Chunk[] = discussed && firstQuestion
+    ? idx.docs.filter(d => d.page === discussed)
+    : select(idx, question, { page: discussed })
+  const sources = [...new Map(chosen.map(c => [c.page, { title: c.title, url: c.page }])).values()]
 
-  console.info(`[assistant] страниц: ${all.length}, выбрано: ${chosen.map(p => p.url).join(', ') || '—'}`)
+  console.info(`[assistant] разделов: ${idx.docs.length}, выбрано: ${chosen.map(c => c.url).join(', ') || '—'}`)
 
   const instructions = [
     'Ты — помощник по сайту skills-site.bx-shef.by: методология и проверка навыков ИИ-агентов для Битрикса, навыки к модулям shef.*.',
     'Отвечай по-русски, коротко, с точными именами команд, файлов и правил из документации ниже. Заголовки markdown не используй; выделяй жирным.',
     'Пересказывай страницу, только если об этом просят в последнем сообщении пользователя: коротко по-русски (5–8 пунктов) и в конце предложи задать вопрос по ней. На любой другой вопрос — отвечай на него, а не пересказывай.',
-    'Давай ссылки на страницы вида [название](URL) — URL бери из строк «URL:» ниже. Если ответа в документации нет — так и скажи и отправь на GitHub bx-shef.',
+    'Давай ссылки вида [название](URL) — на страницу из строки «URL:» или на раздел из скобок после его заголовка. Если ответа в документации нет — так и скажи и отправь на GitHub bx-shef.',
     'Не придумывай команды, параметры, файлы, классы и термины, которых нет в документации ниже; общих советов «от себя» не давай.',
     '',
-    '=== СТРАНИЦЫ САЙТА, ПОДОБРАННЫЕ ПОД ВОПРОС ===',
-    ...chosen.map(p => p.text),
+    '=== РАЗДЕЛЫ САЙТА, ПОДОБРАННЫЕ ПОД ВОПРОС ===',
+    render(chosen),
   ].join('\n')
 
   // Сначала — какие страницы подобраны (в чате это шаг «Нашёл страницы»), потом ответ модели вместе с рассуждением
   const stream = createUIMessageStream({
     execute: ({ writer }) => {
-      writer.write({ type: 'data-sources', data: chosen.map(p => ({ title: p.title, url: p.url })) })
+      writer.write({ type: 'data-sources', data: sources })
       writer.merge(streamText({ system: instructions, model: provider(ai.model), messages: modelMessages }).toUIMessageStream({
         sendReasoning: true,
         // причина остановки — клиенту: «length» значит, что ответ обрезан лимитом токенов
