@@ -29,17 +29,18 @@ async function pages(): Promise<Page[]> {
   return list
 }
 
-function pick(all: Page[], question: string, page?: string): Page[] {
-  // «Обсудить с ИИ»: клиент прислал путь статьи — в контексте только она
+function pick(all: Page[], question: string, page?: string, firstQuestion = true): Page[] {
+  // «Обсудить с ИИ»: клиент прислал путь статьи. Первый запрос — пересказ, в контексте только она;
+  // дальше она остаётся темой разговора (идёт первой), а к ней добавляются страницы под новый вопрос
   const pathOf = (u: string) => u.replace(/^https?:\/\/[^/]+/, '').replace(/\/$/, '') || '/'
   const linked = page ? all.filter(p => p.url && pathOf(p.url) === pathOf(page)) : []
+  if (linked.length && firstQuestion) return linked
   const q = tokens(question)
-  const scored = all.map(p => ({ p, s: [...q].reduce((n, w) => n + (p.words.has(w) ? 1 : 0), 0) + (q.size && [...q].some(w => p.title.toLowerCase().includes(w)) ? 3 : 0) }))
+  const scored = all.filter(p => !linked.includes(p))
+    .map(p => ({ p, s: [...q].reduce((n, w) => n + (p.words.has(w) ? 1 : 0), 0) + (q.size && [...q].some(w => p.title.toLowerCase().includes(w)) ? 3 : 0) }))
     .sort((a, b) => b.s - a.s)
-  // Вопрос по конкретной странице — только она: остальное модель только путает
-  if (linked.length) return linked
-  const out: Page[] = []
-  let size = 0
+  const out: Page[] = [...linked]
+  let size = linked.reduce((n, p) => n + p.text.length, 0)
   for (const { p, s } of scored) {
     if (s === 0 && out.length) break
     if (size + p.text.length > CONTEXT_LIMIT) continue
@@ -70,14 +71,16 @@ export default defineEventHandler(async (event) => {
     console.error('[assistant] страницы сайта не загружены: server/assets/llms-full.txt пуст или отсутствует')
     throw createError({ statusCode: 503, message: 'Поиск по сайту недоступен' })
   }
-  const chosen = pick(all, question, typeof page === 'string' ? page : undefined)
+  // пересказ — первый вопрос разговора или запрос «Обсудить с ИИ» посреди него (тот же текст, что шлёт discussPage)
+  const firstQuestion = messages.filter((m: any) => m.role === 'user').length <= 1 || question.startsWith('Перескажи статью «')
+  const chosen = pick(all, question, typeof page === 'string' ? page : undefined, firstQuestion)
 
   console.info(`[assistant] страниц: ${all.length}, выбрано: ${chosen.map(p => p.url).join(', ') || '—'}`)
 
   const instructions = [
     'Ты — помощник по сайту skills-site.bx-shef.by: методология и проверка навыков ИИ-агентов для Битрикса, навыки к модулям shef.*.',
     'Отвечай по-русски, коротко, с точными именами команд, файлов и правил из документации ниже. Заголовки markdown не используй; выделяй жирным.',
-    'Если просят пересказать страницу — перескажи её коротко по-русски (5–8 пунктов) и в конце предложи задать вопрос по ней.',
+    'Пересказывай страницу, только если об этом просят в последнем сообщении пользователя: коротко по-русски (5–8 пунктов) и в конце предложи задать вопрос по ней. На любой другой вопрос — отвечай на него, а не пересказывай.',
     'Давай ссылки на страницы вида [название](URL) — URL бери из строк «URL:» ниже. Если ответа в документации нет — так и скажи и отправь на GitHub bx-shef.',
     'Не придумывай команды, параметры, файлы, классы и термины, которых нет в документации ниже; общих советов «от себя» не давай.',
     '',

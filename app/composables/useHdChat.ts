@@ -5,7 +5,7 @@
 export const useHdChat = () => {
   const open = useState('hd-chat-open', () => false)
   const ask = useState<string>('hd-chat-ask', () => '')
-  // Статья, которую обсуждаем («Обсудить с ИИ»): сервер кладёт в контекст только её
+  // Статья, которую обсуждаем («Обсудить с ИИ»): сервер кладёт её в контекст первой
   const page = useState<{ path: string, title: string } | null>('hd-chat-page', () => null)
 
   // Открыт ли чат — помним между визитами (localStorage); восстанавливает HdChatOverlay при загрузке
