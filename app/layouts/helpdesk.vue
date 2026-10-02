@@ -17,8 +17,7 @@
           <div class="hd-article-head">
             <HdBreadcrumbs :items="breadcrumbs" />
             <span class="hd-article-head-actions">
-              <HdCopyPage v-if="docPage" />
-              <B24Button color="air-tertiary" size="sm" :icon="icon(copied ? 'check' : 'link')" :title="copied ? 'Ссылка скопирована' : 'Скопировать ссылку на статью'" :aria-label="copied ? 'Ссылка скопирована' : 'Скопировать ссылку на статью'" @click="copyLink" />
+              <HdCopyPage :markdown="docPage" />
             </span>
           </div>
           <slot />
@@ -69,12 +68,4 @@ const { open: chatOpen, closeChat } = useHdChat()
 const props_ = getCurrentInstance()?.props as { article?: boolean }
 useHead({ bodyAttrs: { class: computed(() => props_?.article ? 'hd-body-plain' : '') } })
 
-const copied = ref(false)
-async function copyLink() {
-  try {
-    await navigator.clipboard.writeText(location.href.split('#')[0])
-    copied.value = true
-    setTimeout(() => { copied.value = false }, 1500)
-  } catch { /* буфер недоступен во фрейме без разрешения — молча */ }
-}
 </script>

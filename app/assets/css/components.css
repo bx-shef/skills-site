@@ -628,3 +628,7 @@
   .hd-hero-glow { display: none; }
   .hd-header-actions .hd-header-icon:not(:first-child) { display: none; }
 }
+/* иконки свёрнутого меню — по центру колонки; раскрытое меню не сдвигает их */
+.sidebar-menu__panel :is(a, button)[data-slot="link"] { padding-inline-start: calc((var(--hd-sidebar-width) - 16px - 26px) / 2); }
+/* текущая страница в крошках — не ссылка: без цвета ссылки и подчёркивания */
+.hd-breadcrumbs span[data-slot="link"] { color: var(--hd-text-secondary); text-decoration: none; cursor: default; }

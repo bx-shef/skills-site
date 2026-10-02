@@ -77,8 +77,6 @@
 
 .hd-table-wrap { overflow-x: auto; margin: 0 0 var(--hd-space-2xl); }
 .hd-article table { border-collapse: collapse; width: 100%; font-size: var(--hd-size-sm); }
-/* Таблица шире колонки прокручивается сама, а не растягивает страницу */
-.hd-article table { display: block; max-width: 100%; overflow-x: auto; }
 .hd-article th,
 .hd-article td {
   border: 1px solid var(--hd-border);
@@ -116,6 +114,7 @@
 .hd-article-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 0 16px; }
 /* крошки — B24Breadcrumb; здесь только место в шапке статьи: занимают остаток строки */
 .hd-breadcrumbs { flex: 1 1 auto; min-width: 0; }
+.hd-breadcrumbs ol { padding-left: 0; margin: 0; } /* не наследовать отступ списков статьи */
 
 .hd-article-title-wrap { padding: 10px 0 20px; }
 
@@ -144,3 +143,5 @@
 /* колонка статьи — контейнер: шапка статьи ужимается по её ширине, а не по окну */
 .hd-article { container: hd-article / inline-size; }
 @container hd-article (max-width: 620px) { .hd-article-head { align-items: flex-start; } }
+/* значок «#» у заголовка — по середине строки заголовка при любом размере шрифта */
+:is(h2, h3, h4)[data-slot="base"] > a > [data-slot="leading"] { top: 50%; transform: translateY(-50%); }

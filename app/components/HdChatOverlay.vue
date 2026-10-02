@@ -73,9 +73,9 @@
           <template #actions="{ message }">
             <div v-if="message.role === 'assistant' && textOf(message) && !(busy && message.id === chatMessages[chatMessages.length - 1]?.id)" class="hd-chat-tools">
               <B24Button color="air-tertiary" size="sm" :icon="icon(copiedId === message.id ? 'check' : 'copy')" :title="copiedId === message.id ? 'Скопировано' : 'Копировать'" :aria-label="copiedId === message.id ? 'Скопировано' : 'Копировать'" @click="copy(message)" />
-              <B24Button :color="votes[message.id] === 1 ? 'air-secondary-accent' : 'air-tertiary'" size="sm" :icon="icon('like')" title="Полезно" aria-label="Полезно" :aria-pressed="votes[message.id] === 1" @click="vote(message.id, 1)" />
-              <B24Button :color="votes[message.id] === -1 ? 'air-secondary-accent' : 'air-tertiary'" size="sm" :icon="icon('dislike')" :title="ratingsSent ? 'Не помогло — вопрос и ответ уйдут авторам сайта' : 'Не помогло'" aria-label="Не помогло" :aria-pressed="votes[message.id] === -1" @click="vote(message.id, -1)" />
-              <span v-if="ratingsSent && votes[message.id] === -1" class="hd-chat-rated">Спасибо: вопрос и ответ переданы авторам сайта</span>
+              <B24Button v-if="ratingsSent" :color="votes[message.id] === 1 ? 'air-secondary-accent' : 'air-tertiary'" size="sm" :icon="icon('like')" title="Полезно" aria-label="Полезно" :aria-pressed="votes[message.id] === 1" @click="vote(message.id, 1)" />
+              <B24Button v-if="ratingsSent" :color="votes[message.id] === -1 ? 'air-secondary-accent' : 'air-tertiary'" size="sm" :icon="icon('dislike')" title="Не помогло — вопрос и ответ уйдут авторам сайта" aria-label="Не помогло" :aria-pressed="votes[message.id] === -1" @click="vote(message.id, -1)" />
+              <span v-if="votes[message.id] === -1" class="hd-chat-rated">Спасибо: вопрос и ответ переданы авторам сайта</span>
             </div>
           </template>
         </B24ChatMessages>
