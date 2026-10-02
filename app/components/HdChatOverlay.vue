@@ -67,6 +67,8 @@
                 <span v-else class="hd-chat-own-text">{{ (part as { text: string }).text }}</span>
               </template>
             </template>
+            <!-- Между подобранными страницами и первым словом модели — не пустота, а «Думаю…» -->
+            <span v-if="waitingFor === message.id" class="hd-chat-search"><HdStar class="hd-chat-search-star" /><B24ChatShimmer text="Думаю…" /></span>
             <p v-if="(message.metadata as { finishReason?: string } | undefined)?.finishReason === 'length'" class="hd-chat-cut">
               Ответ обрезан: модель упёрлась в лимит длины. Задайте вопрос уже или попросите продолжить.
             </p>
@@ -83,8 +85,9 @@
           </template>
         </B24ChatMessages>
 
-        <div v-if="error" class="hd-chat-answer">
-          <p class="hd-chat-error">Не удалось выполнить запрос.</p>
+        <div v-if="(error || timedOut) && !busy" class="hd-chat-answer">
+          <p class="hd-chat-error">{{ timedOut ? 'Модель не ответила за 30 секунд.' : 'Не удалось выполнить запрос.' }}</p>
+          <button type="button" class="hd-chat-fallback" @click="retry">↻ Повторить</button>
           <NuxtLink :to="{ path: '/search', query: { q: lastQuestion } }" class="hd-chat-fallback" @click="$emit('close')">🔎 Попробуйте найти ответ через поиск по ключевым словам</NuxtLink>
         </div>
       </div>
@@ -143,6 +146,24 @@ const chatMessages = computed(() => chat.messages)
 const busy = computed(() => chat.status === 'streaming' || chat.status === 'submitted')
 const error = computed(() => chat.error)
 
+// Ответ начался (статус streaming), но ни рассуждений, ни текста ещё нет — id этого ответа.
+// Пока так, под ним крутится «Думаю…»: штатный индикатор гаснет уже на первой части потока.
+const waitingFor = computed(() => {
+  if (chat.status !== 'streaming') return ''
+  const last = chatMessages.value[chatMessages.value.length - 1]
+  if (!last || last.role !== 'assistant') return ''
+  return last.parts.some(p => p.type === 'reasoning' || p.type === 'text') ? '' : last.id
+})
+// Модель молчит дольше FIRST_TOKEN_TIMEOUT — останавливаем: дальше сработает показ ошибки и «Повторить»
+const FIRST_TOKEN_TIMEOUT = 30_000
+const timedOut = ref(false)
+let firstTokenTimer: ReturnType<typeof setTimeout> | undefined
+watch(() => chat.status === 'submitted' || !!waitingFor.value, (waiting) => {
+  clearTimeout(firstTokenTimer)
+  if (waiting) firstTokenTimer = setTimeout(() => { timedOut.value = true; chat.stop() }, FIRST_TOKEN_TIMEOUT)
+})
+onBeforeUnmount(() => clearTimeout(firstTokenTimer))
+
 // «Ищу ответ среди N статей» — сколько страниц документации на сайте
 const navigation = inject<Ref<Array<{ children?: unknown[] }>>>('navigation', ref([]))
 const countPages = (items: Array<{ children?: unknown[] }>): number =>
@@ -167,10 +188,12 @@ const textOf = (m: UIMessage) => m.parts.filter(p => p.type === 'text').map(p =>
 function send(text: string) {
   const q = text.trim()
   if (!q || busy.value) return
+  timedOut.value = false
   chat.sendMessage({ text: q })
   draft.value = ''
 }
 function submit() { send(draft.value) }
+function retry() { timedOut.value = false; chat.regenerate() }
 function stopChat() { chat.stop() }
 function clear() { chat.messages = []; stored.value = []; page.value = null }
 function vote(id: string, v: number) { votes.value = { ...votes.value, [id]: votes.value[id] === v ? 0 : v } }
@@ -270,7 +293,8 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-sources a:hover { text-decoration: underline; }
 .hd-chat-answer { display: flex; flex-direction: column; gap: 14px; }
 .hd-chat-error { margin: 0; }
-.hd-chat-fallback { color: var(--hd-link); text-decoration: none; }
+.hd-chat-fallback { color: var(--hd-link); text-decoration: none; background: none; border: 0; padding: 0; font: inherit; text-align: left; cursor: pointer; }
+button.hd-chat-fallback { display: block; margin: 0 0 8px; }
 .hd-chat-fallback:hover { text-decoration: underline; }
 
 .hd-chat-tools { display: flex; gap: 8px; }
