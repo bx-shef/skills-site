@@ -1,8 +1,7 @@
 /* ============================================================================
    Типографика статьи. Значения — из .article-content виджета поддержки.
 
-   Особенность оригинала: у h2 высота строки (20px) меньше размера шрифта
-   (21px) — длинный заголовок в две строки слипается. Здесь 1.25.
+   У h2 высота строки 1.25: при меньшей длинный заголовок в две строки слипается.
    ========================================================================= */
 
 .hd-article { font-size: var(--hd-size-md); line-height: var(--hd-line-md); color: var(--hd-text-primary); }
@@ -92,7 +91,7 @@
 .hd-article img { max-width: 100%; height: auto; border-radius: var(--hd-radius-md); }
 .hd-article hr { border: 0; border-top: 1px solid var(--hd-border); margin: var(--hd-space-3xl) 0; }
 
-/* --- Выноска. В оригинале — .article-callout --- */
+/* --- Выноска --- */
 .hd-callout {
   margin: 0 0 var(--hd-space-2xl);
   padding: var(--hd-space-xl);
@@ -101,7 +100,7 @@
   color: var(--hd-text-primary);
 }
 
-/* --- Спойлер. В оригинале — .article-spoiler --- */
+/* --- Спойлер --- */
 .hd-spoiler { margin: 0 0 var(--hd-space-2xl); border: 1px solid var(--hd-border); border-radius: var(--hd-radius-md); }
 .hd-spoiler > summary {
   padding: var(--hd-space-lg) var(--hd-space-xl);

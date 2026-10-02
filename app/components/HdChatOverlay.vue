@@ -1,5 +1,5 @@
 <!--
-  Чат с ИИ-агентом, как помощник в «Битрикс24 Ответы», панелью справа (как «Ask AI» в Docus), приветствие с примерами, вопрос — серым пузырём справа, ответ —
+  Чат с ИИ-агентом панелью справа: приветствие с примерами, вопрос — серым пузырём справа, ответ —
   текстом с кнопками «копировать / нравится / не нравится», внизу поле как на главной.
   Ответы стримятся с /api/assistant (модель — из окружения, см. server/utils/chat-config.ts). История — в localStorage.
 -->
@@ -25,7 +25,7 @@
           </ul>
         </div>
 
-        <!-- Сообщения — B24ChatMessages (Bitrix24 UI) по образцу nuxt-ui-templates/chat:
+        <!-- Сообщения — B24ChatMessages (Bitrix24 UI):
              части ответа — рассуждение (ChatReasoning), подобранные страницы (ChatTool), текст (MDC) -->
         <B24ChatMessages
           v-if="chatMessages.length"
@@ -265,7 +265,7 @@ watch(() => chatMessages.value.map(m => textOf(m).length).join() + String(!!erro
 .hd-chat-welcome li button { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; }
 .hd-chat-welcome li button:hover { color: var(--hd-link); }
 
-/* B24ChatMessages: вопрос — серым пузырём справа, ответ — без пузыря, как у помощника оригинала */
+/* B24ChatMessages: вопрос — серым пузырём справа, ответ — без пузыря */
 .hd-chat-messages::-webkit-scrollbar { display: none; }
 .hd-chat-list { gap: 28px; min-width: 0; max-width: 100%; }
 /* узкая панель: сообщения не шире её, длинный код переносится внутри блока */
@@ -342,7 +342,7 @@ button.hd-chat-fallback { display: block; margin: 0 0 8px; }
 .hd-chat-md :deep(table) { border-collapse: collapse; margin: 0 0 .7em; font-size: 15px; }
 .hd-chat-md :deep(td), .hd-chat-md :deep(th) { border: 1px solid var(--hd-border-button); padding: 4px 8px; }
 
-/* Поле внизу — как у помощника оригинала: поле, справа круглая кнопка, под ними — оговорка */
+/* Поле внизу: поле, справа круглая кнопка, под ними — оговорка */
 .hd-chat-form {
   display: flex;
   flex-direction: column;

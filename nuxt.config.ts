@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  // Bitrix24 UI вместо Nuxt UI (и вместо Docus, который без Nuxt UI не живёт): сайт открывается внутри Битрикс24
+  // Интерфейс — Bitrix24 UI, контент — Nuxt Content
   modules: ['@bitrix24/b24ui-nuxt', '@nuxt/content'],
   compatibilityDate: '2026-09-01',
 
@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     },
   },
 
-  // Вёрстка по образцу виджета «Битрикс24 Ответы». Порядок важен:
+  // Стили сайта. Порядок важен:
   // база b24ui, потом переменные, раскладка, текст, блоки.
   css: [
     '~/assets/css/main.css',
