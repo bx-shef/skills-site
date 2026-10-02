@@ -34,12 +34,7 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    ai: {
-      url: process.env.BXSHEF_EVAL_URL || 'https://vibecode.bitrix24.tech/v1',
-      // ключ не берём при сборке — иначе он попадёт в .output; сервер читает BXSHEF_EVAL_KEY при запуске
-      key: '',
-      model: process.env.BXSHEF_CHAT_MODEL || 'bitrix/bitrixgpt-5.6-agent',
-    },
+    // модель чата — из окружения при запуске, см. server/utils/chat-config.ts
     public: {
       siteUrl: process.env.SITE_URL || 'https://skills-site.bx-shef.by',
     },

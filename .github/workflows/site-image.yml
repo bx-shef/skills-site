@@ -73,9 +73,12 @@ jobs:
         run: |
           node scripts/mock-llm.mjs &
           docker run -d --name site-chat --network host -e PORT=3001 -e NITRO_PORT=3001 \
-            -e BXSHEF_EVAL_KEY=ci -e BXSHEF_EVAL_URL=http://127.0.0.1:4010/v1 skills-site:ci
+            -e BXSHEF_CHAT_KEY=ci -e BXSHEF_CHAT_URL=http://127.0.0.1:4010/v1 -e BXSHEF_CHAT_MODEL=deepseek-chat skills-site:ci
           for i in $(seq 1 30); do curl -fs localhost:3001/llms.txt >/dev/null && break; sleep 1; done
           ask() { curl -fs -X POST -H 'content-type: application/json' -d "$1" localhost:3001/api/assistant; }
+          # имя модели для подписей — из конфигурации установки, не зашито
+          info=$(curl -fs localhost:3001/api/assistant-info); echo "$info"
+          grep -q '"model":"DeepSeek"' <<<"$info"
           general=$(ask '{"messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"Почему ИИ-агент не берёт мой навык?"}]}]}')
           echo "$general" | grep -o 'URLS_IN_PROMPT=[0-9]*'
           grep -qE 'URLS_IN_PROMPT=[1-9]' <<<"$general"
@@ -90,6 +93,13 @@ jobs:
           grep -qE 'URLS_IN_PROMPT=([2-9]|[1-9][0-9])' <<<"$next"
           grep -o '"data-sources","data":\[{"title":"[^"]*","url":"[^"]*"' <<<"$next" | grep -q '/skills"'
           docker logs site-chat 2>&1 | grep '\[assistant\]'
+          # прежние имена переменных (BXSHEF_EVAL_*) — запасные, установки с ними работают
+          docker run -d --name site-legacy --network host -e PORT=3002 -e NITRO_PORT=3002 \
+            -e BXSHEF_EVAL_KEY=ci -e BXSHEF_EVAL_URL=http://127.0.0.1:4010/v1 skills-site:ci
+          for i in $(seq 1 30); do curl -fs localhost:3002/llms.txt >/dev/null && break; sleep 1; done
+          legacy=$(curl -fs -X POST -H 'content-type: application/json' -d '{"messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"ping"}]}]}' localhost:3002/api/assistant)
+          grep -q 'URLS_IN_PROMPT=' <<<"$legacy"
+          curl -fs localhost:3002/api/assistant-info | grep -q '"model":"BitrixGPT"'
 
       # Ни одна страница не шире телефона (360 px): длинный код, таблицы и имена классов не растягивают страницу
       - name: Страницы помещаются в экран телефона, код читается

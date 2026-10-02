@@ -1,7 +1,7 @@
 <!--
   Чат с ИИ-агентом, как помощник в «Битрикс24 Ответы», панелью справа (как «Ask AI» в Docus), приветствие с примерами, вопрос — серым пузырём справа, ответ —
   текстом с кнопками «копировать / нравится / не нравится», внизу поле как на главной.
-  Ответы стримятся с /api/assistant (BitrixGPT через AI Router). История — в localStorage.
+  Ответы стримятся с /api/assistant (модель — из окружения, см. server/utils/chat-config.ts). История — в localStorage.
 -->
 <template>
   <div class="hd-chat-overlay" :class="{ 'is-open': open }" role="complementary" aria-label="Чат с ИИ-агентом">
@@ -113,7 +113,7 @@
           </button>
         </div>
         <p class="hd-chat-disclaimer">
-          Ответы BitrixGPT могут быть неточны, проверяйте важную информацию.
+          Ответы {{ modelName }} могут быть неточны, проверяйте важную информацию.
           <NuxtLink to="/ai-answers">Подробнее</NuxtLink>
         </p>
       </form>
@@ -132,6 +132,7 @@ const props = defineProps({ open: { type: Boolean, default: false } })
 defineEmits(['close'])
 
 const { ask, page, open: chatOpenState } = useHdChat()
+const modelName = useChatModel()
 // Пользователь вернулся, а чат был открыт — открываем снова (на телефоне не навязываем: там он на весь экран)
 onMounted(() => {
   try { if (localStorage.getItem('hd-chat-open') === '1' && window.innerWidth >= 768) chatOpenState.value = true } catch { /* приватный режим */ }

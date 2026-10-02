@@ -2,8 +2,8 @@ import { streamText, convertToModelMessages, createUIMessageStream, createUIMess
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 
 /**
- * Чат по контенту сайта. Провайдер — любой OpenAI-совместимый endpoint;
- * по умолчанию BitrixGPT через AI Router Вайбкода (ключ BXSHEF_EVAL_KEY).
+ * Чат по контенту сайта. Провайдер — любой OpenAI-совместимый endpoint, модель — одна
+ * на установку (server/utils/chat-config.ts: BXSHEF_CHAT_*).
  *
  * Из /llms-full.txt (все страницы сайта) выбираются страницы, ближайшие к вопросу по словам,
  * и кладутся в системный промпт (до ~60 КБ). Любая модель, без инструментов.
@@ -52,14 +52,8 @@ function pick(all: Page[], question: string, page?: string, firstQuestion = true
 
 export default defineEventHandler(async (event) => {
   const { messages, page } = await readBody(event)
-  // runtimeConfig фиксируется при сборке; в Docker переменные приходят при запуске — читаем их первыми
-  const rc = useRuntimeConfig().ai
-  const ai = {
-    url: process.env.BXSHEF_EVAL_URL || rc.url,
-    key: process.env.BXSHEF_EVAL_KEY || rc.key,
-    model: process.env.BXSHEF_CHAT_MODEL || rc.model,
-  }
-  if (!ai.key) throw createError({ statusCode: 503, message: 'BXSHEF_EVAL_KEY не задан — чат выключен' })
+  const ai = chatConfig()
+  if (!ai.key) throw createError({ statusCode: 503, message: 'Ключ модели не задан (BXSHEF_CHAT_KEY) — чат выключен' })
 
   const provider = createOpenAICompatible({ name: 'router', baseURL: ai.url, apiKey: ai.key })
   const modelMessages = await convertToModelMessages(messages)

@@ -9,7 +9,8 @@
 # Прод-переменные — только из .env: чужой экспортированный DOMAIN на общем хосте не должен
 # подменить домен сайта. COMPOSE_PROJECT_NAME / COMPOSE_FILE из окружения хоста тоже снимаем.
 override COMPOSE_ENV = env -u DOMAIN -u LETSENCRYPT_EMAIL -u BXSHEF_EVAL_KEY -u BXSHEF_EVAL_URL \
-	-u BXSHEF_CHAT_MODEL -u COMPOSE_PROJECT_NAME -u COMPOSE_FILE docker compose
+	-u BXSHEF_CHAT_URL -u BXSHEF_CHAT_KEY -u BXSHEF_CHAT_MODEL -u BXSHEF_CHAT_MODEL_NAME \
+	-u COMPOSE_PROJECT_NAME -u COMPOSE_FILE docker compose
 override COMPOSE = $(COMPOSE_ENV) -f docker-compose.prod.yml
 override CONTAINER := skills-site
 override RAW := https://raw.githubusercontent.com/bx-shef/skills-site/main
@@ -52,7 +53,8 @@ ps:
 health:
 	@for i in $$(seq 1 30); do docker exec $(CONTAINER) node -e "fetch('http://127.0.0.1:3000/llms.txt').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))" 2>/dev/null && break; sleep 1; done  # сразу после prod-up сайт ещё стартует
 	docker exec $(CONTAINER) node -e "fetch('http://127.0.0.1:3000/llms.txt').then(r => { console.log('site', r.status); process.exit(r.ok ? 0 : 1) })"
-	docker exec $(CONTAINER) node -e "fetch('http://127.0.0.1:3000/api/assistant', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', parts: [{ type: 'text', text: 'ping' }] }] }) }).then(r => { console.log('chat', r.status, r.status === 503 ? '(BXSHEF_EVAL_KEY не задан)' : ''); process.exit(r.status < 500 || r.status === 503 ? 0 : 1) })"
+	docker exec $(CONTAINER) node -e "fetch('http://127.0.0.1:3000/api/assistant', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', parts: [{ type: 'text', text: 'ping' }] }] }) }).then(r => { console.log('chat', r.status, r.status === 503 ? '(ключ модели не задан)' : ''); process.exit(r.status < 500 || r.status === 503 ? 0 : 1) })"
+	docker exec $(CONTAINER) node -e "fetch('http://127.0.0.1:3000/api/assistant-info').then(r => r.json()).then(j => console.log('model', j.model, j.enabled ? '' : '(без ключа)'))"
 
 ## Что не так: сеть, прокси, Watchtower, .env, сертификат
 doctor:
@@ -60,7 +62,7 @@ doctor:
 	@docker ps --format '{{.Names}}' | grep -qx nginx-proxy && echo "[ok] nginx-proxy" || echo "[!!] контейнер nginx-proxy не запущен"
 	@docker ps --format '{{.Names}}' | grep -qi watchtower && echo "[ok] watchtower" || echo "[..] watchtower не найден — обновлять через make prod-redeploy"
 	@test -f .env && echo "[ok] .env" || echo "[!!] нет .env — cp .env.example .env"
-	@grep -q '^BXSHEF_EVAL_KEY=.\+' .env 2>/dev/null && echo "[ok] ключ чата задан" || echo "[..] BXSHEF_EVAL_KEY пуст — чат ответит 503"
+	@grep -qE '^BXSHEF_(CHAT|EVAL)_KEY=.+' .env 2>/dev/null && echo "[ok] ключ чата задан" || echo "[..] BXSHEF_CHAT_KEY пуст — чат ответит 503"
 	@V=$$(docker inspect nginx-proxy --format '{{range .Mounts}}{{if eq .Destination "/etc/nginx/vhost.d"}}{{.Source}}{{end}}{{end}}' 2>/dev/null); \
 	  D=$$(grep -E '^DOMAIN=' .env 2>/dev/null | cut -d= -f2); \
 	  if [ -n "$$V" ] && [ -f "$$V/$${D}_location" ]; then echo "[ok] vhost.d/$${D}_location (proxy_buffering off — чат стримит)"; \
