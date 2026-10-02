@@ -53,8 +53,8 @@ const absLinks = (md, repo, dir = '') => md.replace(/\]\((?!https?:|mailto:|#|\/
 // 1. Методология
 const std = path.join(SRC, 'skills-standard')
 const stdPages = [
-  ['1.standard.md', 'STANDARD.md', 'Стандарт навыка', '11 правил, каждое из провала на стенде'],
-  ['2.method.md', 'METHOD.md', 'Методология проверки', 'lint → eval → стенд; что измерено'],
+  ['1.standard.md', 'STANDARD.md', 'Стандарт навыка', '11 правил оформления SKILL.md'],
+  ['2.method.md', 'METHOD.md', 'Методология проверки', 'lint → eval → стенд: что проверяется'],
   ['3.bxshef.md', 'bxshef/README.md', 'bxshef — CLI', 'lint, eval, feedback'],
   ['4.action.md', 'action/README.md', 'GitHub Action', 'тот же lint + eval в любом репозитории навыков'],
   ['5.template.md', 'template/README.md', 'Заготовка репозитория', 'с чего начать автору модуля'],
@@ -62,7 +62,7 @@ const stdPages = [
   ['7.feedback-vibecode.md', 'feedback/VIBECODE.md', 'Приёмник на Вайбкод Black Hole', 'выкладка приёмника без своего сервера'],
 ]
 write('1.methodology/.navigation.yml', 'title: Методология\nicon: ruler\n')
-write('1.methodology/index.md', page(read(path.join(std, 'README.md')) || '# bxshef', { title: 'bxshef: методология и проверка навыков', description: 'Как писать навыки ИИ-агентов для Битрикса и как проверять, что им можно верить', source: gh('skills-standard', 'README.md') }))
+write('1.methodology/index.md', page(read(path.join(std, 'README.md')) || '# bxshef', { title: 'bxshef: методология и проверка навыков', description: 'Как писать и проверять навыки ИИ-агентов для Битрикса', source: gh('skills-standard', 'README.md') }))
 // В STANDARD.md правило — жирное начало абзаца («**1. Имя — …** текст»). На сайте — заголовок
 // «## 1. Имя — …»: у страницы появляется оглавление и якоря на каждое правило.
 const ruleHeadings = (md) => md.replace(/^\*\*(\d+\.\s[^\n]*?)\*\*[ \t]*/gm, (_, h) => `## ${h.replace(/\.$/, '')}\n\n`)
