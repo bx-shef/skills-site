@@ -5,17 +5,16 @@
 -->
 <template>
   <form v-show="!chatOpen && !heroVisible" class="hd-ask-float" @submit.prevent="submit">
-    <input
+    <B24Input
       ref="input"
       v-model="q"
-      type="text"
+      class="hd-ask-float-input"
+      no-border
       placeholder="Задать вопрос…"
       aria-label="Задать вопрос ИИ-агенту"
-    >
-    <kbd>Ctrl</kbd><kbd>I</kbd>
-    <button type="submit" :disabled="!q.trim()" aria-label="Отправить">
-      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.5 2.3c0-.6.7-1 1.2-.7l9 5.7c.5.3.5 1 0 1.4l-9 5.7c-.5.3-1.2-.1-1.2-.7V2.3Z" /></svg>
-    </button>
+    />
+    <B24Kbd value="ctrl" class="hd-ask-float-kbd" /><B24Kbd value="I" class="hd-ask-float-kbd" />
+    <B24Button type="submit" color="air-primary" size="sm" :icon="icon('send')" :disabled="!q.trim()" aria-label="Отправить" />
   </form>
 </template>
 
@@ -29,7 +28,7 @@ const onScroll = () => {
   const hero = document.querySelector('.hd-search-wrap--hero')
   heroVisible.value = !!hero && hero.getBoundingClientRect().bottom > 59
 }
-const input = ref<HTMLInputElement>()
+const input = ref<{ $el?: HTMLElement } | null>(null)
 
 function submit() {
   if (!q.value.trim()) return
@@ -38,7 +37,7 @@ function submit() {
 }
 
 const onKey = (e: KeyboardEvent) => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') { e.preventDefault(); input.value?.focus() }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') { e.preventDefault(); input.value?.$el?.querySelector('input')?.focus() }
 }
 onMounted(() => {
   window.addEventListener('keydown', onKey)
@@ -71,30 +70,7 @@ watch(() => useRoute().path, () => nextTick(onScroll))
   transform: translateX(-50%);
 }
 .hd-ask-float:focus-within { border-color: var(--hd-primary); }
-.hd-ask-float input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font: inherit; font-size: 14px; color: var(--hd-text-primary); }
-.hd-ask-float input::placeholder { color: var(--hd-text-tertiary); }
-.hd-ask-float kbd {
-  padding: 1px 5px;
-  border: 1px solid var(--hd-line);
-  border-radius: 5px;
-  background: var(--hd-bg);
-  font: 11px/16px var(--hd-font);
-  color: var(--hd-text-secondary);
-}
-.hd-ask-float button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  margin-left: 4px;
-  border: 0;
-  border-radius: 8px;
-  background: var(--hd-primary);
-  color: #fff;
-  cursor: pointer;
-}
-.hd-ask-float button:disabled { background: #89beff; cursor: default; }
-.hd-ask-float button svg { width: 12px; height: 12px; }
-@media (max-width: 767px) { .hd-ask-float kbd { display: none; } }
+.hd-ask-float-input { flex: 1; min-width: 0; }
+.hd-ask-float-input :deep(input) { background: transparent; font-size: 14px; }
+@media (max-width: 767px) { .hd-ask-float-kbd { display: none; } }
 </style>

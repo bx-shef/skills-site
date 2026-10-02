@@ -5,6 +5,7 @@ import type { Component } from 'vue'
 import PlayIcon from '@bitrix24/b24icons-vue/actions/PlayIcon'
 import StopIcon from '@bitrix24/b24icons-vue/actions/StopIcon'
 import ChevronTopLIcon from '@bitrix24/b24icons-vue/outline/ChevronTopLIcon'
+import SearchIcon from '@bitrix24/b24icons-vue/outline/SearchIcon'
 import GitHubIcon from '@bitrix24/b24icons-vue/social/GitHubIcon'
 import TelegramIcon from '@bitrix24/b24icons-vue/social/TelegramIcon'
 import LinkIcon from '@bitrix24/b24icons-vue/outline/LinkIcon'
@@ -84,6 +85,7 @@ export const icons: Record<string, Component> = {
   'send': PlayIcon,
   'stop': StopIcon,
   'chevron-up': ChevronTopLIcon,
+  'search': SearchIcon,
 }
 
 export const icon = (name: string): Component | undefined => icons[name]
