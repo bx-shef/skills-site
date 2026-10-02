@@ -4,6 +4,8 @@
 -->
 <template>
   <header class="hd-header">
+    <!-- меню на узком экране (уже 1024px) — панелью; на широком колонка меню видна всегда -->
+    <B24DashboardSidebarToggle color="air-tertiary" aria-label="Меню" />
     <NuxtLink to="/" class="hd-logo" aria-label="На главную">
       <span class="hd-logo-brand">{{ brand }}</span>
       <span class="hd-logo-word">{{ word }}</span>

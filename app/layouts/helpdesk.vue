@@ -1,16 +1,35 @@
 <!--
-  Макет сайта: белая шапка с поиском, меню-иконки 84px слева (раскрывается по наведению), по центру —
+  Макет сайта: белая шапка, слева — меню B24DashboardSidebar (как в bitrix24/templates-dashboard:
+  сворачивается до иконок кнопкой внизу, ширина запоминается; на телефоне — панель по кнопке в шапке), по центру —
   секции на градиентном фоне или статья на белом листе с оглавлением справа.
   Чат с ИИ-агентом — оверлей поверх страницы, открывается из поиска.
 -->
 <template>
   <div class="hd-shell" :class="{ 'hd-shell--plain': article, 'hd-shell--chat': chatOpen }">
+  <B24DashboardGroup unit="px" storage="local" storage-key="hd-menu" :b24ui="{ base: 'static block overflow-visible' }">
     <HdHeader />
 
-    <aside class="hd-sidebar sidebar-menu">
-      <HdMenu />
-    </aside>
+    <div class="hd-body">
+    <B24DashboardSidebar
+      id="hd-menu"
+      mode="slideover"
+      collapsible
+      :toggle="false"
+      :default-size="260"
+      :min-size="220"
+      :max-size="300"
+      :collapsed-size="64"
+      class="hd-sidebar"
+    >
+      <template #default="{ collapsed }">
+        <HdMenu :collapsed="collapsed" />
+      </template>
+      <template #footer="{ collapsed }">
+        <HdMenuFooter :collapsed="collapsed" />
+      </template>
+    </B24DashboardSidebar>
 
+    <div class="hd-page">
     <div class="hd-main">
       <div v-if="article" class="hd-article-layout">
         <div class="hd-article">
@@ -21,6 +40,7 @@
             </span>
           </div>
           <slot />
+          <HdArticleRating v-if="docPage" />
         </div>
         <aside class="hd-aside">
           <HdToc v-if="tocLinks.length" :links="tocLinks" />
@@ -43,6 +63,9 @@
         </div>
       </div>
     </footer>
+    </div>
+    </div>
+  </B24DashboardGroup>
 
     <HdScrollTop />
     <HdAskFloating />

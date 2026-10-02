@@ -39,36 +39,24 @@ body {
 .hd-header-actions { display: flex; align-items: center; gap: var(--hd-space-md); margin-left: auto; }
 
 /* --- Меню слева ----------------------------------------------------------
-   Колонка иконок, по наведению раскрывается поверх
-   текста (не раздвигает его), линия по правому краю.
+   B24DashboardSidebar: колонка рядом с текстом (не поверх), липнет под шапкой,
+   сворачивается до иконок кнопкой внизу. Уже 1024px — скрыта, открывается панелью из шапки.
    -------------------------------------------------------------------------*/
 
-.hd-sidebar {
-  position: fixed;
+.hd-body { display: flex; align-items: flex-start; }
+.hd-page { flex: 1 1 auto; min-width: 0; }
+.hd-sidebar.hd-sidebar {
+  position: sticky;
   top: var(--hd-header-height);
-  left: 0;
-  z-index: 90;
-  width: var(--hd-sidebar-width);
-  height: calc(100vh - var(--hd-header-height));
-  padding: 10px 8px;
-  overflow: hidden;
+  height: calc(100svh - var(--hd-header-height));
+  min-height: 0;
   border-right: 1px solid var(--hd-line);
-  background: transparent;
-  transition: width .2s ease, background-color .2s ease, box-shadow .2s ease;
-}
-.hd-sidebar:has(.sidebar-menu__panel:hover),
-.hd-sidebar:has(.sidebar-menu__panel:focus-within) {
-  width: var(--hd-sidebar-open);
-  overflow-y: auto;
-  background: var(--hd-bg);
-  box-shadow: 4px 0 20px rgba(0, 0, 0, .06);
 }
 
 .hd-main {
   position: relative;
   max-width: var(--hd-main-max);
   margin: 0 auto;
-  padding-left: var(--hd-sidebar-width);
   /* место под плавающее поле «Задать вопрос…» (bottom 24px + ~52px): конец страницы
      прокручивается выше поля, и последний абзац или блок кода не остаётся под ним */
   padding-bottom: 96px;
@@ -113,7 +101,6 @@ body {
 
 /* --- Подвал -------------------------------------------------------------- */
 
-.hd-footer { padding-left: var(--hd-sidebar-width); }
 .hd-footer-inner {
   display: flex;
   align-items: center;
@@ -153,9 +140,8 @@ body {
 /* --- Мобильный ----------------------------------------------------------- */
 
 @media (max-width: 767px) {
-  :root { --hd-sidebar-width: 0px; }
-  .hd-sidebar { display: none; }
-  .hd-header { padding: 12px 16px; }
+  .hd-header { padding: 12px 16px; gap: 8px; }
+  .hd-header-actions { gap: 4px; }
   .hd-article-layout { padding: 0 16px 48px; }
   .hd-content { padding: 0 16px; }
   /* на телефоне панель чата — на весь экран */
@@ -173,3 +159,9 @@ h1, h2, h3, .hd-logo, .hd-hero-title, .hd-section-title, .hd-tile-title, .hd-pro
 .hd-support-title, .hd-article-card-title, .hd-topics-title, .hd-footer-logo, .hd-chat-welcome-title {
   font-family: var(--hd-font-heading);
 }
+
+/* ширина колонки меню — для того, что центрируется по тексту (плавающее поле вопроса) */
+:root:has(#hd-menu[data-collapsed="true"]) { --hd-sidebar-width: 64px; }
+@media (max-width: 1023px) { :root { --hd-sidebar-width: 0px; } }
+/* узкий телефон: рядом с кнопкой меню и тремя кнопками справа слово раздела не помещается */
+@media (max-width: 420px) { .hd-logo-word { display: none; } }

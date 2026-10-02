@@ -1,5 +1,5 @@
 <!--
-  Поиск с историей запросов. Два вида: компактный
+  Поиск по сайту и вопрос ИИ-агенту. Два вида: компактный
   в шапке и большой (hero) на первом экране — с аватаром ИИ и круглой кнопкой.
   Ищет по заголовкам и тексту разделов всех страниц (queryCollectionSearchSections).
   Enter и кнопка «отправить» задают вопрос ИИ-агенту — открывается чат-оверлей.
@@ -19,17 +19,8 @@
           :placeholder="placeholder"
           aria-label="Поиск по сайту"
           autocomplete="off"
-          @focus="historyOpen = true"
+          @focus="open = true"
           @keydown.enter.prevent="submit"
-        />
-        <B24Button
-          class="hd-search-history-toggle"
-          color="air-tertiary"
-          size="sm"
-          :icon="icon('history')"
-          aria-label="История запросов"
-          title="История запросов"
-          @click.stop="historyOpen = !historyOpen"
         />
         <B24Button
           v-if="hero"
@@ -54,21 +45,7 @@
       />
     </div>
 
-    <!-- История показывается, пока не начали печатать -->
-    <div v-if="historyOpen && !query && history.length" class="hd-search-history">
-      <button
-        v-for="item in history"
-        :key="item"
-        class="hd-search-history-btn"
-        type="button"
-        @click="pick(item)"
-      >
-        <HdIcon name="history" />
-        <span>{{ item }}</span>
-      </button>
-    </div>
-
-    <div v-else-if="query.trim().length >= 2" class="hd-search-history">
+    <div v-if="open && query.trim().length >= 2" class="hd-search-history">
       <NuxtLink
         v-for="item in results"
         :key="item.id"
@@ -90,14 +67,13 @@
 <script setup lang="ts">
 defineProps({
   hero: { type: Boolean, default: false },
-  placeholder: { type: String, default: 'Напишите вопрос. Например: как написать навык для модуля?' },
+  placeholder: { type: String, default: 'Читать всё не нужно — напишите, что хотите сделать' },
 })
 
 const { openChat } = useHdChat()
 
 const query = ref('')
-const historyOpen = ref(false)
-const history = ref<string[]>([])
+const open = ref(false)
 
 type Section = { id: string, title: string, titles: string[], content: string, level: number }
 const { data: sections } = await useLazyAsyncData('hd-search-sections', () => queryCollectionSearchSections('docs'), { default: () => [] as Section[] })
@@ -125,7 +101,7 @@ const results = computed(() => {
 
 const root = getCurrentInstance()
 onMounted(() => {
-  try { history.value = JSON.parse(localStorage.getItem('hd-search-history') || '[]') } catch { history.value = [] }
+  try { localStorage.removeItem('hd-search-history') } catch { /* прежняя история запросов — больше не ведём */ }
   document.addEventListener('click', onDocumentClick)
 })
 onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
@@ -133,26 +109,18 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
 // Закрываем список по клику мимо именно этого поиска: их на главной два
 function onDocumentClick(e: MouseEvent) {
   const el = root?.proxy?.$el as HTMLElement | undefined
-  if (el && !el.contains(e.target as Node)) historyOpen.value = false
-}
-
-function remember(q: string) {
-  const next = [q, ...history.value.filter(i => i !== q)].slice(0, 5)
-  history.value = next
-  try { localStorage.setItem('hd-search-history', JSON.stringify(next)) } catch { /* пустяк */ }
+  if (el && !el.contains(e.target as Node)) open.value = false
 }
 
 // Enter и «отправить» — вопрос ИИ-агенту. Страницу из результатов выбирают кликом.
 function submit() {
   const q = query.value.trim()
   if (q.length < 2) return
-  remember(q)
   openChat(q)
   close()
 }
 
-function pick(item: string) { query.value = item }
-function close() { historyOpen.value = false; query.value = '' }
+function close() { open.value = false; query.value = '' }
 </script>
 
 <style scoped>

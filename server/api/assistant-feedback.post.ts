@@ -1,6 +1,7 @@
 /**
- * Оценка ответа чата («полезно / не помогло») → приёмник отзывов skills-standard/feedback,
- * категория RATING. Браузер приёмник не видит: адрес и токен — в окружении сайта.
+ * Оценка ответа чата или статьи («полезно / не помогло») → приёмник отзывов
+ * skills-standard/feedback, категория RATING. Статья — kind: 'article', с ней может прийти
+ * comment («чего не хватило»). Браузер приёмник не видит: адрес и токен — в окружении сайта.
  *
  *   BXSHEF_FEEDBACK_URL    адрес приёмника (без /feedback); пусто — оценки не отправляются (204)
  *   BXSHEF_FEEDBACK_TOKEN  токен, если приёмник требует его на отправку (FEEDBACK_TOKEN)
@@ -21,20 +22,24 @@ export default defineEventHandler(async (event) => {
   const cut = (s: unknown, n: number) => String(s ?? '').trim().slice(0, n)
   const question = cut(b.question, 2000)
   const answer = cut(b.answer, 6000)
-  const body = rating === -1 && (question || answer)
+  const article = b.kind === 'article'
+  const comment = cut(b.comment, 2000)
+  const body = article
+    ? `${rating === 1 ? 'Статья помогла.' : 'Статья не помогла.'}${comment ? `\n\n${comment}` : ''}`
+    : rating === -1 && (question || answer)
     ? `Не помогло.\n\nВопрос: ${question || '—'}\n\nОтвет: ${answer || '—'}`
     : rating === 1 ? 'Оценка: полезно.' : 'Оценка: не помогло, без текста.'
 
   const ticket = {
     category: 'RATING',
-    title: rating === 1 ? 'Чат: полезно' : 'Чат: не помогло',
+    title: `${article ? 'Статья' : 'Чат'}: ${rating === 1 ? 'полезно' : 'не помогло'}`,
     body,
     context: {
       skill: SOURCE,
       rating,
-      model: chatConfig().model,
+      model: article ? undefined : chatConfig().model,
       page: pathOf(b.page) || undefined,
-      sources: Array.isArray(b.sources) ? b.sources.slice(0, 10).map(pathOf).filter(Boolean) : undefined,
+      sources: !article && Array.isArray(b.sources) ? b.sources.slice(0, 10).map(pathOf).filter(Boolean) : undefined,
     },
   }
   const token = process.env.BXSHEF_FEEDBACK_TOKEN

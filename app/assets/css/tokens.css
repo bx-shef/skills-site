@@ -44,8 +44,7 @@
 
   /* --- Раскладка --- */
   --hd-header-height:  59px;
-  --hd-sidebar-width:  66px;    /* узкое меню-иконки: иконка 30 + по 18 с боков */
-  --hd-sidebar-open:   280px;   /* раскрытое меню */
+  --hd-sidebar-width:  260px;   /* колонка меню (B24DashboardSidebar); свёрнутая — 64px, см. layout.css */
   --hd-main-max:       1440px;  /* вся страница по центру */
   --hd-content-max:    1018px;  /* обычная страница */
   --hd-article-max:    1175px;  /* статья вместе с оглавлением */

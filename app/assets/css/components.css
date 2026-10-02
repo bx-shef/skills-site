@@ -137,7 +137,7 @@
 .hd-search-star { flex: 0 0 auto; width: 18px; height: 18px; }
 
 /* кнопки — B24Button: только место в строке */
-.hd-search-history-toggle, .hd-search-send { flex: 0 0 auto; }
+.hd-search-send { flex: 0 0 auto; }
 
 /* Первый экран: белая плашка 16px с тенью, аватар 44px, поле с голубой рамкой, круглая кнопка */
 .hd-search-wrap--hero { max-width: 791px; margin: 0 auto; }
@@ -600,10 +600,7 @@
 
 /* --- Левое меню ---------------------------------------------------------- */
 
-.sidebar-menu__panel { display: flex; flex-direction: column; justify-content: space-between; min-height: 100%; gap: 12px; }
 /* пункты — B24NavigationMenu (vertical, collapsed пока панель не раскрыта); здесь только место */
-.sidebar-menu__nav { min-width: 0; }
-.sidebar-menu__support { border-top: 1px solid var(--hd-line); padding-top: 8px; }
 
 /* --- Иконки шапки: ИИ, тема, GitHub ------------------------------------- */
 .hd-header-icon {
@@ -628,7 +625,5 @@
   .hd-hero-glow { display: none; }
   .hd-header-actions .hd-header-icon:not(:first-child) { display: none; }
 }
-/* иконки свёрнутого меню — по центру колонки; раскрытое меню не сдвигает их */
-.sidebar-menu__panel :is(a, button)[data-slot="link"] { padding-inline-start: calc((var(--hd-sidebar-width) - 16px - 26px) / 2); }
 /* текущая страница в крошках — не ссылка: без цвета ссылки и подчёркивания */
 .hd-breadcrumbs span[data-slot="link"] { color: var(--hd-text-secondary); text-decoration: none; cursor: default; }
