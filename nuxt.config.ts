@@ -26,7 +26,9 @@ export default defineNuxtConfig({
     build: {
       markdown: {
         toc: { depth: 3, searchDepth: 3 },
-        highlight: { theme: { default: 'github-light', dark: 'github-dark' } },
+        // light задан явно: иначе при классе .light на <html> берётся бледная material-theme-lighter по умолчанию;
+        // high-contrast — потому что обычные github-* на подложке блока кода не дотягивают до 4.5:1
+        highlight: { theme: { default: 'github-light-high-contrast', light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' } },
       },
     },
   },
