@@ -5,48 +5,20 @@
   Пункты — разделы и страницы из навигации контента.
 -->
 <template>
-  <div class="sidebar-menu__panel">
-    <nav class="sidebar-menu__nav" aria-label="Меню сайта">
-      <NuxtLink
-        v-for="item in visible"
-        :key="item.path"
-        :to="item.path"
-        class="sidebar-menu__item"
-        :class="{ 'is-active': isActive(item.path) }"
-        :title="item.title"
-      >
-        <span class="sidebar-menu__icon-wrapper" aria-hidden="true"><HdIcon :name="item.icon" class="sidebar-menu__icon" /></span>
-        <span class="sidebar-menu__item-text">{{ item.title }}</span>
-      </NuxtLink>
-
-      <button v-if="hidden.length" type="button" class="sidebar-menu__item sidebar-menu__show-all-btn" @click="all = !all">
-        <span class="sidebar-menu__item-text">{{ all ? 'Свернуть' : 'Показать все' }}</span>
-        <span class="sidebar-menu__icon-wrapper" aria-hidden="true">
-          <svg class="sidebar-menu__show-all-icon" :class="{ 'is-open': all }" width="16" height="9" viewBox="0 0 16 9" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.8 8.8c.27.27.72.27.99 0l7-7a.7.7 0 0 0-.99-.99L8.3 7.31 1.8.8a.7.7 0 0 0-.99.99l7 7Z" fill="currentColor" /></svg>
-        </span>
-      </button>
-
-      <template v-if="all">
-        <NuxtLink
-          v-for="item in hidden"
-          :key="item.path"
-          :to="item.path"
-          class="sidebar-menu__item"
-          :class="{ 'is-active': isActive(item.path) }"
-          :title="item.title"
-        >
-          <span class="sidebar-menu__icon-wrapper" aria-hidden="true"><HdIcon :name="item.icon" class="sidebar-menu__icon" /></span>
-          <span class="sidebar-menu__item-text">{{ item.title }}</span>
-        </NuxtLink>
-      </template>
-    </nav>
-
-    <div class="sidebar-menu__support">
-      <button type="button" class="sidebar-menu__item" title="Поддержка" @click="openChat()">
-        <span class="sidebar-menu__icon-wrapper" aria-hidden="true"><HdIcon name="help" class="sidebar-menu__icon sidebar-menu__support-icon" /></span>
-        <span class="sidebar-menu__item-text">Поддержка</span>
-      </button>
-    </div>
+  <div class="sidebar-menu__panel" @mouseenter="hover = true" @mouseleave="hover = false" @focusin="hover = true" @focusout="hover = false">
+    <B24NavigationMenu
+      orientation="vertical"
+      :collapsed="!hover"
+      :items="navItems"
+      class="sidebar-menu__nav"
+      aria-label="Меню сайта"
+    />
+    <B24NavigationMenu
+      orientation="vertical"
+      :collapsed="!hover"
+      :items="[{ label: 'Поддержка', icon: icon('help'), onSelect: () => openChat() }]"
+      class="sidebar-menu__support"
+    />
   </div>
 </template>
 
@@ -57,6 +29,8 @@ const route = useRoute()
 const { openChat } = useHdChat()
 const navigation = inject<Ref<ContentNavigationItem[]>>('navigation', ref([]))
 const all = ref(false)
+// панель узкая (иконки), по наведению или фокусу раскрывается с подписями — B24NavigationMenu collapsed
+const hover = ref(false)
 
 const icons: Record<string, string> = {
   '/methodology': 'knowledge',
@@ -93,4 +67,11 @@ const activePath = computed(() => items.value
   .filter(p => route.path === p || route.path.startsWith(p + '/'))
   .sort((a, b) => b.length - a.length)[0])
 const isActive = (path: string) => path === activePath.value
+
+const toNav = (i: { path: string, title: string, icon: string }) => ({ label: i.title, icon: icon(i.icon), to: i.path, active: isActive(i.path) })
+const navItems = computed(() => [
+  ...visible.value.map(toNav),
+  ...(hidden.value.length ? [{ label: all.value ? 'Свернуть' : 'Показать все', icon: icon(all.value ? 'chevron-up' : 'chevron-down'), onSelect: (e: Event) => { e.preventDefault(); all.value = !all.value } }] : []),
+  ...(all.value ? hidden.value.map(toNav) : []),
+])
 </script>
