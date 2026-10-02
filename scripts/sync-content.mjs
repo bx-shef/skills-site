@@ -59,7 +59,6 @@ const stdPages = [
   ['4.action.md', 'action/README.md', 'GitHub Action', 'тот же lint + eval в любом репозитории навыков'],
   ['5.template.md', 'template/README.md', 'Заготовка репозитория', 'с чего начать автору модуля'],
   ['6.feedback.md', 'feedback/README.md', 'Приёмник отзывов', 'куда уходят отзывы ИИ-агентов'],
-  ['7.feedback-vibecode.md', 'feedback/VIBECODE.md', 'Приёмник на Вайбкод Black Hole', 'выкладка приёмника без своего сервера'],
 ]
 write('1.methodology/.navigation.yml', 'title: Методология\nicon: ruler\n')
 write('1.methodology/index.md', page(read(path.join(std, 'README.md')) || '# bxshef', { title: 'bxshef: методология и проверка навыков', description: 'Как писать и проверять навыки ИИ-агентов для Битрикса', source: gh('skills-standard', 'README.md') }))
